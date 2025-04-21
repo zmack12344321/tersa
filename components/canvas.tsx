@@ -29,7 +29,49 @@ export const Canvas = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
-  // Helper function to recursively traverse connections
+  // Helper function to find only downstream transform nodes (one-way traversal)
+  const findDownstreamTransformNodes = useCallback(
+    (nodeId: string, visited: Set<string>) => {
+      const transformNodeIds = new Set<string>();
+
+      // Prevent cycles
+      if (visited.has(nodeId)) {
+        return transformNodeIds;
+      }
+
+      visited.add(nodeId);
+
+      // Find the current node
+      const currentNode = nodes.find((n) => n.id === nodeId);
+
+      // If current node is a transform node, add it to our set
+      if (currentNode?.type === 'transform') {
+        transformNodeIds.add(nodeId);
+      }
+
+      // Find all edges where this node is the source (outgoing edges only)
+      const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
+
+      // Process outgoing connections only (downstream)
+      for (const edge of outgoingEdges) {
+        // Continue traversing from this target node
+        const childTransformNodes = findDownstreamTransformNodes(
+          edge.target,
+          visited
+        );
+        if (childTransformNodes) {
+          for (const id of childTransformNodes) {
+            transformNodeIds.add(id);
+          }
+        }
+      }
+
+      return transformNodeIds;
+    },
+    [nodes, edges]
+  );
+
+  // Helper function to recursively traverse connections (bidirectional - keep for node/edge changes)
   const findTransformNodes = useCallback(
     (nodeId: string, visited: Set<string>) => {
       const transformNodeIds = new Set<string>();
@@ -114,15 +156,16 @@ export const Canvas = () => {
         }
       }
 
-      // Traverse each node and check if it has a transform node anywhere in the hierarchy
+      // Traverse each node and check for downstream transform nodes
       const transformNodeIds = new Set<string>();
 
       // Start traversal from each changed node
       for (const nodeId of Array.from(changedNodeIds)) {
-        const foundTransformNodes = findTransformNodes(
+        const foundTransformNodes = findDownstreamTransformNodes(
           nodeId,
           new Set<string>()
         );
+
         if (foundTransformNodes) {
           for (const id of foundTransformNodes) {
             transformNodeIds.add(id);
@@ -135,7 +178,7 @@ export const Canvas = () => {
         console.log(Array.from(transformNodeIds), 'onNodesChange');
       }
     },
-    [findTransformNodes]
+    [findDownstreamTransformNodes]
   );
 
   const onEdgesChange = useCallback(
@@ -143,31 +186,52 @@ export const Canvas = () => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
 
       // Filter relevant changes
-      const changedNodeIds = new Set<string>();
+      const changedEdgeIds = new Set<string>();
 
       for (const change of changes) {
         if (change.type === 'add' && change.item.id) {
-          changedNodeIds.add(change.item.id);
+          changedEdgeIds.add(change.item.id);
         }
 
         if (change.type === 'remove' && change.id) {
-          changedNodeIds.add(change.id);
+          changedEdgeIds.add(change.id);
         }
 
         if (change.type === 'replace' && change.item.id) {
-          changedNodeIds.add(change.item.id);
+          changedEdgeIds.add(change.item.id);
         }
       }
 
-      // Traverse each node and check if it has a transform node anywhere in the hierarchy
+      // For edge changes, we need to find the target nodes of each changed edge
+      const changedTargetNodeIds = new Set<string>();
+
+      // Get all edges in current state (after applying changes)
+      const currentEdges = applyEdgeChanges(changes, edges);
+
+      // For each changed edge, find the target node
+      for (const edgeId of Array.from(changedEdgeIds)) {
+        // Find the edge in the current state
+        const changedEdge = currentEdges.find((edge) => edge.id === edgeId);
+
+        // For removed edges, the edge won't be in currentEdges,
+        // so we need to check the original edges
+        const edge = changedEdge || edges.find((edge) => edge.id === edgeId);
+
+        if (edge?.target) {
+          changedTargetNodeIds.add(edge.target);
+        }
+      }
+
+      // Traverse each affected target node and check for downstream transform nodes
       const transformNodeIds = new Set<string>();
 
-      // Start traversal from each changed node
-      for (const nodeId of Array.from(changedNodeIds)) {
-        const foundTransformNodes = findTransformNodes(
+      // Start traversal from each affected target node
+      for (const nodeId of Array.from(changedTargetNodeIds)) {
+        const foundTransformNodes = findDownstreamTransformNodes(
           nodeId,
           new Set<string>()
         );
+
         if (foundTransformNodes) {
           for (const id of foundTransformNodes) {
             transformNodeIds.add(id);
@@ -180,32 +244,24 @@ export const Canvas = () => {
         console.log(Array.from(transformNodeIds), 'onEdgesChange');
       }
     },
-    [findTransformNodes]
+    [edges, findDownstreamTransformNodes]
   );
 
   const onConnect = useCallback(
     (params: Connection) => {
       setEdges((eds) => addEdge(params, eds));
 
-      // Check if the target node is a transform node
-      const targetNode = nodes.find((n) => n.id === params.target);
-      const sourceNode = nodes.find((n) => n.id === params.source);
-
       // Create a set to store all affected transform nodes
       const transformNodeIds = new Set<string>();
 
-      // If target is a transform node, add it to our set
+      // First check if the target itself is a transform node
+      const targetNode = nodes.find((n) => n.id === params.target);
       if (targetNode?.type === 'transform') {
         transformNodeIds.add(params.target);
       }
 
-      // If source is a transform node, add it to our set
-      if (sourceNode?.type === 'transform') {
-        transformNodeIds.add(params.source);
-      }
-
-      // Check transform nodes in the hierarchy (both directions)
-      const foundTransformNodes = findTransformNodes(
+      // Then find all downstream transform nodes from the target
+      const foundTransformNodes = findDownstreamTransformNodes(
         params.target,
         new Set<string>()
       );
@@ -222,7 +278,7 @@ export const Canvas = () => {
         console.log(Array.from(transformNodeIds), 'onConnect');
       }
     },
-    [findTransformNodes, nodes]
+    [findDownstreamTransformNodes, nodes]
   );
 
   return (
