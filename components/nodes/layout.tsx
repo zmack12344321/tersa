@@ -77,7 +77,7 @@ export const NodeLayout = ({
           <TrashIcon size={12} />
         </Button>
       </NodeToolbar>
-      <NodeResizeControl minWidth={300} minHeight={162} />
+      <NodeResizeControl minWidth={400} minHeight={170} />
       <Handle type="target" position={Position.Left} />
       <div className="flex h-full flex-col divide-y">
         <div className="flex shrink-0 items-center justify-between rounded-t-lg bg-secondary px-4 py-3">
