@@ -14,7 +14,9 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
 } from '@xyflow/react';
+import { PlusIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { Button } from './ui/button';
 
 export const Canvas = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -58,10 +60,19 @@ export const Canvas = () => {
     >
       <Controls />
       <Background />
-      <Panel position="bottom-center">
-        <button onClick={addNode} type="button">
-          Add Node
-        </button>
+      <Panel
+        position="bottom-center"
+        className="flex items-center gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
+      >
+        <Button
+          onClick={addNode}
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+        >
+          <PlusIcon size={16} />
+        </Button>
       </Panel>
     </ReactFlow>
   );
