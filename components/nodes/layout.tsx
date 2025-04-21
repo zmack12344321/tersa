@@ -10,7 +10,7 @@ import {
   Position,
   useReactFlow,
 } from '@xyflow/react';
-import { ChevronsUpDownIcon, TrashIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, EyeIcon, TrashIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../ui/button';
 
@@ -29,11 +29,27 @@ export const NodeLayout = ({
   data,
   action,
 }: NodeLayoutProps) => {
-  const { deleteElements } = useReactFlow();
+  const { deleteElements, setCenter, getNode } = useReactFlow();
 
   const handleDelete = () => {
     deleteElements({
       nodes: [{ id }],
+    });
+  };
+
+  const handleFocus = () => {
+    const node = getNode(id);
+
+    if (!node) {
+      return;
+    }
+
+    const { x, y } = node.position;
+    const width = node.measured?.width ?? 0;
+    const height = node.measured?.height ?? 0;
+
+    setCenter(x + width / 2, y + height / 2, {
+      duration: 1000,
     });
   };
 
@@ -48,6 +64,14 @@ export const NodeLayout = ({
           variant="ghost"
           size="icon"
           className="rounded-full"
+          onClick={handleFocus}
+        >
+          <EyeIcon size={12} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-destructive/10 hover:text-destructive"
           onClick={handleDelete}
         >
           <TrashIcon size={12} />
