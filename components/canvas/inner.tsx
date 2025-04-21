@@ -1,22 +1,27 @@
 'use client';
-
 import {
   Background,
   type Connection,
   Controls,
   type Edge,
   type EdgeChange,
+  type FinalConnectionState,
   type Node,
   type NodeChange,
   ReactFlow,
+  type XYPosition,
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
   useReactFlow,
 } from '@xyflow/react';
+import { BrainIcon, VideoIcon } from 'lucide-react';
+import { ImageIcon } from 'lucide-react';
+import { TextIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useCallback, useState } from 'react';
 import { Auth } from '../auth';
+import { DropConnect } from '../drop-connect';
 import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
 import { TransformNode } from '../nodes/transform';
@@ -32,13 +37,14 @@ const nodeTypes = {
 export const CanvasInner = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const reactFlowInstance = useReactFlow();
+  const [dropPosition, setDropPosition] = useState<XYPosition | null>(null);
+  const { getEdges } = useReactFlow();
 
   // Helper function to find only downstream transform nodes (one-way traversal)
   const findDownstreamTransformNodes = useCallback(
     (nodeId: string, visited: Set<string>) => {
       // Get the latest edges directly from ReactFlow
-      const currentEdges = reactFlowInstance.getEdges();
+      const currentEdges = getEdges();
       const transformNodeIds = new Set<string>();
 
       // Prevent cycles
@@ -77,13 +83,13 @@ export const CanvasInner = () => {
 
       return transformNodeIds;
     },
-    [nodes, reactFlowInstance]
+    [nodes, getEdges]
   );
 
   const getUpstreamTexts = useCallback(
     (nodeId: string, visited = new Set<string>()) => {
       // Get the latest edges directly from ReactFlow
-      const currentEdges = reactFlowInstance.getEdges();
+      const currentEdges = getEdges();
 
       // Prevent cycles
       if (visited.has(nodeId)) {
@@ -98,12 +104,8 @@ export const CanvasInner = () => {
         (edge) => edge.target === nodeId
       );
 
-      console.log('Incoming edges:', currentEdges, incomingEdges);
-
       for (const edge of incomingEdges) {
         const sourceNode = nodes.find((node) => node.id === edge.source);
-
-        console.log('Source node:', sourceNode);
 
         // If the source is a text node, add its content
         if (
@@ -120,7 +122,7 @@ export const CanvasInner = () => {
 
       return upstreamTexts;
     },
-    [nodes, reactFlowInstance]
+    [nodes, getEdges]
   );
 
   const updateTransformNode = useCallback(
@@ -131,13 +133,6 @@ export const CanvasInner = () => {
       const node = nodes.find((n) => n.id === nodeId);
 
       if (node?.type === 'transform') {
-        console.log(
-          'Transform node found:',
-          node.id,
-          'with upstream texts:',
-          upstreamTexts
-        );
-
         // Update the node data with the upstream texts
         setNodes((nds) =>
           nds.map((n) => {
@@ -161,10 +156,7 @@ export const CanvasInner = () => {
 
   const updateTransformNodes = useCallback(
     (nodeIds: Set<string>) => {
-      console.log('Updating transform nodes:', nodeIds);
-      // Process each transform node
       for (const nodeId of nodeIds) {
-        console.log('Updating transform node:', nodeId);
         updateTransformNode(nodeId);
       }
     },
@@ -306,7 +298,7 @@ export const CanvasInner = () => {
       const changedTargetNodeIds = new Set<string>();
 
       // Get all edges in current state (after applying changes)
-      const currentEdges = reactFlowInstance.getEdges();
+      const currentEdges = getEdges();
 
       // For each changed edge, find the target node
       for (const edgeId of Array.from(changedEdgeIds)) {
@@ -345,30 +337,25 @@ export const CanvasInner = () => {
         }, 0);
       }
     },
-    [
-      findDownstreamTransformNodes,
-      updateTransformNodes,
-      edges,
-      reactFlowInstance,
-    ]
+    [findDownstreamTransformNodes, updateTransformNodes, edges, getEdges]
   );
 
   const onConnect = useCallback(
-    (params: Connection) => {
-      setEdges((eds) => addEdge(params, eds));
+    (connection: Connection) => {
+      setEdges((eds) => addEdge(connection, eds));
 
       // Create a set to store all affected transform nodes
       const transformNodeIds = new Set<string>();
 
       // First check if the target itself is a transform node
-      const targetNode = nodes.find((n) => n.id === params.target);
+      const targetNode = nodes.find((n) => n.id === connection.target);
       if (targetNode?.type === 'transform') {
-        transformNodeIds.add(params.target);
+        transformNodeIds.add(connection.target);
       }
 
       // Then find all downstream transform nodes from the target
       const foundTransformNodes = findDownstreamTransformNodes(
-        params.target,
+        connection.target,
         new Set<string>()
       );
 
@@ -389,6 +376,47 @@ export const CanvasInner = () => {
     [findDownstreamTransformNodes, updateTransformNodes, nodes]
   );
 
+  const onConnectEnd = useCallback(
+    (event: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
+      // when a connection is dropped on the pane it's not valid
+
+      if (!connectionState.isValid) {
+        // we need to remove the wrapper bounds, in order to get the correct position
+        const { clientX, clientY } =
+          'changedTouches' in event ? event.changedTouches[0] : event;
+        setDropPosition({ x: clientX, y: clientY });
+      }
+    },
+    []
+  );
+
+  const buttons = [
+    {
+      id: 'text',
+      label: 'Text',
+      icon: TextIcon,
+      onClick: () => addNode('text'),
+    },
+    {
+      id: 'image',
+      label: 'Image',
+      icon: ImageIcon,
+      onClick: () => addNode('image'),
+    },
+    {
+      id: 'video',
+      label: 'Video',
+      icon: VideoIcon,
+      onClick: () => addNode('video'),
+    },
+    {
+      id: 'transform',
+      label: 'Transform',
+      icon: BrainIcon,
+      onClick: () => addNode('transform'),
+    },
+  ];
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -396,13 +424,15 @@ export const CanvasInner = () => {
       edges={edges}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
       fitView
     >
       <Controls />
       <Background />
-      <Toolbar addNode={addNode} />
+      <Toolbar addNode={addNode} buttons={buttons} />
       <Auth />
+      <DropConnect position={dropPosition} buttons={buttons} />
     </ReactFlow>
   );
 };
