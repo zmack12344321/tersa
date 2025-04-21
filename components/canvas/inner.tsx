@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Background,
   type Connection,
@@ -20,10 +21,15 @@ import { AudioWaveformIcon, BrainIcon, VideoIcon } from 'lucide-react';
 import { ImageIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { type MouseEvent as ReactMouseEvent, useCallback } from 'react';
+import {
+  type MouseEvent as ReactMouseEvent,
+  useCallback,
+  useEffect,
+} from 'react';
 import { Auth } from '../auth';
 import { ConnectionLine } from '../connection-line';
 import { AnimatedEdge } from '../edges/animated';
+import { TemporaryEdge } from '../edges/temporary';
 import { AudioNode } from '../nodes/audio';
 import { DropNode } from '../nodes/drop';
 import { ImageNode } from '../nodes/image';
@@ -43,6 +49,7 @@ const nodeTypes = {
 
 const edgeTypes = {
   animated: AnimatedEdge,
+  temporary: TemporaryEdge,
 };
 
 const MIN_DISTANCE = 150;
@@ -97,6 +104,7 @@ export const CanvasInner = () => {
             id: newNodeId,
             source: connectionState.fromNode?.id ?? '',
             target: newNodeId,
+            type: 'temporary',
           })
         );
       }
@@ -237,6 +245,14 @@ export const CanvasInner = () => {
     [getNodes, getEdges]
   );
 
+  const onConnectStart = useCallback(() => {
+    // Delete any drop nodes when starting to drag a node
+    setNodes((nds) => nds.filter((n) => n.type !== 'drop'));
+
+    // Also remove any temporary edges
+    setEdges((eds) => eds.filter((e) => e.type !== 'temporary'));
+  }, [setEdges, setNodes]);
+
   const buttons = [
     {
       id: 'text',
@@ -270,12 +286,39 @@ export const CanvasInner = () => {
     },
   ];
 
+  useEffect(() => {
+    // Add keyboard shortcut for selecting all nodes (Cmd/Ctrl + A)
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check for meta key (Cmd on Mac, Ctrl on Windows) + A
+      if ((event.metaKey || event.ctrlKey) && event.key === 'a') {
+        event.preventDefault(); // Prevent default browser select all behavior
+
+        // Select all nodes by setting their selected property to true
+        setNodes((nodes) =>
+          nodes.map((node) => ({
+            ...node,
+            selected: true,
+          }))
+        );
+      }
+    };
+
+    // Add event listener when component mounts
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Clean up event listener when component unmounts
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [setNodes]);
+
   return (
     <ReactFlow
       nodes={nodes}
       onNodesChange={onNodesChange}
       edges={edges}
       onEdgesChange={onEdgesChange}
+      onConnectStart={onConnectStart}
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}

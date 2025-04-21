@@ -12,25 +12,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import type { chatModels } from '@/lib/models';
 import { cn } from '@/lib/utils';
 import { useReactFlow } from '@xyflow/react';
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
-import { type ComponentType, useState } from 'react';
+import { useState } from 'react';
 
 type ModelSelectorProps = {
   id: string;
   value: string;
-  options: {
-    icon: ComponentType<{ className?: string }>;
-    label: string;
-    value: string;
-  }[];
+  options: typeof chatModels;
 };
 
 export const ModelSelector = ({ id, value, options }: ModelSelectorProps) => {
   const { updateNodeData } = useReactFlow();
   const [open, setOpen] = useState(false);
-  const currentOption = options.find((option) => option.value === value);
+  const currentOption = options
+    .flatMap((option) => option.models)
+    .find((model) => model.id === value);
 
   const handleChange = (value: string) => {
     updateNodeData(id, { model: value });
@@ -42,12 +41,12 @@ export const ModelSelector = ({ id, value, options }: ModelSelectorProps) => {
         <Button
           variant="outline"
           aria-expanded={open}
-          className="w-[170px] justify-between rounded-full"
+          className="w-[200px] justify-between rounded-full"
         >
           {currentOption ? (
-            <div className="flex items-center gap-2">
-              <currentOption.icon className="size-4" />
-              {currentOption.label}
+            <div className="flex items-center gap-2 overflow-hidden">
+              <currentOption.icon className="size-4 shrink-0" />
+              <span className="block truncate">{currentOption.label}</span>
             </div>
           ) : (
             'Select model...'
@@ -55,34 +54,36 @@ export const ModelSelector = ({ id, value, options }: ModelSelectorProps) => {
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[170px] p-0">
+      <PopoverContent className="w-[200px] p-0">
         <Command>
           <CommandInput placeholder="Search models..." />
           <CommandList>
             <CommandEmpty>No model found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((model) => (
-                <CommandItem
-                  key={model.value}
-                  value={model.value}
-                  onSelect={() => {
-                    handleChange(model.value);
-                    setOpen(false);
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <model.icon className="size-4" />
-                    {model.label}
-                  </div>
-                  <CheckIcon
-                    className={cn(
-                      'ml-auto size-4',
-                      value === model.value ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {options.map((option) => (
+              <CommandGroup key={option.label} heading={option.label}>
+                {option.models.map((model) => (
+                  <CommandItem
+                    key={model.id}
+                    value={model.id}
+                    onSelect={() => {
+                      handleChange(model.id);
+                      setOpen(false);
+                    }}
+                  >
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <model.icon className="size-4 shrink-0" />
+                      <span className="block truncate">{model.label}</span>
+                    </div>
+                    <CheckIcon
+                      className={cn(
+                        'ml-auto size-4',
+                        value === model.id ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))}
           </CommandList>
         </Command>
       </PopoverContent>

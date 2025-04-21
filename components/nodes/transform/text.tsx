@@ -66,11 +66,7 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
         <ModelSelector
           id={id}
           value={data.model ?? 'gpt-4'}
-          options={chatModels.map((model) => ({
-            icon: model.icon,
-            label: model.label,
-            value: model.id,
-          }))}
+          options={chatModels}
           key={id}
         />
       ),

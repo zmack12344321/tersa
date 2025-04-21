@@ -75,6 +75,7 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
         id: nanoid(),
         source: sourceNode.source,
         target: newNodeId,
+        type: 'animated',
       });
     }
   };
@@ -100,7 +101,7 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
 
   return (
     <NodeLayout id={id} data={data} type="Add a node">
-      <Command>
+      <Command className="rounded-lg">
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
