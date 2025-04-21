@@ -1,12 +1,11 @@
 import { generateVideoAction } from '@/app/actions/video';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import { useUser } from '@clerk/nextjs';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
-import { TransformSelector } from './selector';
+import { TypeSelector } from './type-selector';
 
 type TransformVideoNodeProps = {
   text?: string[];
@@ -22,7 +21,6 @@ export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [video, setVideo] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
-  const { user } = useUser();
 
   const handleGenerate = async () => {
     const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
@@ -51,16 +49,23 @@ export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
   };
 
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
-    <TransformSelector id={id} type="video" key={`${id}-selector`} />,
-    <Button
-      variant="ghost"
-      size="icon"
-      className="rounded-full"
-      onClick={handleGenerate}
-      key={`${id}-generate`}
-    >
-      <PlayIcon size={12} />
-    </Button>,
+    {
+      children: <TypeSelector id={id} type="video" key={`${id}-selector`} />,
+    },
+    {
+      tooltip: 'Generate',
+      children: (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={handleGenerate}
+          key={`${id}-generate`}
+        >
+          <PlayIcon size={12} />
+        </Button>
+      ),
+    },
   ];
 
   return (

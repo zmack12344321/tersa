@@ -7,7 +7,7 @@ import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
-import { TransformSelector } from './selector';
+import { TypeSelector } from './type-selector';
 
 type TransformImageNodeProps = {
   data: {
@@ -55,16 +55,23 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
   };
 
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
-    <TransformSelector id={id} type="image" key={`${id}-selector`} />,
-    <Button
-      variant="ghost"
-      size="icon"
-      className="rounded-full"
-      onClick={handleGenerate}
-      key={`${id}-generate`}
-    >
-      <PlayIcon size={12} />
-    </Button>,
+    {
+      children: <TypeSelector id={id} type="image" key={`${id}-selector`} />,
+    },
+    {
+      tooltip: 'Generate',
+      children: (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={handleGenerate}
+          key={`${id}-generate`}
+        >
+          <PlayIcon size={12} />
+        </Button>
+      ),
+    },
   ];
 
   return (

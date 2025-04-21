@@ -1,27 +1,88 @@
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useChat } from '@ai-sdk/react';
 import { useUser } from '@clerk/nextjs';
+import { SiOpenai } from '@icons-pack/react-simple-icons';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
-import { TransformSelector } from './selector';
+import { ModelSelector } from './model-selector';
+import { TypeSelector } from './type-selector';
 
 type TransformNodeProps = {
   text?: string[];
   data: {
+    model?: string;
     type?: string;
     updatedAt?: string;
   };
   id: string;
 };
+
+const models = [
+  {
+    icon: SiOpenai,
+    label: 'GPT-3.5 Turbo',
+    value: 'gpt-3.5-turbo',
+  },
+  {
+    icon: SiOpenai,
+    label: 'GPT-4',
+    value: 'gpt-4',
+  },
+  {
+    icon: SiOpenai,
+    label: 'GPT-4.1',
+    value: 'gpt-4.1',
+  },
+  {
+    icon: SiOpenai,
+    label: 'GPT-4.1 Mini',
+    value: 'gpt-4.1-mini',
+  },
+  {
+    icon: SiOpenai,
+    label: 'GPT-4.1 Nano',
+    value: 'gpt-4.1-nano',
+  },
+  {
+    icon: SiOpenai,
+    label: 'GPT-4o',
+    value: 'gpt-4o',
+  },
+  {
+    icon: SiOpenai,
+    label: 'GPT-4o Mini',
+    value: 'gpt-4o-mini',
+  },
+  {
+    icon: SiOpenai,
+    label: 'o1',
+    value: 'o1',
+  },
+  {
+    icon: SiOpenai,
+    label: 'o1-mini',
+    value: 'o1-mini',
+  },
+  {
+    icon: SiOpenai,
+    label: 'o3',
+    value: 'o3',
+  },
+  {
+    icon: SiOpenai,
+    label: 'o3-mini',
+    value: 'o3-mini',
+  },
+  {
+    icon: SiOpenai,
+    label: 'o4-mini',
+    value: 'o4-mini',
+  },
+];
 
 export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
@@ -56,89 +117,65 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
 
-  let action = (
-    <Button
-      size="icon"
-      variant="ghost"
-      onClick={handleGenerate}
-      className="-my-2"
-    >
-      Generate
-    </Button>
-  );
-
-  if (!user) {
-    action = (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div>
-            <Button disabled size="sm" variant="outline" className="-my-2">
-              Generate
-            </Button>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Login to generate</p>
-        </TooltipContent>
-      </Tooltip>
-    );
-  } else if (status === 'streaming') {
-    action = (
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => stop()}
-        className="-my-2"
-      >
-        Stop
-      </Button>
-    );
-  } else if (status === 'submitted') {
-    action = (
-      <Button size="sm" variant="outline" className="-my-2">
-        Regenerate
-      </Button>
-    );
-  }
-
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
-    <TransformSelector id={id} type="text" key={id} />,
+    {
+      children: <TypeSelector id={id} type="text" key={id} />,
+    },
+    {
+      children: (
+        <ModelSelector
+          id={id}
+          value={data.model ?? 'gpt-4'}
+          options={models}
+          key={id}
+        />
+      ),
+    },
   ];
 
   if (user) {
     if (status === 'streaming') {
-      toolbar.push(
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={stop}
-        >
-          <SquareIcon size={12} />
-        </Button>
-      );
+      toolbar.push({
+        tooltip: 'Stop',
+        children: (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={stop}
+          >
+            <SquareIcon size={12} />
+          </Button>
+        ),
+      });
     } else if (status === 'submitted') {
-      toolbar.push(
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={handleGenerate}
-        >
-          <RotateCcwIcon size={12} />
-        </Button>
-      );
+      toolbar.push({
+        tooltip: 'Regenerate',
+        children: (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={handleGenerate}
+          >
+            <RotateCcwIcon size={12} />
+          </Button>
+        ),
+      });
     } else {
-      toolbar.push(
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={handleGenerate}
-        >
-          <PlayIcon size={12} />
-        </Button>
-      );
+      toolbar.push({
+        tooltip: 'Generate',
+        children: (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={handleGenerate}
+          >
+            <PlayIcon size={12} />
+          </Button>
+        ),
+      });
     }
   }
 

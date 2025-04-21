@@ -7,12 +7,12 @@ import {
 } from '@/components/ui/select';
 import { useReactFlow } from '@xyflow/react';
 
-type TransformSelectorProps = {
+type TypeSelectorProps = {
   id: string;
   type: string;
 };
 
-export const TransformSelector = ({ id, type }: TransformSelectorProps) => {
+export const TypeSelector = ({ id, type }: TypeSelectorProps) => {
   const { updateNodeData } = useReactFlow();
 
   const handleChange = (value: string) => {

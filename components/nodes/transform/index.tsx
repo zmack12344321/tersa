@@ -5,7 +5,6 @@ import { TransformTextNode } from './text';
 import { TransformVideoNode } from './video';
 
 type TransformNodeProps = {
-  text?: string[];
   data: {
     text?: string[];
     type?: string;
@@ -24,12 +23,12 @@ export const TransformNode = ({ id }: TransformNodeProps) => {
 
   switch (node.data.type) {
     case 'image':
-      return <TransformImageNode data={node.data} id={id} text={[]} />;
+      return <TransformImageNode data={node.data} id={id} />;
     case 'video':
-      return <TransformVideoNode data={node.data} id={id} text={[]} />;
+      return <TransformVideoNode data={node.data} id={id} />;
     case 'speech':
-      return <TransformSpeechNode data={node.data} id={id} text={[]} />;
+      return <TransformSpeechNode data={node.data} id={id} />;
     default:
-      return <TransformTextNode data={node.data} id={id} text={[]} />;
+      return <TransformTextNode data={node.data} id={id} />;
   }
 };

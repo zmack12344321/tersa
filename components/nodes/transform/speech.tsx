@@ -5,7 +5,7 @@ import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
-import { TransformSelector } from './selector';
+import { TypeSelector } from './type-selector';
 
 type TransformSpeechNodeProps = {
   data: {
@@ -52,16 +52,23 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
   };
 
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
-    <TransformSelector id={id} type="speech" key={`${id}-selector`} />,
-    <Button
-      variant="ghost"
-      size="icon"
-      className="rounded-full"
-      onClick={handleGenerate}
-      key={`${id}-generate`}
-    >
-      <PlayIcon size={12} />
-    </Button>,
+    {
+      children: <TypeSelector id={id} type="speech" key={`${id}-selector`} />,
+    },
+    {
+      tooltip: 'Generate',
+      children: (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={handleGenerate}
+          key={`${id}-generate`}
+        >
+          <PlayIcon size={12} />
+        </Button>
+      ),
+    },
   ];
 
   return (
