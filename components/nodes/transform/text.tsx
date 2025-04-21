@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useChat } from '@ai-sdk/react';
 import { useUser } from '@clerk/nextjs';
-import { useReactFlow } from '@xyflow/react';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
@@ -16,7 +16,6 @@ import { TransformSelector } from './selector';
 type TransformNodeProps = {
   text?: string[];
   data: {
-    text?: string[];
     type?: string;
     updatedAt?: string;
   };
@@ -24,7 +23,7 @@ type TransformNodeProps = {
 };
 
 export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
-  const { updateNodeData } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     onError: (error) => toast.error(error.message),
     onFinish: () => {
@@ -35,17 +34,22 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
     },
   });
   const { user } = useUser();
-  const prompt = data.text?.join('\n');
 
   const handleGenerate = () => {
-    if (!prompt) {
+    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
+    const prompts = incomers
+      .map((incomer) => getNode(incomer.id)?.data.text)
+      .filter(Boolean);
+
+    if (!prompts.length) {
+      toast.error('No prompts found');
       return;
     }
 
     setMessages([]);
     append({
       role: 'user',
-      content: prompt,
+      content: prompts.join('\n'),
     });
   };
 
@@ -74,21 +78,6 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
         </TooltipTrigger>
         <TooltipContent>
           <p>Login to generate</p>
-        </TooltipContent>
-      </Tooltip>
-    );
-  } else if (!prompt) {
-    action = (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div>
-            <Button disabled size="sm" variant="outline" className="-my-2">
-              Generate
-            </Button>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Connect a text node to generate</p>
         </TooltipContent>
       </Tooltip>
     );
