@@ -1,10 +1,17 @@
+import { NodeLayout } from '@/components/nodes/layout';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useChat } from '@ai-sdk/react';
 import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
-import { Button } from '../ui/button';
-import { NodeLayout } from './layout';
 
 type TransformNodeProps = {
   text?: string[];
@@ -16,7 +23,7 @@ type TransformNodeProps = {
   id: string;
 };
 
-export const TransformNode = ({ data, id, text }: TransformNodeProps) => {
+export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   const { updateNodeData } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     onError: (error) => toast.error(error.message),
@@ -69,7 +76,28 @@ export const TransformNode = ({ data, id, text }: TransformNodeProps) => {
   }
 
   return (
-    <NodeLayout id={id} data={data} type="Transform" action={action}>
+    <NodeLayout
+      id={id}
+      data={data}
+      type="Transform"
+      action={
+        <div className="flex items-center gap-2">
+          <Select
+            value={data.type}
+            onValueChange={(value) => updateNodeData(id, { type: value })}
+          >
+            <SelectTrigger size="sm" className="bg-background">
+              <SelectValue placeholder="Select a type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="text">Text</SelectItem>
+              <SelectItem value="image">Image</SelectItem>
+            </SelectContent>
+          </Select>
+          {action}
+        </div>
+      }
+    >
       <div className="p-4">
         {!nonUserMessages.length && status === 'streaming' && (
           <div className="flex items-center justify-center">
