@@ -1,6 +1,6 @@
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { Panel } from '@xyflow/react';
-import { ImageIcon, VideoIcon } from 'lucide-react';
+import { BrainIcon, ImageIcon, VideoIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
@@ -25,6 +25,11 @@ export const Toolbar = ({ addNode }: ToolbarProps) => {
       id: 'video',
       icon: VideoIcon,
       onClick: () => addNode('video'),
+    },
+    {
+      id: 'transform',
+      icon: BrainIcon,
+      onClick: () => addNode('transform'),
     },
   ];
 

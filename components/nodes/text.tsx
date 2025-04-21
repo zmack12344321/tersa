@@ -1,4 +1,5 @@
 import { EditorProvider } from '@/components/ui/kibo-ui/editor';
+import { cn } from '@/lib/utils';
 import type { Editor, JSONContent } from '@tiptap/core';
 import { Handle, Position } from '@xyflow/react';
 import { type ChangeEvent, useCallback, useState } from 'react';
@@ -22,16 +23,20 @@ export const TextNode = ({ data }: { data: TextNodeData }) => {
 
   return (
     <>
-      <Handle type="target" position={Position.Top} />
-      <div className="rounded-md border bg-card p-4">
+      <Handle type="target" position={Position.Left} />
+      <div className="p-4">
         <EditorProvider
           content={content}
           placeholder="Start typing..."
-          className="prose dark:prose-invert size-full"
+          className={cn(
+            'prose dark:prose-invert size-full',
+            '[&_p:first-child]:mt-0',
+            '[&_p:last-child]:mb-0'
+          )}
           onUpdate={handleUpdate}
         />
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Right} />
     </>
   );
 };

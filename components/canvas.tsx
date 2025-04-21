@@ -16,11 +16,13 @@ import {
 import { useCallback, useState } from 'react';
 import { ImageNode } from './nodes/image';
 import { TextNode } from './nodes/text';
+import { TransformNode } from './nodes/transform';
 import { Toolbar } from './toolbar';
 
 const nodeTypes = {
   image: ImageNode,
   text: TextNode,
+  transform: TransformNode,
 };
 
 export const Canvas = () => {
