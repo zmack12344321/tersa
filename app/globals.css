@@ -143,9 +143,15 @@
 
 @layer base {
   .react-flow__node {
-    @apply ring-1 ring-border rounded-lg bg-card transition-colors;
+    @apply ring-1 ring-border rounded-lg bg-card transition-colors w-md;
   }
   .react-flow__node.selected {
     @apply ring-2 ring-primary;
+  }
+  .react-flow__controls {
+    @apply flex items-center flex-col gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm
+  }
+  .react-flow__controls > button {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 rounded-full;
   }
 }

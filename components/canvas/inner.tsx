@@ -12,12 +12,15 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
+  useReactFlow,
 } from '@xyflow/react';
+import { nanoid } from 'nanoid';
 import { useCallback, useState } from 'react';
-import { ImageNode } from './nodes/image';
-import { TextNode } from './nodes/text';
-import { TransformNode } from './nodes/transform';
-import { Toolbar } from './toolbar';
+import { Auth } from '../auth';
+import { ImageNode } from '../nodes/image';
+import { TextNode } from '../nodes/text';
+import { TransformNode } from '../nodes/transform';
+import { Toolbar } from '../toolbar';
 
 const nodeTypes = {
   image: ImageNode,
@@ -25,13 +28,17 @@ const nodeTypes = {
   transform: TransformNode,
 };
 
-export const Canvas = () => {
+// Inner component with access to ReactFlow hooks
+export const CanvasInner = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const reactFlowInstance = useReactFlow();
 
   // Helper function to find only downstream transform nodes (one-way traversal)
   const findDownstreamTransformNodes = useCallback(
     (nodeId: string, visited: Set<string>) => {
+      // Get the latest edges directly from ReactFlow
+      const currentEdges = reactFlowInstance.getEdges();
       const transformNodeIds = new Set<string>();
 
       // Prevent cycles
@@ -50,7 +57,9 @@ export const Canvas = () => {
       }
 
       // Find all edges where this node is the source (outgoing edges only)
-      const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
+      const outgoingEdges = currentEdges.filter(
+        (edge) => edge.source === nodeId
+      );
 
       // Process outgoing connections only (downstream)
       for (const edge of outgoingEdges) {
@@ -68,7 +77,98 @@ export const Canvas = () => {
 
       return transformNodeIds;
     },
-    [nodes, edges]
+    [nodes, reactFlowInstance]
+  );
+
+  const getUpstreamTexts = useCallback(
+    (nodeId: string, visited = new Set<string>()) => {
+      // Get the latest edges directly from ReactFlow
+      const currentEdges = reactFlowInstance.getEdges();
+
+      // Prevent cycles
+      if (visited.has(nodeId)) {
+        return [];
+      }
+
+      visited.add(nodeId);
+      const upstreamTexts: string[] = [];
+
+      // Get all incoming edges to this node using the latest edges
+      const incomingEdges = currentEdges.filter(
+        (edge) => edge.target === nodeId
+      );
+
+      console.log('Incoming edges:', currentEdges, incomingEdges);
+
+      for (const edge of incomingEdges) {
+        const sourceNode = nodes.find((node) => node.id === edge.source);
+
+        console.log('Source node:', sourceNode);
+
+        // If the source is a text node, add its content
+        if (
+          sourceNode?.type === 'text' &&
+          typeof sourceNode.data.text === 'string'
+        ) {
+          upstreamTexts.push(sourceNode.data.text);
+        }
+
+        // Recursively get content from nodes connected to this source
+        const sourceUpstreamTexts = getUpstreamTexts(edge.source, visited);
+        upstreamTexts.push(...sourceUpstreamTexts);
+      }
+
+      return upstreamTexts;
+    },
+    [nodes, reactFlowInstance]
+  );
+
+  const updateTransformNode = useCallback(
+    (nodeId: string) => {
+      const upstreamTexts = getUpstreamTexts(nodeId);
+
+      // Get the node we need to update
+      const node = nodes.find((n) => n.id === nodeId);
+
+      if (node?.type === 'transform') {
+        console.log(
+          'Transform node found:',
+          node.id,
+          'with upstream texts:',
+          upstreamTexts
+        );
+
+        // Update the node data with the upstream texts
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id === nodeId) {
+              // Preserve existing data and add/update upstreamTexts
+              return {
+                ...n,
+                data: {
+                  ...n.data,
+                  text: upstreamTexts,
+                },
+              };
+            }
+            return n;
+          })
+        );
+      }
+    },
+    [getUpstreamTexts, nodes]
+  );
+
+  const updateTransformNodes = useCallback(
+    (nodeIds: Set<string>) => {
+      console.log('Updating transform nodes:', nodeIds);
+      // Process each transform node
+      for (const nodeId of nodeIds) {
+        console.log('Updating transform node:', nodeId);
+        updateTransformNode(nodeId);
+      }
+    },
+    [updateTransformNode]
   );
 
   // Helper function to recursively traverse connections (bidirectional - keep for node/edge changes)
@@ -126,7 +226,7 @@ export const Canvas = () => {
 
   const addNode = (type: string) => {
     const newNode: Node = {
-      id: `${nodes.length}`,
+      id: nanoid(),
       type,
       data: { label: `Node ${nodes.length + 1}` },
       position: { x: 0, y: 0 },
@@ -175,10 +275,10 @@ export const Canvas = () => {
 
       // Update transform nodes
       if (transformNodeIds.size > 0) {
-        console.log(Array.from(transformNodeIds), 'onNodesChange');
+        updateTransformNodes(transformNodeIds);
       }
     },
-    [findDownstreamTransformNodes]
+    [findDownstreamTransformNodes, updateTransformNodes]
   );
 
   const onEdgesChange = useCallback(
@@ -206,7 +306,7 @@ export const Canvas = () => {
       const changedTargetNodeIds = new Set<string>();
 
       // Get all edges in current state (after applying changes)
-      const currentEdges = applyEdgeChanges(changes, edges);
+      const currentEdges = reactFlowInstance.getEdges();
 
       // For each changed edge, find the target node
       for (const edgeId of Array.from(changedEdgeIds)) {
@@ -240,11 +340,17 @@ export const Canvas = () => {
       }
 
       if (transformNodeIds.size > 0) {
-        // Update transform nodes
-        console.log(Array.from(transformNodeIds), 'onEdgesChange');
+        setTimeout(() => {
+          updateTransformNodes(transformNodeIds);
+        }, 0);
       }
     },
-    [edges, findDownstreamTransformNodes]
+    [
+      findDownstreamTransformNodes,
+      updateTransformNodes,
+      edges,
+      reactFlowInstance,
+    ]
   );
 
   const onConnect = useCallback(
@@ -273,12 +379,14 @@ export const Canvas = () => {
         }
       }
 
-      // If we have any transform nodes affected, log them
       if (transformNodeIds.size > 0) {
-        console.log(Array.from(transformNodeIds), 'onConnect');
+        // Allow a brief delay for the edge to be added to the state
+        setTimeout(() => {
+          updateTransformNodes(transformNodeIds);
+        }, 0);
       }
     },
-    [findDownstreamTransformNodes, nodes]
+    [findDownstreamTransformNodes, updateTransformNodes, nodes]
   );
 
   return (
@@ -294,6 +402,7 @@ export const Canvas = () => {
       <Controls />
       <Background />
       <Toolbar addNode={addNode} />
+      <Auth />
     </ReactFlow>
   );
 };

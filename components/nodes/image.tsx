@@ -20,9 +20,9 @@ export const ImageNode = ({ data, id }: ImageNodeProps) => {
       <Handle type="target" position={Position.Left} />
       <div className="divide-y">
         {process.env.NODE_ENV === 'development' && (
-          <div className="p-4">
-            <code className="text-muted-foreground text-xs">{id}</code>
-          </div>
+          <p className="rounded-t-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
+            {id}
+          </p>
         )}
         <div className="p-4">
           {data.src ? (
