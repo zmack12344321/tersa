@@ -1,7 +1,7 @@
-import { Handle, Position } from '@xyflow/react';
 import Image from 'next/image';
 import { type ChangeEvent, useCallback } from 'react';
 import { Uploader } from '../uploader';
+import { NodeLayout } from './layout';
 
 type ImageNodeProps = {
   data: {
@@ -16,23 +16,14 @@ export const ImageNode = ({ data, id }: ImageNodeProps) => {
   }, []);
 
   return (
-    <>
-      <Handle type="target" position={Position.Left} />
-      <div className="divide-y">
-        {process.env.NODE_ENV === 'development' && (
-          <p className="rounded-t-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
-            {id}
-          </p>
+    <NodeLayout id={id} data={data} type="Image">
+      <div className="p-4">
+        {data.src ? (
+          <Image src={data.src} alt="Image" width={100} height={100} />
+        ) : (
+          <Uploader endpoint="/api/image/upload" />
         )}
-        <div className="p-4">
-          {data.src ? (
-            <Image src={data.src} alt="Image" width={100} height={100} />
-          ) : (
-            <Uploader endpoint="/api/image/upload" />
-          )}
-        </div>
       </div>
-      <Handle type="source" position={Position.Right} />
-    </>
+    </NodeLayout>
   );
 };

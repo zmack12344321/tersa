@@ -1,9 +1,10 @@
 import { useChat } from '@ai-sdk/react';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
+import { NodeLayout } from './layout';
 
 type TransformNodeProps = {
   text?: string[];
@@ -42,48 +43,60 @@ export const TransformNode = ({ data, id, text }: TransformNodeProps) => {
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
 
+  let action = (
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={handleGenerate}
+      className="-my-2"
+    >
+      Generate
+    </Button>
+  );
+
+  if (status === 'streaming') {
+    action = (
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => stop()}
+        className="-my-2"
+      >
+        Stop
+      </Button>
+    );
+  }
+
   return (
-    <>
-      <Handle type="target" position={Position.Left} />
-      <div className="shrink-0 grow-0 divide-y">
-        {process.env.NODE_ENV === 'development' && (
-          <p className="rounded-t-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
-            {id}
-          </p>
+    <NodeLayout id={id} data={data} type="Transform" action={action}>
+      <div className="p-4">
+        {!nonUserMessages.length && status === 'streaming' && (
+          <div className="flex items-center justify-center">
+            <Loader2Icon size={16} className="animate-spin" />
+          </div>
         )}
-        <div className="p-4">
-          {!nonUserMessages.length && status === 'streaming' && (
-            <div className="flex items-center justify-center">
-              <Loader2Icon size={16} className="animate-spin" />
-            </div>
-          )}
-          {nonUserMessages.map((message, index) => (
-            <ReactMarkdown key={index}>{message.content}</ReactMarkdown>
-          ))}
-        </div>
-        <div className="flex items-center justify-between p-4">
-          {data.updatedAt && (
+        {!nonUserMessages.length && status === 'ready' && (
+          <div className="flex items-center justify-center">
             <p className="text-muted-foreground text-sm">
-              Last updated:{' '}
-              {new Intl.DateTimeFormat('en-US', {
-                dateStyle: 'short',
-                timeStyle: 'short',
-              }).format(new Date(data.updatedAt))}
+              Press "Generate" to start
             </p>
-          )}
-          {status === 'streaming' && (
-            <Button variant="outline" onClick={() => stop()}>
-              Stop
-            </Button>
-          )}
-          {(status === 'ready' || status === 'error') && (
-            <Button variant="outline" onClick={handleGenerate}>
-              Generate
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
+        {nonUserMessages.map((message, index) => (
+          <ReactMarkdown key={index}>{message.content}</ReactMarkdown>
+        ))}
       </div>
-      <Handle type="source" position={Position.Right} />
-    </>
+      {data.updatedAt && (
+        <div className="flex items-center justify-between p-4">
+          <p className="text-muted-foreground text-sm">
+            Last updated:{' '}
+            {new Intl.DateTimeFormat('en-US', {
+              dateStyle: 'short',
+              timeStyle: 'short',
+            }).format(new Date(data.updatedAt))}
+          </p>
+        </div>
+      )}
+    </NodeLayout>
   );
 };
