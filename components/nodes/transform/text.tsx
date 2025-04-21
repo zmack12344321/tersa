@@ -35,24 +35,23 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
     },
   });
   const { user } = useUser();
+  const prompt = data.text?.join('\n');
 
   const handleGenerate = () => {
-    const text = data.text?.join('\n');
-
-    if (!text) {
+    if (!prompt) {
       return;
     }
 
     setMessages([]);
     append({
       role: 'user',
-      content: text,
+      content: prompt,
     });
   };
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
 
-  let action = user ? (
+  let action = (
     <Button
       size="sm"
       variant="outline"
@@ -61,22 +60,39 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
     >
       Generate
     </Button>
-  ) : (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div>
-          <Button disabled size="sm" variant="outline" className="-my-2">
-            Generate
-          </Button>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Login to generate</p>
-      </TooltipContent>
-    </Tooltip>
   );
 
-  if (status === 'streaming') {
+  if (!user) {
+    action = (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div>
+            <Button disabled size="sm" variant="outline" className="-my-2">
+              Generate
+            </Button>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Login to generate</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  } else if (!prompt) {
+    action = (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div>
+            <Button disabled size="sm" variant="outline" className="-my-2">
+              Generate
+            </Button>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Connect a text node to generate</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  } else if (status === 'streaming') {
     action = (
       <Button
         size="sm"
@@ -85,6 +101,12 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
         className="-my-2"
       >
         Stop
+      </Button>
+    );
+  } else if (status === 'submitted') {
+    action = (
+      <Button size="sm" variant="outline" className="-my-2">
+        Regenerate
       </Button>
     );
   }
