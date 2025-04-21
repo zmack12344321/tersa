@@ -27,7 +27,7 @@ export const TextNode = ({ data }: { data: TextNodeData }) => {
         <EditorProvider
           content={content}
           placeholder="Start typing..."
-          className="size-full"
+          className="prose size-full"
           onUpdate={handleUpdate}
         />
       </div>
