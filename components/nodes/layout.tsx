@@ -8,8 +8,9 @@ import {
   NodeResizeControl,
   NodeToolbar,
   Position,
+  useReactFlow,
 } from '@xyflow/react';
-import { ChevronsUpDownIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, TrashIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../ui/button';
 
@@ -27,39 +28,57 @@ export const NodeLayout = ({
   id,
   data,
   action,
-}: NodeLayoutProps) => (
-  <>
-    <NodeToolbar
-      isVisible={data?.forceToolbarVisible || undefined}
-      position={data?.toolbarPosition}
-    >
-      <p>Hello i am a toolbar</p>
-    </NodeToolbar>
-    <NodeResizeControl minWidth={300} minHeight={162} />
-    <Handle type="target" position={Position.Left} />
-    <div className="flex h-full flex-col divide-y">
-      <div className="flex shrink-0 items-center justify-between rounded-t-lg bg-secondary px-4 py-3">
-        <p className="text-sm">{type}</p>
-        {action}
+}: NodeLayoutProps) => {
+  const { deleteElements } = useReactFlow();
+
+  const handleDelete = () => {
+    deleteElements({
+      nodes: [{ id }],
+    });
+  };
+
+  return (
+    <>
+      <NodeToolbar
+        isVisible={data?.forceToolbarVisible || undefined}
+        position={data?.toolbarPosition}
+        className="flex items-center gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={handleDelete}
+        >
+          <TrashIcon size={12} />
+        </Button>
+      </NodeToolbar>
+      <NodeResizeControl minWidth={300} minHeight={162} />
+      <Handle type="target" position={Position.Left} />
+      <div className="flex h-full flex-col divide-y">
+        <div className="flex shrink-0 items-center justify-between rounded-t-lg bg-secondary px-4 py-3">
+          <p className="text-sm">{type}</p>
+          {action}
+        </div>
+        <div className="flex-1">{children}</div>
+        {process.env.NODE_ENV === 'development' && (
+          <Collapsible className="shrink-0 rounded-b-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm">{id}</p>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <ChevronsUpDownIcon className="h-4 w-4" />
+                  <span className="sr-only">Toggle</span>
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <pre>{JSON.stringify(data, null, 2)}</pre>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </div>
-      <div className="flex-1">{children}</div>
-      {process.env.NODE_ENV === 'development' && (
-        <Collapsible className="shrink-0 rounded-b-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-sm">{id}</p>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <ChevronsUpDownIcon className="h-4 w-4" />
-                <span className="sr-only">Toggle</span>
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
-          </CollapsibleContent>
-        </Collapsible>
-      )}
-    </div>
-    <Handle type="source" position={Position.Right} />
-  </>
-);
+      <Handle type="source" position={Position.Right} />
+    </>
+  );
+};
