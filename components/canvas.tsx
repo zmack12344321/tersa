@@ -14,18 +14,25 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
 } from '@xyflow/react';
-import { PlusIcon } from 'lucide-react';
+import { ImageIcon, TextIcon, VideoIcon } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { ImageNode } from './nodes/image';
+import { TextNode } from './nodes/text';
 import { Button } from './ui/button';
+
+const nodeTypes = {
+  image: ImageNode,
+  text: TextNode,
+};
 
 export const Canvas = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
-  const addNode = () => {
+  const addNode = (type: string) => {
     const newNode: Node = {
       id: `${nodes.length}`,
-      type: 'default',
+      type,
       data: { label: `Node ${nodes.length + 1}` },
       position: { x: 0, y: 0 },
     };
@@ -49,6 +56,21 @@ export const Canvas = () => {
     []
   );
 
+  const addButtons = [
+    {
+      icon: TextIcon,
+      onClick: () => addNode('text'),
+    },
+    {
+      icon: ImageIcon,
+      onClick: () => addNode('image'),
+    },
+    {
+      icon: VideoIcon,
+      onClick: () => addNode('video'),
+    },
+  ];
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -56,6 +78,7 @@ export const Canvas = () => {
       edges={edges}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      nodeTypes={nodeTypes}
       fitView
     >
       <Controls />
@@ -64,15 +87,18 @@ export const Canvas = () => {
         position="bottom-center"
         className="flex items-center gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
       >
-        <Button
-          onClick={addNode}
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-        >
-          <PlusIcon size={16} />
-        </Button>
+        {addButtons.map((button) => (
+          <Button
+            key={button.icon.name}
+            onClick={button.onClick}
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+          >
+            <button.icon size={16} />
+          </Button>
+        ))}
       </Panel>
     </ReactFlow>
   );
