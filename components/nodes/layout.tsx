@@ -3,7 +3,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, NodeResizeControl, Position } from '@xyflow/react';
 import { ChevronsUpDownIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../ui/button';
@@ -24,15 +24,16 @@ export const NodeLayout = ({
   action,
 }: NodeLayoutProps) => (
   <>
+    <NodeResizeControl minWidth={300} minHeight={162} />
     <Handle type="target" position={Position.Left} />
-    <div className="divide-y">
-      <div className="flex items-center justify-between rounded-t-lg bg-secondary px-4 py-3">
+    <div className="flex h-full flex-col divide-y">
+      <div className="flex shrink-0 items-center justify-between rounded-t-lg bg-secondary px-4 py-3">
         <p className="text-sm">{type}</p>
         {action}
       </div>
-      {children}
+      <div className="flex-1">{children}</div>
       {process.env.NODE_ENV === 'development' && (
-        <Collapsible className="rounded-b-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
+        <Collapsible className="shrink-0 rounded-b-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
           <div className="flex items-center justify-between gap-4">
             <p className="text-sm">{id}</p>
             <CollapsibleTrigger asChild>
