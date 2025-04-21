@@ -7,7 +7,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useChat } from '@ai-sdk/react';
+import { useUser } from '@clerk/nextjs';
 import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -34,6 +40,7 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
       });
     },
   });
+  const { user } = useUser();
 
   const handleGenerate = () => {
     const text = data.text?.join('\n');
@@ -51,7 +58,7 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
 
-  let action = (
+  let action = user ? (
     <Button
       size="sm"
       variant="outline"
@@ -60,6 +67,19 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
     >
       Generate
     </Button>
+  ) : (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div>
+          <Button disabled size="sm" variant="outline" className="-my-2">
+            Generate
+          </Button>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Login to generate</p>
+      </TooltipContent>
+    </Tooltip>
   );
 
   if (status === 'streaming') {

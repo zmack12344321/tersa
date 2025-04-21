@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { ClerkProvider } from '@clerk/nextjs';
 import type { ReactNode } from 'react';
 import { Toaster } from 'sonner';
@@ -30,7 +31,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster className="z-[99999999]" />
       </body>
     </html>
