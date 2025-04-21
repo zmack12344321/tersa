@@ -28,6 +28,7 @@ import {
 } from 'react';
 import { Auth } from '../auth';
 import { DropConnect } from '../drop-connect';
+import { AnimatedEdge } from '../edges/animated';
 import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
 import { TransformNode } from '../nodes/transform';
@@ -37,6 +38,10 @@ const nodeTypes = {
   image: ImageNode,
   text: TextNode,
   transform: TransformNode,
+};
+
+const edgeTypes = {
+  animated: AnimatedEdge,
 };
 
 const MIN_DISTANCE = 150;
@@ -350,7 +355,7 @@ export const CanvasInner = () => {
 
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) => addEdge(connection, eds));
+      setEdges((eds) => addEdge({ ...connection, type: 'animated' }, eds));
 
       // Create a set to store all affected transform nodes
       const transformNodeIds = new Set<string>();
@@ -537,6 +542,7 @@ export const CanvasInner = () => {
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
       fitView
