@@ -9,6 +9,7 @@ import {
 import { type XYPosition, useReactFlow } from '@xyflow/react';
 import { BrainIcon, ImageIcon, TextIcon, VideoIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
+import { useEffect } from 'react';
 import { NodeLayout } from './layout';
 
 type DropNodeProps = {
@@ -77,6 +78,25 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
       });
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        // Delete the drop node when Escape is pressed
+        deleteElements({
+          nodes: [{ id }],
+        });
+      }
+    };
+
+    // Add event listener for escape key
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Clean up the event listener when component unmounts
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [deleteElements, id]);
 
   return (
     <NodeLayout id={id} data={data} type="Add a node">

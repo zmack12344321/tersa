@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useUser } from '@clerk/nextjs';
-import { useReactFlow } from '@xyflow/react';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { TransformSelector } from './selector';
 
 type TransformImageNodeProps = {
-  text?: string[];
   data: {
     text?: string[];
     type?: string;
@@ -25,21 +24,29 @@ type TransformImageNodeProps = {
 };
 
 export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
-  const { updateNodeData } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [image, setImage] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
 
   const handleGenerate = async () => {
-    const text = data.text?.join('\n');
+    if (loading) {
+      return;
+    }
 
-    if (!text || loading) {
+    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
+    const prompts = incomers
+      .map((incomer) => getNode(incomer.id)?.data.text)
+      .filter(Boolean);
+
+    if (!prompts.length) {
+      toast.error('No prompts found');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await generateImageAction(text);
+      const response = await generateImageAction(prompts.join('\n'));
       setImage(response);
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),

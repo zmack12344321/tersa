@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useUser } from '@clerk/nextjs';
-import { useReactFlow } from '@xyflow/react';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -24,21 +24,25 @@ type TransformVideoNodeProps = {
 };
 
 export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
-  const { updateNodeData } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [video, setVideo] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
 
   const handleGenerate = async () => {
-    const text = data.text?.join('\n');
+    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
+    const prompts = incomers
+      .map((incomer) => getNode(incomer.id)?.data.text)
+      .filter(Boolean);
 
-    if (!text || loading) {
+    if (!prompts.length) {
+      toast.error('No prompts found');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await generateVideoAction(text);
+      const response = await generateVideoAction(prompts.join('\n'));
       setVideo(response);
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),

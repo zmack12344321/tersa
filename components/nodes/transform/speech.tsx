@@ -7,14 +7,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useUser } from '@clerk/nextjs';
-import { useReactFlow } from '@xyflow/react';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { TransformSelector } from './selector';
 
 type TransformSpeechNodeProps = {
-  text?: string[];
   data: {
     text?: string[];
     type?: string;
@@ -24,21 +23,29 @@ type TransformSpeechNodeProps = {
 };
 
 export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
-  const { updateNodeData } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [audio, setAudio] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
 
   const handleGenerate = async () => {
-    const text = data.text?.join('\n');
+    if (loading) {
+      return;
+    }
 
-    if (!text || loading) {
+    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
+    const prompts = incomers
+      .map((incomer) => getNode(incomer.id)?.data.text)
+      .filter(Boolean);
+
+    if (!prompts.length) {
+      toast.error('No prompts found');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await generateSpeechAction(text);
+      const response = await generateSpeechAction(prompts.join('\n'));
       setAudio(response);
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
