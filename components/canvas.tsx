@@ -31,29 +31,50 @@ export const Canvas = () => {
 
   // Helper function to recursively traverse connections
   const findTransformNodes = useCallback(
-    (sourceId: string, visited: Set<string>) => {
+    (nodeId: string, visited: Set<string>) => {
       const transformNodeIds = new Set<string>();
 
       // Prevent cycles
-      if (visited.has(sourceId)) {
-        return;
+      if (visited.has(nodeId)) {
+        return transformNodeIds;
       }
 
-      visited.add(sourceId);
+      visited.add(nodeId);
+
+      // Find the current node
+      const currentNode = nodes.find((n) => n.id === nodeId);
+
+      // If current node is a transform node, add it to our set
+      if (currentNode?.type === 'transform') {
+        transformNodeIds.add(nodeId);
+      }
 
       // Find all edges where this node is the source
-      const connectedEdges = edges.filter((edge) => edge.source === sourceId);
+      const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
 
-      for (const edge of connectedEdges) {
-        const targetNode = nodes.find((n) => n.id === edge.target);
+      // Find all edges where this node is the target
+      const incomingEdges = edges.filter((edge) => edge.target === nodeId);
 
-        // If target is a transform node, add it to our set
-        if (targetNode?.type === 'transform') {
-          transformNodeIds.add(edge.target);
-        }
-
+      // Process outgoing connections
+      for (const edge of outgoingEdges) {
         // Continue traversing from this target node
-        findTransformNodes(edge.target, visited);
+        const childTransformNodes = findTransformNodes(edge.target, visited);
+        if (childTransformNodes) {
+          for (const id of childTransformNodes) {
+            transformNodeIds.add(id);
+          }
+        }
+      }
+
+      // Process incoming connections
+      for (const edge of incomingEdges) {
+        // Continue traversing from this source node
+        const parentTransformNodes = findTransformNodes(edge.source, visited);
+        if (parentTransformNodes) {
+          for (const id of parentTransformNodes) {
+            transformNodeIds.add(id);
+          }
+        }
       }
 
       return transformNodeIds;
@@ -98,7 +119,15 @@ export const Canvas = () => {
 
       // Start traversal from each changed node
       for (const nodeId of Array.from(changedNodeIds)) {
-        findTransformNodes(nodeId, transformNodeIds);
+        const foundTransformNodes = findTransformNodes(
+          nodeId,
+          new Set<string>()
+        );
+        if (foundTransformNodes) {
+          for (const id of foundTransformNodes) {
+            transformNodeIds.add(id);
+          }
+        }
       }
 
       // Update transform nodes
@@ -135,7 +164,15 @@ export const Canvas = () => {
 
       // Start traversal from each changed node
       for (const nodeId of Array.from(changedNodeIds)) {
-        findTransformNodes(nodeId, transformNodeIds);
+        const foundTransformNodes = findTransformNodes(
+          nodeId,
+          new Set<string>()
+        );
+        if (foundTransformNodes) {
+          for (const id of foundTransformNodes) {
+            transformNodeIds.add(id);
+          }
+        }
       }
 
       if (transformNodeIds.size > 0) {
@@ -150,17 +187,42 @@ export const Canvas = () => {
     (params: Connection) => {
       setEdges((eds) => addEdge(params, eds));
 
-      // Start traversal from each changed node
+      // Check if the target node is a transform node
+      const targetNode = nodes.find((n) => n.id === params.target);
+      const sourceNode = nodes.find((n) => n.id === params.source);
+
+      // Create a set to store all affected transform nodes
       const transformNodeIds = new Set<string>();
 
-      findTransformNodes(params.source, transformNodeIds);
+      // If target is a transform node, add it to our set
+      if (targetNode?.type === 'transform') {
+        transformNodeIds.add(params.target);
+      }
 
+      // If source is a transform node, add it to our set
+      if (sourceNode?.type === 'transform') {
+        transformNodeIds.add(params.source);
+      }
+
+      // Check transform nodes in the hierarchy (both directions)
+      const foundTransformNodes = findTransformNodes(
+        params.target,
+        new Set<string>()
+      );
+
+      // Add all found transform nodes to our set
+      if (foundTransformNodes) {
+        for (const id of foundTransformNodes) {
+          transformNodeIds.add(id);
+        }
+      }
+
+      // If we have any transform nodes affected, log them
       if (transformNodeIds.size > 0) {
-        // Update transform nodes
         console.log(Array.from(transformNodeIds), 'onConnect');
       }
     },
-    [findTransformNodes]
+    [findTransformNodes, nodes]
   );
 
   return (
