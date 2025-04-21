@@ -142,21 +142,21 @@ export const CanvasInner = () => {
 
       if (node?.type === 'transform') {
         // Update the node data with the upstream texts
-        setNodes((nds) =>
-          nds.map((n) => {
-            if (n.id === nodeId) {
-              // Preserve existing data and add/update upstreamTexts
-              return {
-                ...n,
-                data: {
-                  ...n.data,
-                  text: upstreamTexts,
-                },
-              };
-            }
-            return n;
-          })
-        );
+        const newNodes = nodes.map((n) => {
+          if (n.id === nodeId) {
+            // Preserve existing data and add/update upstreamTexts
+            return {
+              ...n,
+              data: {
+                ...n.data,
+                text: upstreamTexts,
+              },
+            };
+          }
+          return n;
+        });
+
+        setNodes(newNodes);
       }
     },
     [getUpstreamTexts, nodes]
