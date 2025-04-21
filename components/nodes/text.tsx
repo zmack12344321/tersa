@@ -38,6 +38,7 @@ export const TextNode = ({ data, id }: TextNodeProps) => {
     >
       <div className="p-4">
         <EditorProvider
+          autofocus
           immediatelyRender={false}
           content={content}
           placeholder="Start typing..."

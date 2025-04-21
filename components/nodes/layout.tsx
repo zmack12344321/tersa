@@ -1,18 +1,14 @@
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import {
   Handle,
   NodeResizeControl,
   NodeToolbar,
   Position,
   useReactFlow,
 } from '@xyflow/react';
-import { ChevronsUpDownIcon, EyeIcon, TrashIcon } from 'lucide-react';
+import { CodeIcon, EyeIcon, TrashIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 type NodeLayoutProps = {
   children: ReactNode;
@@ -76,31 +72,31 @@ export const NodeLayout = ({
         >
           <TrashIcon size={12} />
         </Button>
+        {process.env.NODE_ENV === 'development' && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <CodeIcon size={12} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <pre>{JSON.stringify({ id, data, type }, null, 2)}</pre>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </NodeToolbar>
       <NodeResizeControl minWidth={400} minHeight={170} />
       <Handle type="target" position={Position.Left} />
-      <div className="flex h-full flex-col divide-y">
-        <div className="flex shrink-0 items-center justify-between rounded-t-lg bg-secondary px-4 py-3">
-          <p className="text-sm">{type}</p>
+      <div className="relative size-full">
+        <div className="-translate-y-full -top-2 absolute flex shrink-0 items-center justify-between">
+          <p className="font-mono text-muted-foreground text-xs tracking-tighter">
+            {type}
+          </p>
           {action}
         </div>
-        <div className="flex-1">{children}</div>
-        {process.env.NODE_ENV === 'development' && (
-          <Collapsible className="shrink-0 rounded-b-lg bg-secondary px-4 py-3 font-mono text-muted-foreground text-xs">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm">{id}</p>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <ChevronsUpDownIcon className="h-4 w-4" />
-                  <span className="sr-only">Toggle</span>
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent>
-              <pre>{JSON.stringify(data, null, 2)}</pre>
-            </CollapsibleContent>
-          </Collapsible>
-        )}
+        <div className="node-container size-full rounded-lg bg-card ring-1 ring-border transition-all">
+          {children}
+        </div>
       </div>
       <Handle type="source" position={Position.Right} />
     </>

@@ -289,7 +289,7 @@ export const CanvasInner = () => {
         className="rounded-full border bg-background/90 p-1 shadow-none! drop-shadow-xs backdrop-blur-sm"
         showInteractive={false}
       />
-      <Background />
+      <Background bgColor="var(--secondary)" />
       <Toolbar addNode={addNode} buttons={buttons} />
       <Auth />
     </ReactFlow>
