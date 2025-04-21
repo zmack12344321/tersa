@@ -10,6 +10,7 @@ type TransformNodeProps = {
   text?: string[];
   data: {
     text?: string[];
+    type?: string;
     updatedAt?: string;
   };
   id: string;
