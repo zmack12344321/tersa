@@ -1,15 +1,10 @@
 import { generateVideoAction } from '@/app/actions/video';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useUser } from '@clerk/nextjs';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { Loader2Icon } from 'lucide-react';
-import { useState } from 'react';
+import { Loader2Icon, PlayIcon } from 'lucide-react';
+import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import { TransformSelector } from './selector';
 
@@ -55,42 +50,21 @@ export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
     }
   };
 
-  const action = user ? (
+  const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
+    <TransformSelector id={id} type="video" key={`${id}-selector`} />,
     <Button
-      size="sm"
-      variant="outline"
+      variant="ghost"
+      size="icon"
+      className="rounded-full"
       onClick={handleGenerate}
-      className="-my-2"
+      key={`${id}-generate`}
     >
-      {video ? 'Regenerate' : 'Generate'}
-    </Button>
-  ) : (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div>
-          <Button disabled size="sm" variant="outline" className="-my-2">
-            {video ? 'Regenerate' : 'Generate'}
-          </Button>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Login to generate</p>
-      </TooltipContent>
-    </Tooltip>
-  );
+      <PlayIcon size={12} />
+    </Button>,
+  ];
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type="Transform"
-      action={
-        <div className="flex items-center gap-2">
-          <TransformSelector id={id} type="video" />
-          {action}
-        </div>
-      }
-    >
+    <NodeLayout id={id} data={data} type="Transform" toolbar={toolbar}>
       <div>
         {loading && !video && (
           <div className="flex items-center justify-center p-4">

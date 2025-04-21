@@ -24,6 +24,7 @@ import { type MouseEvent as ReactMouseEvent, useCallback } from 'react';
 import { Auth } from '../auth';
 import { ConnectionLine } from '../connection-line';
 import { AnimatedEdge } from '../edges/animated';
+import { AudioNode } from '../nodes/audio';
 import { DropNode } from '../nodes/drop';
 import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
@@ -37,6 +38,7 @@ const nodeTypes = {
   transform: TransformNode,
   drop: DropNode,
   video: VideoNode,
+  audio: AudioNode,
 };
 
 const edgeTypes = {

@@ -1,16 +1,11 @@
 import { generateImageAction } from '@/app/actions/image';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useUser } from '@clerk/nextjs';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { Loader2Icon } from 'lucide-react';
+import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import { TransformSelector } from './selector';
 
@@ -59,42 +54,21 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
     }
   };
 
-  const action = user ? (
+  const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
+    <TransformSelector id={id} type="image" key={`${id}-selector`} />,
     <Button
-      size="sm"
-      variant="outline"
+      variant="ghost"
+      size="icon"
+      className="rounded-full"
       onClick={handleGenerate}
-      className="-my-2"
+      key={`${id}-generate`}
     >
-      {image ? 'Regenerate' : 'Generate'}
-    </Button>
-  ) : (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div>
-          <Button disabled size="sm" variant="outline" className="-my-2">
-            {image ? 'Regenerate' : 'Generate'}
-          </Button>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Login to generate</p>
-      </TooltipContent>
-    </Tooltip>
-  );
+      <PlayIcon size={12} />
+    </Button>,
+  ];
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type="Transform"
-      action={
-        <div className="flex items-center gap-2">
-          <TransformSelector id={id} type="image" />
-          {action}
-        </div>
-      }
-    >
+    <NodeLayout id={id} data={data} type="Transform" toolbar={toolbar}>
       <div>
         {loading && !image && (
           <div className="flex items-center justify-center p-4">

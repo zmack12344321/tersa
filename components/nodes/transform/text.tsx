@@ -8,7 +8,8 @@ import {
 import { useChat } from '@ai-sdk/react';
 import { useUser } from '@clerk/nextjs';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { Loader2Icon } from 'lucide-react';
+import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
+import type { ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { TransformSelector } from './selector';
@@ -57,8 +58,8 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
 
   let action = (
     <Button
-      size="sm"
-      variant="outline"
+      size="icon"
+      variant="ghost"
       onClick={handleGenerate}
       className="-my-2"
     >
@@ -100,18 +101,49 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
     );
   }
 
+  const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
+    <TransformSelector id={id} type="text" key={id} />,
+  ];
+
+  if (user) {
+    if (status === 'streaming') {
+      toolbar.push(
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={stop}
+        >
+          <SquareIcon size={12} />
+        </Button>
+      );
+    } else if (status === 'submitted') {
+      toolbar.push(
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={handleGenerate}
+        >
+          <RotateCcwIcon size={12} />
+        </Button>
+      );
+    } else {
+      toolbar.push(
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+          onClick={handleGenerate}
+        >
+          <PlayIcon size={12} />
+        </Button>
+      );
+    }
+  }
+
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type="Transform"
-      action={
-        <div className="flex items-center gap-2">
-          <TransformSelector id={id} type="text" />
-          {action}
-        </div>
-      }
-    >
+    <NodeLayout id={id} data={data} type="Transform" toolbar={toolbar}>
       <div className="p-4">
         {!nonUserMessages.length && status === 'streaming' && (
           <div className="flex items-center justify-center">

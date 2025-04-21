@@ -30,12 +30,7 @@ export const TextNode = ({ data, id }: TextNodeProps) => {
   };
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type="Text"
-      action={<p className="text-sm">{`${words} words`}</p>}
-    >
+    <NodeLayout id={id} data={data} type="Text" caption={`${words} words`}>
       <div className="p-4">
         <EditorProvider
           autofocus

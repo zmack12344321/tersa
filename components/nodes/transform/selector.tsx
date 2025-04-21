@@ -21,7 +21,7 @@ export const TransformSelector = ({ id, type }: TransformSelectorProps) => {
 
   return (
     <Select value={type} onValueChange={handleChange}>
-      <SelectTrigger size="sm" className="bg-background">
+      <SelectTrigger size="sm" className="ml-1 rounded-full">
         <SelectValue placeholder="Select a type" />
       </SelectTrigger>
       <SelectContent>

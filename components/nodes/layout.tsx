@@ -15,7 +15,8 @@ type NodeLayoutProps = {
   id: string;
   data?: object;
   type: string;
-  action?: ReactNode;
+  caption?: string;
+  toolbar?: ReactNode[];
 };
 
 export const NodeLayout = ({
@@ -23,7 +24,8 @@ export const NodeLayout = ({
   type,
   id,
   data,
-  action,
+  caption,
+  toolbar,
 }: NodeLayoutProps) => {
   const { deleteElements, setCenter, getNode } = useReactFlow();
 
@@ -56,6 +58,7 @@ export const NodeLayout = ({
         position={data?.toolbarPosition}
         className="flex items-center gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
       >
+        {toolbar?.map((button) => button)}
         <Button
           variant="ghost"
           size="icon"
@@ -88,13 +91,17 @@ export const NodeLayout = ({
       <NodeResizeControl minWidth={400} minHeight={170} />
       <Handle type="target" position={Position.Left} />
       <div className="relative size-full">
-        <div className="-translate-y-full -top-2 absolute flex shrink-0 items-center justify-between">
+        <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
           <p className="font-mono text-muted-foreground text-xs tracking-tighter">
             {type}
           </p>
-          {action}
+          {caption && (
+            <p className="font-mono text-muted-foreground text-xs tracking-tighter">
+              {caption}
+            </p>
+          )}
         </div>
-        <div className="node-container size-full rounded-lg bg-card ring-1 ring-border transition-all">
+        <div className="node-container size-full divide-y rounded-lg bg-card ring-1 ring-border transition-all">
           {children}
         </div>
       </div>

@@ -1,15 +1,9 @@
 import { generateSpeechAction } from '@/app/actions/speech';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { useUser } from '@clerk/nextjs';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { Loader2Icon } from 'lucide-react';
-import { useState } from 'react';
+import { Loader2Icon, PlayIcon } from 'lucide-react';
+import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import { TransformSelector } from './selector';
 
@@ -26,7 +20,6 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [audio, setAudio] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
-  const { user } = useUser();
 
   const handleGenerate = async () => {
     if (loading) {
@@ -58,42 +51,21 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
     }
   };
 
-  const action = user ? (
+  const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
+    <TransformSelector id={id} type="speech" key={`${id}-selector`} />,
     <Button
-      size="sm"
-      variant="outline"
+      variant="ghost"
+      size="icon"
+      className="rounded-full"
       onClick={handleGenerate}
-      className="-my-2"
+      key={`${id}-generate`}
     >
-      {audio ? 'Regenerate' : 'Generate'}
-    </Button>
-  ) : (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div>
-          <Button disabled size="sm" variant="outline" className="-my-2">
-            {audio ? 'Regenerate' : 'Generate'}
-          </Button>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Login to generate</p>
-      </TooltipContent>
-    </Tooltip>
-  );
+      <PlayIcon size={12} />
+    </Button>,
+  ];
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type="Transform"
-      action={
-        <div className="flex items-center gap-2">
-          <TransformSelector id={id} type="speech" />
-          {action}
-        </div>
-      }
-    >
+    <NodeLayout id={id} data={data} type="Transform" toolbar={toolbar}>
       <div>
         {loading && !audio && (
           <div className="flex items-center justify-center p-4">

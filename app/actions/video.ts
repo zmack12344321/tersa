@@ -6,9 +6,11 @@ export const generateVideoAction = async (prompt: string) => {
     mimeType: 'video/mp4',
   };
 
-  await new Promise((resolve) => {
+  const result = await new Promise((resolve) => {
     setTimeout(() => {
       resolve(video.uint8Array);
     }, 1000);
   });
+
+  return result;
 };
