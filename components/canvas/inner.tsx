@@ -6,6 +6,7 @@ import {
   type Edge,
   type EdgeChange,
   type FinalConnectionState,
+  type InternalNode,
   type Node,
   type NodeChange,
   ReactFlow,
@@ -14,12 +15,17 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
   useReactFlow,
+  useStoreApi,
 } from '@xyflow/react';
 import { BrainIcon, VideoIcon } from 'lucide-react';
 import { ImageIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { useCallback, useState } from 'react';
+import {
+  type MouseEvent as ReactMouseEvent,
+  useCallback,
+  useState,
+} from 'react';
 import { Auth } from '../auth';
 import { DropConnect } from '../drop-connect';
 import { ImageNode } from '../nodes/image';
@@ -33,12 +39,14 @@ const nodeTypes = {
   transform: TransformNode,
 };
 
-// Inner component with access to ReactFlow hooks
+const MIN_DISTANCE = 150;
+
 export const CanvasInner = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [dropPosition, setDropPosition] = useState<XYPosition | null>(null);
-  const { getEdges } = useReactFlow();
+  const { getEdges, getInternalNode } = useReactFlow();
+  const store = useStoreApi();
 
   // Helper function to find only downstream transform nodes (one-way traversal)
   const findDownstreamTransformNodes = useCallback(
@@ -390,6 +398,109 @@ export const CanvasInner = () => {
     []
   );
 
+  const getClosestEdge = useCallback(
+    (node: Node) => {
+      const { nodeLookup } = store.getState();
+      const internalNode = getInternalNode(node.id);
+
+      if (!internalNode) {
+        return null;
+      }
+
+      const closestNode = Array.from(nodeLookup.values()).reduce<{
+        distance: number;
+        node: InternalNode<Node> | null;
+      }>(
+        (res, n) => {
+          if (n.id !== internalNode.id) {
+            const dx =
+              n.internals.positionAbsolute.x -
+              internalNode.internals.positionAbsolute.x;
+            const dy =
+              n.internals.positionAbsolute.y -
+              internalNode.internals.positionAbsolute.y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+
+            if (d < res.distance && d < MIN_DISTANCE) {
+              res.distance = d;
+              res.node = n;
+            }
+          }
+
+          return res;
+        },
+        {
+          distance: Number.MAX_VALUE,
+          node: null,
+        }
+      );
+
+      if (!closestNode.node) {
+        return null;
+      }
+
+      const closeNodeIsSource =
+        closestNode.node.internals.positionAbsolute.x <
+        internalNode.internals.positionAbsolute.x;
+
+      return {
+        id: closeNodeIsSource
+          ? `${closestNode.node.id}-${node.id}`
+          : `${node.id}-${closestNode.node.id}`,
+        source: closeNodeIsSource ? closestNode.node.id : node.id,
+        target: closeNodeIsSource ? node.id : closestNode.node.id,
+      };
+    },
+    [store, getInternalNode]
+  );
+
+  const onNodeDrag = useCallback(
+    (_: ReactMouseEvent, node: Node) => {
+      const closeEdge = getClosestEdge(node);
+
+      setEdges((es) => {
+        const nextEdges = es.filter((e) => e.className !== 'temp');
+
+        if (
+          closeEdge &&
+          !nextEdges.find(
+            (ne) =>
+              ne.source === closeEdge.source && ne.target === closeEdge.target
+          )
+        ) {
+          closeEdge.className = 'temp';
+          nextEdges.push(closeEdge);
+        }
+
+        return nextEdges;
+      });
+    },
+    [getClosestEdge]
+  );
+
+  const onNodeDragStop = useCallback(
+    (_: ReactMouseEvent, node: Node) => {
+      const closeEdge = getClosestEdge(node);
+
+      setEdges((es) => {
+        const nextEdges = es.filter((e) => e.className !== 'temp');
+
+        if (
+          closeEdge &&
+          !nextEdges.find(
+            (ne) =>
+              ne.source === closeEdge.source && ne.target === closeEdge.target
+          )
+        ) {
+          nextEdges.push(closeEdge);
+        }
+
+        return nextEdges;
+      });
+    },
+    [getClosestEdge]
+  );
+
   const buttons = [
     {
       id: 'text',
@@ -426,6 +537,8 @@ export const CanvasInner = () => {
       onConnect={onConnect}
       onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
+      onNodeDrag={onNodeDrag}
+      onNodeDragStop={onNodeDragStop}
       fitView
     >
       <Controls />
