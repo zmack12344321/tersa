@@ -27,6 +27,7 @@ import {
   useState,
 } from 'react';
 import { Auth } from '../auth';
+import { ConnectionLine } from '../connection-line';
 import { DropConnect } from '../drop-connect';
 import { AnimatedEdge } from '../edges/animated';
 import { ImageNode } from '../nodes/image';
@@ -545,6 +546,7 @@ export const CanvasInner = () => {
       edgeTypes={edgeTypes}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
+      connectionLineComponent={ConnectionLine}
       fitView
     >
       <Controls />
