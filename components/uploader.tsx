@@ -22,6 +22,7 @@ export const Uploader = ({ endpoint }: { endpoint: string }) => {
       onDrop={handleDrop}
       src={files}
       onError={console.error}
+      className="rounded-none border-none bg-transparent p-0 shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
     >
       <DropzoneEmptyState />
       <DropzoneContent />

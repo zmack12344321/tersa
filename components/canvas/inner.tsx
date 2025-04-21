@@ -331,7 +331,7 @@ export const CanvasInner = () => {
     >
       <Controls
         orientation="horizontal"
-        className="rounded-full border bg-background/90 p-1 shadow-none! drop-shadow-xs backdrop-blur-sm"
+        className="rounded-full border bg-card/90 p-1 shadow-none! drop-shadow-xs backdrop-blur-sm"
         showInteractive={false}
       />
       <Background bgColor="var(--secondary)" />

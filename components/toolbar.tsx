@@ -14,7 +14,7 @@ type ToolbarProps = {
 export const Toolbar = ({ buttons }: ToolbarProps) => (
   <Panel
     position="bottom-center"
-    className="flex items-center rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
+    className="flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm"
   >
     {buttons.map((button) => (
       <Button
