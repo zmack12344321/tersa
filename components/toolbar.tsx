@@ -14,7 +14,7 @@ type ToolbarProps = {
 export const Toolbar = ({ buttons }: ToolbarProps) => (
   <Panel
     position="bottom-center"
-    className="flex items-center gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
+    className="flex items-center rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
   >
     {buttons.map((button) => (
       <Button
@@ -23,7 +23,7 @@ export const Toolbar = ({ buttons }: ToolbarProps) => (
         type="button"
         variant="ghost"
         size="icon"
-        className="rounded-full"
+        className="cursor-pointer rounded-full"
       >
         <button.icon size={16} />
       </Button>

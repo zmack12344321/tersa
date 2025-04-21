@@ -606,7 +606,11 @@ export const CanvasInner = () => {
       connectionLineComponent={ConnectionLine}
       fitView
     >
-      <Controls />
+      <Controls
+        orientation="horizontal"
+        className="rounded-full border bg-background/90 p-1 shadow-none! drop-shadow-xs backdrop-blur-sm"
+        showInteractive={false}
+      />
       <Background />
       <Toolbar addNode={addNode} buttons={buttons} />
       <Auth />
