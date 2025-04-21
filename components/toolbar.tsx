@@ -1,6 +1,8 @@
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { Panel } from '@xyflow/react';
 import { ImageIcon, VideoIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from './ui/button';
 
 type ToolbarProps = {
@@ -10,14 +12,17 @@ type ToolbarProps = {
 export const Toolbar = ({ addNode }: ToolbarProps) => {
   const addButtons = [
     {
+      id: 'text',
       icon: TextIcon,
       onClick: () => addNode('text'),
     },
     {
+      id: 'image',
       icon: ImageIcon,
       onClick: () => addNode('image'),
     },
     {
+      id: 'video',
       icon: VideoIcon,
       onClick: () => addNode('video'),
     },
@@ -30,7 +35,7 @@ export const Toolbar = ({ addNode }: ToolbarProps) => {
     >
       {addButtons.map((button) => (
         <Button
-          key={button.icon.name}
+          key={button.id}
           onClick={button.onClick}
           type="button"
           variant="ghost"
@@ -40,6 +45,15 @@ export const Toolbar = ({ addNode }: ToolbarProps) => {
           <button.icon size={16} />
         </Button>
       ))}
+      <div className="h-7 w-px bg-border" />
+      <SignedOut>
+        <Button size="sm" className="ml-2 rounded-full" asChild>
+          <Link href="/sign-in">Log in</Link>
+        </Button>
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
     </Panel>
   );
 };
