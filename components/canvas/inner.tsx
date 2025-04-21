@@ -14,6 +14,7 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
+  getOutgoers,
   useReactFlow,
   useStoreApi,
 } from '@xyflow/react';
@@ -51,7 +52,7 @@ export const CanvasInner = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [dropPosition, setDropPosition] = useState<XYPosition | null>(null);
-  const { getEdges, getInternalNode } = useReactFlow();
+  const { getEdges, getInternalNode, getNodes } = useReactFlow();
   const store = useStoreApi();
 
   // Helper function to find only downstream transform nodes (one-way traversal)
@@ -59,6 +60,7 @@ export const CanvasInner = () => {
     (nodeId: string, visited: Set<string>) => {
       // Get the latest edges directly from ReactFlow
       const currentEdges = getEdges();
+      const currentNodes = getNodes();
       const transformNodeIds = new Set<string>();
 
       // Prevent cycles
@@ -69,7 +71,7 @@ export const CanvasInner = () => {
       visited.add(nodeId);
 
       // Find the current node
-      const currentNode = nodes.find((n) => n.id === nodeId);
+      const currentNode = currentNodes.find((n) => n.id === nodeId);
 
       // If current node is a transform node, add it to our set
       if (currentNode?.type === 'transform') {
@@ -97,13 +99,14 @@ export const CanvasInner = () => {
 
       return transformNodeIds;
     },
-    [nodes, getEdges]
+    [getEdges, getNodes]
   );
 
   const getUpstreamTexts = useCallback(
     (nodeId: string, visited = new Set<string>()) => {
       // Get the latest edges directly from ReactFlow
       const currentEdges = getEdges();
+      const currentNodes = getNodes();
 
       // Prevent cycles
       if (visited.has(nodeId)) {
@@ -119,7 +122,7 @@ export const CanvasInner = () => {
       );
 
       for (const edge of incomingEdges) {
-        const sourceNode = nodes.find((node) => node.id === edge.source);
+        const sourceNode = currentNodes.find((node) => node.id === edge.source);
 
         // If the source is a text node, add its content
         if (
@@ -136,19 +139,20 @@ export const CanvasInner = () => {
 
       return upstreamTexts;
     },
-    [nodes, getEdges]
+    [getEdges, getNodes]
   );
 
   const updateTransformNode = useCallback(
     (nodeId: string) => {
+      const currentNodes = getNodes();
       const upstreamTexts = getUpstreamTexts(nodeId);
 
       // Get the node we need to update
-      const node = nodes.find((n) => n.id === nodeId);
+      const node = currentNodes.find((n) => n.id === nodeId);
 
       if (node?.type === 'transform') {
         // Update the node data with the upstream texts
-        const newNodes = nodes.map((n) => {
+        const newNodes = currentNodes.map((n) => {
           if (n.id === nodeId) {
             // Preserve existing data and add/update upstreamTexts
             return {
@@ -165,7 +169,7 @@ export const CanvasInner = () => {
         setNodes(newNodes);
       }
     },
-    [getUpstreamTexts, nodes]
+    [getUpstreamTexts, getNodes]
   );
 
   const updateTransformNodes = useCallback(
@@ -180,6 +184,8 @@ export const CanvasInner = () => {
   // Helper function to recursively traverse connections (bidirectional - keep for node/edge changes)
   const findTransformNodes = useCallback(
     (nodeId: string, visited: Set<string>) => {
+      const currentNodes = getNodes();
+      const currentEdges = getEdges();
       const transformNodeIds = new Set<string>();
 
       // Prevent cycles
@@ -190,7 +196,7 @@ export const CanvasInner = () => {
       visited.add(nodeId);
 
       // Find the current node
-      const currentNode = nodes.find((n) => n.id === nodeId);
+      const currentNode = currentNodes.find((n) => n.id === nodeId);
 
       // If current node is a transform node, add it to our set
       if (currentNode?.type === 'transform') {
@@ -198,10 +204,14 @@ export const CanvasInner = () => {
       }
 
       // Find all edges where this node is the source
-      const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
+      const outgoingEdges = currentEdges.filter(
+        (edge) => edge.source === nodeId
+      );
 
       // Find all edges where this node is the target
-      const incomingEdges = edges.filter((edge) => edge.target === nodeId);
+      const incomingEdges = currentEdges.filter(
+        (edge) => edge.target === nodeId
+      );
 
       // Process outgoing connections
       for (const edge of outgoingEdges) {
@@ -227,7 +237,7 @@ export const CanvasInner = () => {
 
       return transformNodeIds;
     },
-    [nodes, edges]
+    [getEdges, getNodes]
   );
 
   const addNode = (type: string) => {
@@ -507,6 +517,36 @@ export const CanvasInner = () => {
     [getClosestEdge]
   );
 
+  const isValidConnection = useCallback(
+    (connection: Edge | Connection) => {
+      // we are using getNodes and getEdges helpers here
+      // to make sure we create isValidConnection function only once
+      const nodes = getNodes();
+      const edges = getEdges();
+      const target = nodes.find((node) => node.id === connection.target);
+      const hasCycle = (node: Node, visited = new Set<string>()) => {
+        if (visited.has(node.id)) {
+          return false;
+        }
+
+        visited.add(node.id);
+
+        for (const outgoer of getOutgoers(node, nodes, edges)) {
+          if (outgoer.id === connection.source || hasCycle(outgoer, visited)) {
+            return true;
+          }
+        }
+      };
+
+      if (!target || target.id === connection.source) {
+        return false;
+      }
+
+      return !hasCycle(target);
+    },
+    [getNodes, getEdges]
+  );
+
   const buttons = [
     {
       id: 'text',
@@ -545,6 +585,7 @@ export const CanvasInner = () => {
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
       onNodeDrag={onNodeDrag}
+      isValidConnection={isValidConnection}
       onNodeDragStop={onNodeDragStop}
       connectionLineComponent={ConnectionLine}
       fitView
