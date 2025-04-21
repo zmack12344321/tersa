@@ -1,4 +1,4 @@
-import { generateImageAction } from '@/app/actions/image';
+import { generateSpeechAction } from '@/app/actions/speech';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,12 +9,11 @@ import {
 import { useUser } from '@clerk/nextjs';
 import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
-import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { TransformSelector } from './selector';
 
-type TransformImageNodeProps = {
+type TransformSpeechNodeProps = {
   text?: string[];
   data: {
     text?: string[];
@@ -24,9 +23,9 @@ type TransformImageNodeProps = {
   id: string;
 };
 
-export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
+export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
   const { updateNodeData } = useReactFlow();
-  const [image, setImage] = useState<Uint8Array | null>(null);
+  const [audio, setAudio] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
 
@@ -39,11 +38,11 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
 
     try {
       setLoading(true);
-      const response = await generateImageAction(text);
-      setImage(response);
+      const response = await generateSpeechAction(text);
+      setAudio(response);
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        image: response,
+        audio: response,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');
@@ -59,14 +58,14 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
       onClick={handleGenerate}
       className="-my-2"
     >
-      {image ? 'Regenerate' : 'Generate'}
+      {audio ? 'Regenerate' : 'Generate'}
     </Button>
   ) : (
     <Tooltip>
       <TooltipTrigger asChild>
         <div>
           <Button disabled size="sm" variant="outline" className="-my-2">
-            {image ? 'Regenerate' : 'Generate'}
+            {audio ? 'Regenerate' : 'Generate'}
           </Button>
         </div>
       </TooltipTrigger>
@@ -83,32 +82,26 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
       type="Transform"
       action={
         <div className="flex items-center gap-2">
-          <TransformSelector id={id} type="image" />
+          <TransformSelector id={id} type="speech" />
           {action}
         </div>
       }
     >
       <div>
-        {loading && !image && (
+        {loading && !audio && (
           <div className="flex items-center justify-center p-4">
             <Loader2Icon size={16} className="animate-spin" />
           </div>
         )}
-        {!loading && !image && (
+        {!loading && !audio && (
           <div className="flex items-center justify-center p-4">
             <p className="text-muted-foreground text-sm">
-              Press "Generate" to create an image
+              Press "Generate" to synthesize speech
             </p>
           </div>
         )}
-        {image && (
-          <Image
-            src={URL.createObjectURL(new Blob([image]))}
-            alt="Generated image"
-            width={1600}
-            height={900}
-            className="aspect-video w-full object-cover"
-          />
+        {audio && (
+          <audio src={URL.createObjectURL(new Blob([audio]))} controls />
         )}
       </div>
       {data.updatedAt && (

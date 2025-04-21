@@ -18,7 +18,7 @@ import {
   useReactFlow,
   useStoreApi,
 } from '@xyflow/react';
-import { BrainIcon, VideoIcon } from 'lucide-react';
+import { AudioWaveformIcon, BrainIcon, VideoIcon } from 'lucide-react';
 import { ImageIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
@@ -34,6 +34,7 @@ import { DropNode } from '../nodes/drop';
 import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
 import { TransformNode } from '../nodes/transform';
+import { VideoNode } from '../nodes/video';
 import { Toolbar } from '../toolbar';
 
 const nodeTypes = {
@@ -41,6 +42,7 @@ const nodeTypes = {
   text: TextNode,
   transform: TransformNode,
   drop: DropNode,
+  video: VideoNode,
 };
 
 const edgeTypes = {
@@ -241,19 +243,22 @@ export const CanvasInner = () => {
     [getEdges, getNodes]
   );
 
-  const addNode = useCallback((type: string, position?: XYPosition) => {
-    const newNode: Node = {
-      id: nanoid(),
-      type,
-      data: {},
-      position: position ?? { x: 0, y: 0 },
-      origin: [0, 0.5],
-    };
+  const addNode = useCallback(
+    (type: string, position?: XYPosition, data?: Record<string, unknown>) => {
+      const newNode: Node = {
+        id: nanoid(),
+        type,
+        data: data ?? {},
+        position: position ?? { x: 0, y: 0 },
+        origin: [0, 0.5],
+      };
 
-    setNodes((nds) => nds.concat(newNode));
+      setNodes((nds) => nds.concat(newNode));
 
-    return newNode.id;
-  }, []);
+      return newNode.id;
+    },
+    []
+  );
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -577,6 +582,12 @@ export const CanvasInner = () => {
       onClick: () => addNode('image'),
     },
     {
+      id: 'audio',
+      label: 'Audio',
+      icon: AudioWaveformIcon,
+      onClick: () => addNode('audio'),
+    },
+    {
       id: 'video',
       label: 'Video',
       icon: VideoIcon,
@@ -586,7 +597,7 @@ export const CanvasInner = () => {
       id: 'transform',
       label: 'Transform',
       icon: BrainIcon,
-      onClick: () => addNode('transform'),
+      onClick: () => addNode('transform', undefined, { type: 'text' }),
     },
   ];
 

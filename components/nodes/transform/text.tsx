@@ -1,13 +1,6 @@
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -18,6 +11,7 @@ import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
+import { TransformSelector } from './selector';
 
 type TransformNodeProps = {
   text?: string[];
@@ -102,18 +96,7 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
       type="Transform"
       action={
         <div className="flex items-center gap-2">
-          <Select
-            value={data.type}
-            onValueChange={(value) => updateNodeData(id, { type: value })}
-          >
-            <SelectTrigger size="sm" className="bg-background">
-              <SelectValue placeholder="Select a type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="text">Text</SelectItem>
-              <SelectItem value="image">Image</SelectItem>
-            </SelectContent>
-          </Select>
+          <TransformSelector id={id} type="text" />
           {action}
         </div>
       }
@@ -127,7 +110,7 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
         {!nonUserMessages.length && status === 'ready' && (
           <div className="flex items-center justify-center">
             <p className="text-muted-foreground text-sm">
-              Press "Generate" to start
+              Press "Generate" to generate text
             </p>
           </div>
         )}
