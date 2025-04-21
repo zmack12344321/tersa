@@ -29,8 +29,8 @@ import {
 } from 'react';
 import { Auth } from '../auth';
 import { ConnectionLine } from '../connection-line';
-import { DropConnect } from '../drop-connect';
 import { AnimatedEdge } from '../edges/animated';
+import { DropNode } from '../nodes/drop';
 import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
 import { TransformNode } from '../nodes/transform';
@@ -40,6 +40,7 @@ const nodeTypes = {
   image: ImageNode,
   text: TextNode,
   transform: TransformNode,
+  drop: DropNode,
 };
 
 const edgeTypes = {
@@ -51,8 +52,8 @@ const MIN_DISTANCE = 150;
 export const CanvasInner = () => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [dropPosition, setDropPosition] = useState<XYPosition | null>(null);
-  const { getEdges, getInternalNode, getNodes } = useReactFlow();
+  const { getEdges, getInternalNode, screenToFlowPosition, getNodes } =
+    useReactFlow();
   const store = useStoreApi();
 
   // Helper function to find only downstream transform nodes (one-way traversal)
@@ -240,16 +241,19 @@ export const CanvasInner = () => {
     [getEdges, getNodes]
   );
 
-  const addNode = (type: string) => {
+  const addNode = useCallback((type: string, position?: XYPosition) => {
     const newNode: Node = {
       id: nanoid(),
       type,
-      data: { label: `Node ${nodes.length + 1}` },
-      position: { x: 0, y: 0 },
+      data: {},
+      position: position ?? { x: 0, y: 0 },
+      origin: [0, 0.5],
     };
 
     setNodes((nds) => nds.concat(newNode));
-  };
+
+    return newNode.id;
+  }, []);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -408,10 +412,22 @@ export const CanvasInner = () => {
         // we need to remove the wrapper bounds, in order to get the correct position
         const { clientX, clientY } =
           'changedTouches' in event ? event.changedTouches[0] : event;
-        setDropPosition({ x: clientX, y: clientY });
+
+        const newNodeId = addNode(
+          'drop',
+          screenToFlowPosition({ x: clientX, y: clientY })
+        );
+
+        setEdges((eds) =>
+          eds.concat({
+            id: newNodeId,
+            source: connectionState.fromNode?.id ?? '',
+            target: newNodeId,
+          })
+        );
       }
     },
-    []
+    [addNode, screenToFlowPosition]
   );
 
   const getClosestEdge = useCallback(
@@ -594,7 +610,6 @@ export const CanvasInner = () => {
       <Background />
       <Toolbar addNode={addNode} buttons={buttons} />
       <Auth />
-      <DropConnect position={dropPosition} buttons={buttons} />
     </ReactFlow>
   );
 };
