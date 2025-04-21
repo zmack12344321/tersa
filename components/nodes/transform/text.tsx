@@ -1,8 +1,8 @@
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
+import { chatModels } from '@/lib/models';
 import { useChat } from '@ai-sdk/react';
 import { useUser } from '@clerk/nextjs';
-import { SiOpenai } from '@icons-pack/react-simple-icons';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -21,72 +21,12 @@ type TransformNodeProps = {
   id: string;
 };
 
-const models = [
-  {
-    icon: SiOpenai,
-    label: 'GPT-3.5 Turbo',
-    value: 'gpt-3.5-turbo',
-  },
-  {
-    icon: SiOpenai,
-    label: 'GPT-4',
-    value: 'gpt-4',
-  },
-  {
-    icon: SiOpenai,
-    label: 'GPT-4.1',
-    value: 'gpt-4.1',
-  },
-  {
-    icon: SiOpenai,
-    label: 'GPT-4.1 Mini',
-    value: 'gpt-4.1-mini',
-  },
-  {
-    icon: SiOpenai,
-    label: 'GPT-4.1 Nano',
-    value: 'gpt-4.1-nano',
-  },
-  {
-    icon: SiOpenai,
-    label: 'GPT-4o',
-    value: 'gpt-4o',
-  },
-  {
-    icon: SiOpenai,
-    label: 'GPT-4o Mini',
-    value: 'gpt-4o-mini',
-  },
-  {
-    icon: SiOpenai,
-    label: 'o1',
-    value: 'o1',
-  },
-  {
-    icon: SiOpenai,
-    label: 'o1-mini',
-    value: 'o1-mini',
-  },
-  {
-    icon: SiOpenai,
-    label: 'o3',
-    value: 'o3',
-  },
-  {
-    icon: SiOpenai,
-    label: 'o3-mini',
-    value: 'o3-mini',
-  },
-  {
-    icon: SiOpenai,
-    label: 'o4-mini',
-    value: 'o4-mini',
-  },
-];
-
 export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
+    body: {
+      modelId: data.model,
+    },
     onError: (error) => toast.error(error.message),
     onFinish: () => {
       updateNodeData(id, {
@@ -126,7 +66,11 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
         <ModelSelector
           id={id}
           value={data.model ?? 'gpt-4'}
-          options={models}
+          options={chatModels.map((model) => ({
+            icon: model.icon,
+            label: model.label,
+            value: model.id,
+          }))}
           key={id}
         />
       ),
