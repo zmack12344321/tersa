@@ -3,7 +3,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Handle, NodeResizeControl, Position } from '@xyflow/react';
+import {
+  Handle,
+  NodeResizeControl,
+  NodeToolbar,
+  Position,
+} from '@xyflow/react';
 import { ChevronsUpDownIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '../ui/button';
@@ -24,6 +29,12 @@ export const NodeLayout = ({
   action,
 }: NodeLayoutProps) => (
   <>
+    <NodeToolbar
+      isVisible={data?.forceToolbarVisible || undefined}
+      position={data?.toolbarPosition}
+    >
+      <p>Hello i am a toolbar</p>
+    </NodeToolbar>
     <NodeResizeControl minWidth={300} minHeight={162} />
     <Handle type="target" position={Position.Left} />
     <div className="flex h-full flex-col divide-y">
