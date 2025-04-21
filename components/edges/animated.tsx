@@ -37,8 +37,10 @@ const getHandleCoordsByPosition = (
   node: InternalNode<Node>,
   handlePosition: Position
 ) => {
-  // all handles are from type source, that's why we use handleBounds.source here
-  const handle = node.internals.handleBounds?.source?.find(
+  // Choose the handle type based on position - Left is for target, Right is for source
+  const handleType = handlePosition === Position.Left ? 'target' : 'source';
+
+  const handle = node.internals.handleBounds?.[handleType]?.find(
     (h) => h.position === handlePosition
   );
 
