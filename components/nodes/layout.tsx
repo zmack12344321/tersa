@@ -15,6 +15,9 @@ type NodeLayoutProps = {
   children: ReactNode;
   id: string;
   data?: Record<string, unknown> & {
+    model?: string;
+    type?: string;
+    content?: object;
     forceToolbarVisible?: boolean;
     toolbarPosition?: Position;
   };

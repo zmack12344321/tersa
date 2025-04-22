@@ -11,9 +11,10 @@ import { TypeSelector } from './type-selector';
 
 type TransformSpeechNodeProps = {
   data: {
-    text?: string[];
+    model?: string;
     type?: string;
     updatedAt?: string;
+    content?: object;
   };
   id: string;
 };

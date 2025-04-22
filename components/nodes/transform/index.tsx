@@ -6,9 +6,10 @@ import { TransformVideoNode } from './video';
 
 type TransformNodeProps = {
   data: {
-    text?: string[];
+    model?: string;
     type?: string;
     updatedAt?: string;
+    content?: object;
   };
   id: string;
 };

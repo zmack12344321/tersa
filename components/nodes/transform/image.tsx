@@ -2,7 +2,6 @@ import { generateImageAction } from '@/app/actions/generate/image';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { imageModels } from '@/lib/models';
-import { useUser } from '@clerk/nextjs';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -13,9 +12,10 @@ import { TypeSelector } from './type-selector';
 
 type TransformImageNodeProps = {
   data: {
-    text?: string[];
+    model?: string;
     type?: string;
     updatedAt?: string;
+    content?: object;
   };
   id: string;
 };
@@ -24,7 +24,6 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [image, setImage] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
-  const { user } = useUser();
 
   const handleGenerate = async () => {
     if (loading) {
@@ -43,7 +42,10 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
 
     try {
       setLoading(true);
-      const response = await generateImageAction(prompts.join('\n'));
+      const response = await generateImageAction(
+        prompts.join('\n'),
+        data.model ?? 'dall-e-3'
+      );
       setImage(response);
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),

@@ -19,6 +19,7 @@ type TransformNodeProps = {
     model?: string;
     type?: string;
     updatedAt?: string;
+    content?: object;
   };
   id: string;
 };
@@ -80,7 +81,6 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   };
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
-
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
     {
       children: <TypeSelector id={id} type="text" key={id} />,
