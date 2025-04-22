@@ -1,3 +1,4 @@
+import { transcribeAction } from '@/app/actions/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { chatModels } from '@/lib/models';
@@ -37,21 +38,37 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   });
   const { user } = useUser();
 
-  const handleGenerate = () => {
-    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
-    const prompts = incomers
+  const handleGenerate = async () => {
+    const textNodes = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
+    const audioNodes = getIncomers(
+      { id, type: 'audio' },
+      getNodes(),
+      getEdges()
+    );
+    const prompts = textNodes
       .map((incomer) => getNode(incomer.id)?.data.text)
       .filter(Boolean);
 
-    if (!prompts.length) {
+    if (!prompts.length && !audioNodes.length) {
       toast.error('No prompts found');
       return;
+    }
+
+    const transcriptions: string[] = [];
+
+    if (audioNodes.length) {
+      const audio = audioNodes
+        .map((incomer) => getNode(incomer.id)?.data.audio)
+        .filter(Boolean);
+
+      const transcript = await transcribeAction(audio as never);
+      transcriptions.push(transcript);
     }
 
     setMessages([]);
     append({
       role: 'user',
-      content: prompts.join('\n'),
+      content: [...prompts, ...transcriptions].join('\n'),
     });
   };
 
