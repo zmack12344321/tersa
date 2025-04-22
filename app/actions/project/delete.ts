@@ -5,12 +5,8 @@ import { projects } from '@/schema';
 import { currentUser } from '@clerk/nextjs/server';
 import { and, eq } from 'drizzle-orm';
 
-export const saveProjectAction = async (
-  projectId: number,
-  data: {
-    image: string;
-    content: object;
-  }
+export const deleteProjectAction = async (
+  projectId: number
 ): Promise<
   | {
       sucess: true;
@@ -27,12 +23,7 @@ export const saveProjectAction = async (
     }
 
     const project = await database
-      .update(projects)
-      .set({
-        content: data.content,
-        image: data.image,
-        updatedAt: new Date(),
-      })
+      .delete(projects)
       .where(and(eq(projects.id, projectId), eq(projects.userId, user.id)));
 
     if (!project) {

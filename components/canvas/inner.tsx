@@ -1,6 +1,6 @@
 'use client';
 
-import { saveProjectAction } from '@/app/actions/project/save';
+import { updateProjectAction } from '@/app/actions/project/update';
 import type { projects } from '@/schema';
 import {
   Background,
@@ -127,7 +127,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       const content = rfInstance.toObject();
       const image = await getScreenshot();
 
-      const response = await saveProjectAction(data.id, {
+      const response = await updateProjectAction(data.id, {
         image,
         content,
       });
