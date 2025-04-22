@@ -51,13 +51,7 @@ export const GenerateVideoNode = ({ data, id }: GenerateVideoNodeProps) => {
     {
       tooltip: 'Generate',
       children: (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={handleGenerate}
-          key={`${id}-generate`}
-        >
+        <Button size="icon" className="rounded-full" onClick={handleGenerate}>
           <PlayIcon size={12} />
         </Button>
       ),

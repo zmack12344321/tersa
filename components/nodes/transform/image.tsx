@@ -22,8 +22,10 @@ type GenerateImageNodeProps = {
 
 export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
-  const [image, setImage] = useState<Uint8Array | null>(null);
+  const [image, setImage] = useState<Uint8Array | null>(data.content?.image);
   const [loading, setLoading] = useState(false);
+
+  console.log('data.content', data.content);
 
   const handleGenerate = async () => {
     if (loading) {
@@ -60,9 +62,19 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
         data.model ?? 'dall-e-3'
       );
       setImage(response);
+
+      console.log('Updating node', {
+        updatedAt: new Date().toISOString(),
+        content: {
+          image: response,
+        },
+      });
+
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        image: response,
+        content: {
+          image: response,
+        },
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');
@@ -84,13 +96,7 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
     {
       tooltip: 'Generate',
       children: (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={handleGenerate}
-          key={`${id}-generate`}
-        >
+        <Button size="icon" className="rounded-full" onClick={handleGenerate}>
           <PlayIcon size={12} />
         </Button>
       ),
@@ -118,7 +124,7 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
             alt="Generated image"
             width={1600}
             height={900}
-            className="aspect-video w-full object-cover"
+            className="aspect-video w-full rounded-t-lg object-cover"
           />
         )}
       </div>

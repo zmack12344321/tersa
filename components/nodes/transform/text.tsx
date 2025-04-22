@@ -127,12 +127,7 @@ export const GenerateTextNode = ({ data, id }: GenerateTextNodeProps) => {
       toolbar.push({
         tooltip: 'Generate',
         children: (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={handleGenerate}
-          >
+          <Button size="icon" className="rounded-full" onClick={handleGenerate}>
             <PlayIcon size={12} />
           </Button>
         ),

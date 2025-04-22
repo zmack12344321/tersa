@@ -23,7 +23,7 @@ type TranscribeNodeProps = {
 
 export const TranscribeNode = ({ data, id }: TranscribeNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
-  const [text, setText] = useState<string | null>(null);
+  const [text, setText] = useState<string | null>(data.content?.transcript);
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
@@ -86,13 +86,7 @@ export const TranscribeNode = ({ data, id }: TranscribeNodeProps) => {
     {
       tooltip: 'Generate',
       children: (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={handleGenerate}
-          key={`${id}-generate`}
-        >
+        <Button size="icon" className="rounded-full" onClick={handleGenerate}>
           <PlayIcon size={12} />
         </Button>
       ),
