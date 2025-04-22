@@ -1,13 +1,20 @@
 'use server';
 
-import { openai } from '@ai-sdk/openai';
+import { imageModels } from '@/lib/models';
 import { experimental_generateImage as generateImage } from 'ai';
 
-export const generateImageAction = async (prompt: string) => {
+export const generateImageAction = async (prompt: string, modelId: string) => {
+  const model = imageModels
+    .flatMap((m) => m.models)
+    .find((m) => m.id === modelId)?.model;
+
+  if (!model) {
+    throw new Error('Model not found');
+  }
+
   const { image } = await generateImage({
-    model: openai.image('dall-e-3'),
+    model,
     prompt,
-    aspectRatio: '16:9',
   });
 
   return image.uint8Array;

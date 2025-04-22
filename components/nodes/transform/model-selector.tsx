@@ -12,16 +12,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import type { chatModels } from '@/lib/models';
 import { cn } from '@/lib/utils';
 import { useReactFlow } from '@xyflow/react';
 import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
-import { useState } from 'react';
+import { type ComponentType, type SVGProps, useState } from 'react';
 
 type ModelSelectorProps = {
   id: string;
   value: string;
-  options: typeof chatModels;
+  options: {
+    label: string;
+    models: {
+      icon: ComponentType<SVGProps<SVGSVGElement>>;
+      id: string;
+      label: string;
+    }[];
+  }[];
 };
 
 export const ModelSelector = ({ id, value, options }: ModelSelectorProps) => {

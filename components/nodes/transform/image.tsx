@@ -1,12 +1,14 @@
 import { generateImageAction } from '@/app/actions/image';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
+import { imageModels } from '@/lib/models';
 import { useUser } from '@clerk/nextjs';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
+import { ModelSelector } from './model-selector';
 import { TypeSelector } from './type-selector';
 
 type TransformImageNodeProps = {
@@ -57,6 +59,15 @@ export const TransformImageNode = ({ data, id }: TransformImageNodeProps) => {
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
     {
       children: <TypeSelector id={id} type="image" key={`${id}-selector`} />,
+    },
+    {
+      children: (
+        <ModelSelector
+          id={id}
+          value={data.model ?? 'dall-e-3'}
+          options={imageModels}
+        />
+      ),
     },
     {
       tooltip: 'Generate',
