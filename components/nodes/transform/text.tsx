@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { chatModels } from '@/lib/models';
 import { useChat } from '@ai-sdk/react';
 import { useUser } from '@clerk/nextjs';
+import type { PutBlobResult } from '@vercel/blob';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -26,7 +27,7 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
-      modelId: data.model,
+      modelId: data.model ?? 'gpt-4',
     },
     onError: (error) => toast.error(error.message),
     onFinish: () => {
@@ -39,30 +40,36 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   const { user } = useUser();
 
   const handleGenerate = async () => {
-    const textNodes = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
-    const audioNodes = getIncomers(
-      { id, type: 'audio' },
-      getNodes(),
-      getEdges()
-    );
-    const prompts = textNodes
+    const incoming = getIncomers({ id }, getNodes(), getEdges());
+    const prompts = incoming
+      .filter((incomer) => getNode(incomer.id)?.type === 'text')
       .map((incomer) => getNode(incomer.id)?.data.text)
+      .filter(Boolean);
+    const audioNodes = incoming
+      .filter((incomer) => getNode(incomer.id)?.type === 'audio')
+      .map(
+        (incomer) =>
+          getNode(incomer.id)?.data.content as PutBlobResult | undefined
+      )
       .filter(Boolean);
 
     if (!prompts.length && !audioNodes.length) {
-      toast.error('No prompts found');
+      toast.error('No prompts or audio found');
       return;
     }
 
     const transcriptions: string[] = [];
 
     if (audioNodes.length) {
-      const audio = audioNodes
-        .map((incomer) => getNode(incomer.id)?.data.audio)
-        .filter(Boolean);
+      for (const audioNode of audioNodes) {
+        if (!audioNode) {
+          continue;
+        }
 
-      const transcript = await transcribeAction(audio as never);
-      transcriptions.push(transcript);
+        const transcript = await transcribeAction(audioNode.downloadUrl);
+
+        transcriptions.push(transcript);
+      }
     }
 
     setMessages([]);

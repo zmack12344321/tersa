@@ -1,27 +1,29 @@
-import { type ChangeEvent, useCallback } from 'react';
+import type { PutBlobResult } from '@vercel/blob';
+import { useReactFlow } from '@xyflow/react';
 import { Uploader } from '../uploader';
 import { NodeLayout } from './layout';
 
 type AudioNodeProps = {
   data: {
-    src?: string;
+    content?: PutBlobResult;
   };
   id: string;
 };
 
 export const AudioNode = ({ data, id }: AudioNodeProps) => {
-  const onChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
-    console.log(evt.target.value);
-  }, []);
+  const { updateNodeData } = useReactFlow();
+  const handleUploadCompleted = (blob: PutBlobResult) => {
+    updateNodeData(id, { content: blob });
+  };
 
   return (
     <NodeLayout id={id} data={data} type="Audio">
       <div className="p-4">
-        {data.src ? (
+        {data.content ? (
           // biome-ignore lint/a11y/useMediaCaption: <explanation>
-          <audio src={data.src} controls />
+          <audio src={data.content.downloadUrl} controls />
         ) : (
-          <Uploader endpoint="/api/audio/upload" />
+          <Uploader onUploadCompleted={handleUploadCompleted} />
         )}
       </div>
     </NodeLayout>
