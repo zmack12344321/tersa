@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/providers/theme';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from '@vercel/analytics/next';
 import type { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 
@@ -36,6 +37,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster className="z-[99999999]" />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   </ClerkProvider>
