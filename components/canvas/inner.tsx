@@ -1,5 +1,6 @@
 'use client';
 
+import type { projects } from '@/schema';
 import {
   Background,
   type Connection,
@@ -31,6 +32,7 @@ import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
 import { TransformNode } from '../nodes/transform';
 import { VideoNode } from '../nodes/video';
+import { Projects } from '../projects';
 import { Toolbar } from '../toolbar';
 
 const nodeTypes = {
@@ -47,7 +49,12 @@ const edgeTypes = {
   temporary: TemporaryEdge,
 };
 
-export const CanvasInner = () => {
+type CanvasProps = {
+  projects: (typeof projects.$inferSelect)[];
+  data: typeof projects.$inferSelect;
+};
+
+export const CanvasInner = ({ projects, data }: CanvasProps) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const { getEdges, getInternalNode, screenToFlowPosition, getNodes } =
@@ -221,6 +228,7 @@ export const CanvasInner = () => {
       <Background bgColor="var(--secondary)" />
       <Toolbar addNode={addNode} buttons={buttons} />
       <Auth />
+      <Projects projects={projects} currentProject={data.id.toString()} />
     </ReactFlow>
   );
 };
