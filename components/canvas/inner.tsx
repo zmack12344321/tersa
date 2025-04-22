@@ -5,7 +5,6 @@ import {
   type Connection,
   type Edge,
   type FinalConnectionState,
-  type InternalNode,
   type Node,
   ReactFlow,
   type XYPosition,
@@ -20,11 +19,7 @@ import { AudioWaveformIcon, BrainIcon, VideoIcon } from 'lucide-react';
 import { ImageIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import {
-  type MouseEvent as ReactMouseEvent,
-  useCallback,
-  useEffect,
-} from 'react';
+import { useCallback, useEffect } from 'react';
 import { Auth } from '../auth';
 import { ConnectionLine } from '../connection-line';
 import { Controls } from '../controls';
@@ -51,8 +46,6 @@ const edgeTypes = {
   animated: AnimatedEdge,
   temporary: TemporaryEdge,
 };
-
-const MIN_DISTANCE = 150;
 
 export const CanvasInner = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -110,109 +103,6 @@ export const CanvasInner = () => {
       }
     },
     [addNode, screenToFlowPosition, setEdges]
-  );
-
-  const getClosestEdge = useCallback(
-    (node: Node) => {
-      const { nodeLookup } = store.getState();
-      const internalNode = getInternalNode(node.id);
-
-      if (!internalNode) {
-        return null;
-      }
-
-      const closestNode = Array.from(nodeLookup.values()).reduce<{
-        distance: number;
-        node: InternalNode<Node> | null;
-      }>(
-        (res, n) => {
-          if (n.id !== internalNode.id) {
-            const dx =
-              n.internals.positionAbsolute.x -
-              internalNode.internals.positionAbsolute.x;
-            const dy =
-              n.internals.positionAbsolute.y -
-              internalNode.internals.positionAbsolute.y;
-            const d = Math.sqrt(dx * dx + dy * dy);
-
-            if (d < res.distance && d < MIN_DISTANCE) {
-              res.distance = d;
-              res.node = n;
-            }
-          }
-
-          return res;
-        },
-        {
-          distance: Number.MAX_VALUE,
-          node: null,
-        }
-      );
-
-      if (!closestNode.node) {
-        return null;
-      }
-
-      const closeNodeIsSource =
-        closestNode.node.internals.positionAbsolute.x <
-        internalNode.internals.positionAbsolute.x;
-
-      return {
-        id: closeNodeIsSource
-          ? `${closestNode.node.id}-${node.id}`
-          : `${node.id}-${closestNode.node.id}`,
-        source: closeNodeIsSource ? closestNode.node.id : node.id,
-        target: closeNodeIsSource ? node.id : closestNode.node.id,
-      };
-    },
-    [store, getInternalNode]
-  );
-
-  const onNodeDrag = useCallback(
-    (_: ReactMouseEvent, node: Node) => {
-      const closeEdge = getClosestEdge(node);
-
-      setEdges((es) => {
-        const nextEdges = es.filter((e) => e.className !== 'temp');
-
-        if (
-          closeEdge &&
-          !nextEdges.find(
-            (ne) =>
-              ne.source === closeEdge.source && ne.target === closeEdge.target
-          )
-        ) {
-          // closeEdge.className = 'temp';
-          nextEdges.push(closeEdge);
-        }
-
-        return nextEdges;
-      });
-    },
-    [getClosestEdge, setEdges]
-  );
-
-  const onNodeDragStop = useCallback(
-    (_: ReactMouseEvent, node: Node) => {
-      const closeEdge = getClosestEdge(node);
-
-      setEdges((es) => {
-        const nextEdges = es.filter((e) => e.className !== 'temp');
-
-        if (
-          closeEdge &&
-          !nextEdges.find(
-            (ne) =>
-              ne.source === closeEdge.source && ne.target === closeEdge.target
-          )
-        ) {
-          nextEdges.push(closeEdge);
-        }
-
-        return nextEdges;
-      });
-    },
-    [getClosestEdge, setEdges]
   );
 
   const isValidConnection = useCallback(
@@ -323,9 +213,7 @@ export const CanvasInner = () => {
       onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
-      onNodeDrag={onNodeDrag}
       isValidConnection={isValidConnection}
-      onNodeDragStop={onNodeDragStop}
       connectionLineComponent={ConnectionLine}
       fitView
     >
