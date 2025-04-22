@@ -1,26 +1,32 @@
 'use client';
 
+import { saveProjectAction } from '@/app/actions/save';
 import type { projects } from '@/schema';
 import {
   Background,
   type Connection,
   type Edge,
+  type EdgeChange,
   type FinalConnectionState,
   type Node,
+  type NodeChange,
   ReactFlow,
+  type ReactFlowInstance,
+  type Viewport,
   type XYPosition,
   addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
   getOutgoers,
-  useEdgesState,
-  useNodesState,
   useReactFlow,
-  useStoreApi,
 } from '@xyflow/react';
 import { AudioWaveformIcon, BrainIcon, VideoIcon } from 'lucide-react';
 import { ImageIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { useDebouncedCallback } from 'use-debounce';
 import { Auth } from '../auth';
 import { ConnectionLine } from '../connection-line';
 import { Controls } from '../controls';
@@ -33,6 +39,7 @@ import { TextNode } from '../nodes/text';
 import { TransformNode } from '../nodes/transform';
 import { VideoNode } from '../nodes/video';
 import { Projects } from '../projects';
+import { SaveIndicator } from '../save-indicator';
 import { Toolbar } from '../toolbar';
 
 const nodeTypes = {
@@ -51,15 +58,56 @@ const edgeTypes = {
 
 type CanvasProps = {
   projects: (typeof projects.$inferSelect)[];
-  data: typeof projects.$inferSelect;
+  data: typeof projects.$inferSelect & {
+    content:
+      | { nodes: Node[]; edges: Edge[]; x: number; y: number; zoom: number }
+      | undefined;
+  };
 };
 
 export const CanvasInner = ({ projects, data }: CanvasProps) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const { getEdges, getInternalNode, screenToFlowPosition, getNodes } =
-    useReactFlow();
-  const store = useStoreApi();
+  const [nodes, setNodes] = useState<Node[]>(data.content?.nodes ?? []);
+  const [edges, setEdges] = useState<Edge[]>(data.content?.edges ?? []);
+  const [viewport, setViewport] = useState<Viewport | undefined>({
+    x: data.content?.x ?? 0,
+    y: data.content?.y ?? 0,
+    zoom: data.content?.zoom ?? 1,
+  });
+  const { getEdges, screenToFlowPosition, getNodes } = useReactFlow();
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  const save = useDebouncedCallback(async (source: string) => {
+    if (!rfInstance) {
+      toast.error('No instance found');
+      return;
+    }
+
+    if (isSaving) {
+      return;
+    }
+
+    console.log('saving', source);
+
+    try {
+      setIsSaving(true);
+
+      const content = rfInstance.toObject();
+      const response = await saveProjectAction(data.id, content);
+
+      if ('error' in response) {
+        throw new Error(response.error);
+      }
+
+      setLastSaved(new Date());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(message);
+    } finally {
+      setIsSaving(false);
+    }
+  }, 2000);
 
   const addNode = useCallback(
     (type: string, position?: XYPosition, data?: Record<string, unknown>) => {
@@ -75,14 +123,15 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
 
       return newNode.id;
     },
-    [setNodes]
+    []
   );
 
   const onConnect = useCallback(
     (connection: Connection) => {
       setEdges((eds) => addEdge({ ...connection, type: 'animated' }, eds));
+      save('onConnect');
     },
-    [setEdges]
+    [save]
   );
 
   const onConnectEnd = useCallback(
@@ -109,7 +158,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
         );
       }
     },
-    [addNode, screenToFlowPosition, setEdges]
+    [addNode, screenToFlowPosition]
   );
 
   const isValidConnection = useCallback(
@@ -148,7 +197,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
 
     // Also remove any temporary edges
     setEdges((eds) => eds.filter((e) => e.type !== 'temporary'));
-  }, [setEdges, setNodes]);
+  }, []);
 
   const buttons = [
     {
@@ -183,6 +232,22 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     },
   ];
 
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setNodes((nds) => applyNodeChanges(changes, nds));
+      save('onNodesChange');
+    },
+    [save]
+  );
+
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+      save('onEdgesChange');
+    },
+    [save]
+  );
+
   useEffect(() => {
     // Add keyboard shortcut for selecting all nodes (Cmd/Ctrl + A)
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -207,7 +272,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [setNodes]);
+  }, []);
 
   return (
     <ReactFlow
@@ -222,13 +287,20 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       edgeTypes={edgeTypes}
       isValidConnection={isValidConnection}
       connectionLineComponent={ConnectionLine}
+      onInit={setRfInstance}
       fitView
+      viewport={viewport}
+      onViewportChange={setViewport}
     >
       <Controls />
       <Background bgColor="var(--secondary)" />
       <Toolbar addNode={addNode} buttons={buttons} />
       <Auth />
       <Projects projects={projects} currentProject={data.id.toString()} />
+      <SaveIndicator
+        lastSaved={lastSaved ?? data.updatedAt}
+        saving={isSaving}
+      />
     </ReactFlow>
   );
 };
