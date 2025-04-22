@@ -22,9 +22,6 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import { toPng } from 'html-to-image';
-import { AudioWaveformIcon, BrainIcon, VideoIcon } from 'lucide-react';
-import { ImageIcon } from 'lucide-react';
-import { TextIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -236,39 +233,6 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     setEdges((eds) => eds.filter((e) => e.type !== 'temporary'));
   }, []);
 
-  const buttons = [
-    {
-      id: 'text',
-      label: 'Text',
-      icon: TextIcon,
-      onClick: () => addNode('text'),
-    },
-    {
-      id: 'image',
-      label: 'Image',
-      icon: ImageIcon,
-      onClick: () => addNode('image'),
-    },
-    {
-      id: 'audio',
-      label: 'Audio',
-      icon: AudioWaveformIcon,
-      onClick: () => addNode('audio'),
-    },
-    {
-      id: 'video',
-      label: 'Video',
-      icon: VideoIcon,
-      onClick: () => addNode('video'),
-    },
-    {
-      id: 'transform',
-      label: 'Transform',
-      icon: BrainIcon,
-      onClick: () => addNode('transform', undefined, { type: 'text' }),
-    },
-  ];
-
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
@@ -331,7 +295,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     >
       <Controls />
       <Background bgColor="var(--secondary)" />
-      <Toolbar addNode={addNode} buttons={buttons} />
+      <Toolbar />
       <Auth />
       <Projects projects={projects} currentProject={data.id.toString()} />
       <SaveIndicator
