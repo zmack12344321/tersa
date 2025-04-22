@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description,
 };
 
-const SignInPage = () => <SignIn />;
+const SignInPage = () => (
+  <SignIn waitlistUrl="/" signInUrl="/sign-in" signUpUrl="/sign-up" />
+);
 
 export default SignInPage;
