@@ -210,6 +210,16 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       const nodes = getNodes();
       const edges = getEdges();
       const target = nodes.find((node) => node.id === connection.target);
+
+      // Prevent connecting audio nodes to anything except transcribe nodes
+      if (connection.source) {
+        const sourceNode = nodes.find((node) => node.id === connection.source);
+        if (sourceNode?.type === 'audio' && target?.type !== 'transcribe') {
+          return false;
+        }
+      }
+
+      // Prevent cycles
       const hasCycle = (node: Node, visited = new Set<string>()) => {
         if (visited.has(node.id)) {
           return false;

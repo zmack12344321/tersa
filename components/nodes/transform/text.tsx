@@ -2,10 +2,11 @@ import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { chatModels } from '@/lib/models';
+import { getRecursiveIncomers } from '@/lib/xyflow';
 import { useChat } from '@ai-sdk/react';
 import { useUser } from '@clerk/nextjs';
 import type { PutBlobResult } from '@vercel/blob';
-import { type Node, getIncomers, useReactFlow } from '@xyflow/react';
+import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -39,29 +40,8 @@ export const GenerateTextNode = ({ data, id }: GenerateTextNodeProps) => {
   });
   const { user } = useUser();
 
-  const getRecursiveIncomers = (
-    nodeId: string,
-    visited = new Set<string>()
-  ): Node[] => {
-    if (visited.has(nodeId)) {
-      return [];
-    }
-
-    visited.add(nodeId);
-
-    const directIncomers = getIncomers({ id: nodeId }, getNodes(), getEdges());
-    const allIncomers: Node[] = [...directIncomers];
-
-    for (const incomer of directIncomers) {
-      const recursiveIncomers = getRecursiveIncomers(incomer.id, visited);
-      allIncomers.push(...recursiveIncomers);
-    }
-
-    return allIncomers;
-  };
-
   const handleGenerate = async () => {
-    const incoming = getRecursiveIncomers(id);
+    const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
     const prompts = incoming
       .filter((incomer) => getNode(incomer.id)?.type === 'text')
       .map((incomer) => getNode(incomer.id)?.data.text)

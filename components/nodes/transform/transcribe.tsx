@@ -2,7 +2,9 @@ import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { speechModels } from '@/lib/models';
-import { getIncomers, useReactFlow } from '@xyflow/react';
+import { getRecursiveIncomers } from '@/lib/xyflow';
+import type { PutBlobResult } from '@vercel/blob';
+import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -29,23 +31,39 @@ export const TranscribeNode = ({ data, id }: TranscribeNodeProps) => {
       return;
     }
 
-    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
-    const prompts = incomers
-      .map((incomer) => getNode(incomer.id)?.data.text)
-      .filter(Boolean);
+    const incomers = getRecursiveIncomers(id, getNodes(), getEdges());
+    const audioNodes: string[] = incomers
+      .filter((incomer) => getNode(incomer.id)?.type === 'audio')
+      .map(
+        (incomer) =>
+          getNode(incomer.id)?.data.content as PutBlobResult | undefined
+      )
+      .map((node) => node?.downloadUrl)
+      .filter(Boolean) as string[];
 
-    if (!prompts.length) {
-      toast.error('No prompts found');
+    if (!audioNodes.length) {
+      toast.error('No audio found');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await transcribeAction(prompts.join('\n'));
-      setText(response);
+
+      const transcripts: string[] = [];
+
+      await Promise.all(
+        audioNodes.map(async (audioNode) => {
+          const transcript = await transcribeAction(audioNode);
+          transcripts.push(transcript);
+        })
+      );
+
+      setText(transcripts.join('\n'));
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        audio: response,
+        content: {
+          transcript: transcripts.join('\n'),
+        },
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');
@@ -96,7 +114,11 @@ export const TranscribeNode = ({ data, id }: TranscribeNodeProps) => {
             </p>
           </div>
         )}
-        {text && <ReactMarkdown>{text}</ReactMarkdown>}
+        {text && (
+          <div className="p-4">
+            <ReactMarkdown>{text}</ReactMarkdown>
+          </div>
+        )}
       </div>
       {data.updatedAt && (
         <div className="flex items-center justify-between p-4">

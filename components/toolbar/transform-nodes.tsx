@@ -70,7 +70,7 @@ export const TransformNodes = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button
           type="button"
           variant="ghost"

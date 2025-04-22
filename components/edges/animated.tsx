@@ -45,7 +45,7 @@ const getHandleCoordsByPosition = (
   );
 
   if (!handle) {
-    throw new Error(`Handle not found for position: ${handlePosition}`);
+    return [0, 0];
   }
 
   let offsetX = handle.width / 2;

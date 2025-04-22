@@ -63,7 +63,7 @@ export const PrimitiveNodes = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button
           type="button"
           variant="ghost"

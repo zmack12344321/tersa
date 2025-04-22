@@ -2,7 +2,8 @@ import { generateImageAction } from '@/app/actions/generate/image';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { imageModels } from '@/lib/models';
-import { getIncomers, useReactFlow } from '@xyflow/react';
+import { getRecursiveIncomers } from '@/lib/xyflow';
+import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
 import { type ComponentProps, useState } from 'react';
@@ -29,20 +30,33 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
       return;
     }
 
-    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
-    const prompts = incomers
+    const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
+    const prompts: string[] = incoming
+      .filter((incomer) => getNode(incomer.id)?.type === 'text')
       .map((incomer) => getNode(incomer.id)?.data.text)
-      .filter(Boolean);
+      .filter(Boolean) as string[];
+    const transcriptNodes: string[] = incoming
+      .filter((incomer) => getNode(incomer.id)?.type === 'transcribe')
+      .map(
+        (incomer) =>
+          getNode(incomer.id)?.data.content as
+            | { transcript: string }
+            | undefined
+      )
+      .map((node) => node?.transcript)
+      .filter(Boolean) as string[];
 
-    if (!prompts.length) {
-      toast.error('No prompts found');
+    console.log(incoming);
+
+    if (!prompts.length && !transcriptNodes.length) {
+      toast.error('No prompts or transcripts found');
       return;
     }
 
     try {
       setLoading(true);
       const response = await generateImageAction(
-        prompts.join('\n'),
+        [...prompts, ...transcriptNodes].join('\n'),
         data.model ?? 'dall-e-3'
       );
       setImage(response);
