@@ -11,6 +11,10 @@ import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { ModelSelector } from '../model-selector';
 
+type TranscribeNodeContent = {
+  transcript: string;
+};
+
 type TranscribeNodeProps = {
   data: {
     model?: string;
@@ -23,7 +27,9 @@ type TranscribeNodeProps = {
 
 export const TranscribeNode = ({ data, id }: TranscribeNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
-  const [text, setText] = useState<string | null>(data.content?.transcript);
+  const [text, setText] = useState<string | null>(
+    (data.content as TranscribeNodeContent)?.transcript ?? null
+  );
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
