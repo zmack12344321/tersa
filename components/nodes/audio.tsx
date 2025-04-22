@@ -18,14 +18,19 @@ export const AudioNode = ({ data, id }: AudioNodeProps) => {
 
   return (
     <NodeLayout id={id} data={data} type="Audio">
-      <div className="p-4">
-        {data.content ? (
-          // biome-ignore lint/a11y/useMediaCaption: <explanation>
-          <audio src={data.content.downloadUrl} controls />
-        ) : (
-          <Uploader onUploadCompleted={handleUploadCompleted} />
-        )}
-      </div>
+      {data.content ? (
+        // biome-ignore lint/a11y/useMediaCaption: <explanation>
+        <audio src={data.content.downloadUrl} controls />
+      ) : (
+        <div className="p-4">
+          <Uploader
+            onUploadCompleted={handleUploadCompleted}
+            accept={{
+              'audio/*': [],
+            }}
+          />
+        </div>
+      )}
     </NodeLayout>
   );
 };

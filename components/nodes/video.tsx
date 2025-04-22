@@ -1,31 +1,45 @@
-import { type ChangeEvent, useCallback } from 'react';
+import type { PutBlobResult } from '@vercel/blob';
+import { useReactFlow } from '@xyflow/react';
 import { Uploader } from '../uploader';
 import { NodeLayout } from './layout';
 
 type VideoNodeProps = {
   data: {
-    src?: string;
-    width?: number;
-    height?: number;
+    content?: PutBlobResult;
   };
   id: string;
 };
 
 export const VideoNode = ({ data, id }: VideoNodeProps) => {
-  const onChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
-    console.log(evt.target.value);
-  }, []);
+  const { updateNodeData } = useReactFlow();
+  const handleUploadCompleted = (blob: PutBlobResult) => {
+    updateNodeData(id, { content: blob });
+  };
 
   return (
     <NodeLayout id={id} data={data} type="Video">
-      <div className="p-4">
-        {data.src ? (
-          // biome-ignore lint/a11y/useMediaCaption: <explanation>
-          <video src={data.src} width={data.width} height={data.height} />
-        ) : (
-          <Uploader endpoint="/api/video/upload" />
-        )}
-      </div>
+      {data.content ? (
+        // biome-ignore lint/a11y/useMediaCaption: <explanation>
+        <video
+          src={data.content.downloadUrl}
+          width={100}
+          height={100}
+          className="h-auto w-full rounded-lg"
+          playsInline
+          autoPlay
+          muted
+          loop
+        />
+      ) : (
+        <div className="p-4">
+          <Uploader
+            onUploadCompleted={handleUploadCompleted}
+            accept={{
+              'video/*': [],
+            }}
+          />
+        </div>
+      )}
     </NodeLayout>
   );
 };

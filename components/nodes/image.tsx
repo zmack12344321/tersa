@@ -19,19 +19,24 @@ export const ImageNode = ({ data, id }: ImageNodeProps) => {
 
   return (
     <NodeLayout id={id} data={data} type="Image">
-      <div className="p-4">
-        {data.content ? (
-          <Image
-            src={data.content.downloadUrl}
-            alt="Image"
-            width={100}
-            height={100}
-            className="h-auto w-full"
+      {data.content ? (
+        <Image
+          src={data.content.downloadUrl}
+          alt="Image"
+          width={1000}
+          height={1000}
+          className="h-auto w-full rounded-lg"
+        />
+      ) : (
+        <div className="p-4">
+          <Uploader
+            onUploadCompleted={handleUploadCompleted}
+            accept={{
+              'image/*': [],
+            }}
           />
-        ) : (
-          <Uploader onUploadCompleted={handleUploadCompleted} />
-        )}
-      </div>
+        </div>
+      )}
     </NodeLayout>
   );
 };
