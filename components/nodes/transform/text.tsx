@@ -10,10 +10,9 @@ import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
-import { ModelSelector } from './model-selector';
-import { TypeSelector } from './type-selector';
+import { ModelSelector } from '../model-selector';
 
-type TransformNodeProps = {
+type GenerateTextNodeProps = {
   text?: string[];
   data: {
     model?: string;
@@ -24,7 +23,7 @@ type TransformNodeProps = {
   id: string;
 };
 
-export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
+export const GenerateTextNode = ({ data, id }: GenerateTextNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
@@ -104,9 +103,6 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
     {
-      children: <TypeSelector id={id} type="text" key={id} />,
-    },
-    {
       children: (
         <ModelSelector
           id={id}
@@ -165,7 +161,7 @@ export const TransformTextNode = ({ data, id }: TransformNodeProps) => {
   }
 
   return (
-    <NodeLayout id={id} data={data} type="Transform" toolbar={toolbar}>
+    <NodeLayout id={id} data={data} type="Generate Text" toolbar={toolbar}>
       <div className="p-4">
         {!nonUserMessages.length && status === 'streaming' && (
           <div className="flex items-center justify-center">

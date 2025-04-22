@@ -5,7 +5,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { type Node, type XYPosition, useReactFlow } from '@xyflow/react';
-import { BrainIcon } from 'lucide-react';
+import {
+  BrainIcon,
+  ImageIcon,
+  MessageCircleIcon,
+  MicIcon,
+  TextIcon,
+  VideoIcon,
+} from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { Button } from '../ui/button';
 
@@ -30,10 +37,34 @@ export const TransformNodes = () => {
 
   const buttons = [
     {
-      id: 'transform',
-      label: 'Transform',
-      icon: BrainIcon,
-      onClick: () => addNode('transform', undefined, { type: 'text' }),
+      id: 'generateText',
+      label: 'Generate Text',
+      icon: TextIcon,
+      onClick: () => addNode('generateText', undefined, { type: 'text' }),
+    },
+    {
+      id: 'generateSpeech',
+      label: 'Generate Speech',
+      icon: MessageCircleIcon,
+      onClick: () => addNode('generateSpeech', undefined, { type: 'speech' }),
+    },
+    {
+      id: 'generateVideo',
+      label: 'Generate Video',
+      icon: VideoIcon,
+      onClick: () => addNode('generateVideo', undefined, { type: 'video' }),
+    },
+    {
+      id: 'generateImage',
+      label: 'Generate Image',
+      icon: ImageIcon,
+      onClick: () => addNode('generateImage', undefined, { type: 'image' }),
+    },
+    {
+      id: 'transcribe',
+      label: 'Transcribe',
+      icon: MicIcon,
+      onClick: () => addNode('transcribe', undefined, { type: 'transcribe' }),
     },
   ];
 

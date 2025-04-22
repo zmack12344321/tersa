@@ -31,12 +31,16 @@ import { ConnectionLine } from '../connection-line';
 import { Controls } from '../controls';
 import { AnimatedEdge } from '../edges/animated';
 import { TemporaryEdge } from '../edges/temporary';
-import { AudioNode } from '../nodes/audio';
 import { DropNode } from '../nodes/drop';
-import { ImageNode } from '../nodes/image';
-import { TextNode } from '../nodes/text';
-import { TransformNode } from '../nodes/transform';
-import { VideoNode } from '../nodes/video';
+import { AudioNode } from '../nodes/primitive/audio';
+import { ImageNode } from '../nodes/primitive/image';
+import { TextNode } from '../nodes/primitive/text';
+import { VideoNode } from '../nodes/primitive/video';
+import { GenerateImageNode } from '../nodes/transform/image';
+import { GenerateSpeechNode } from '../nodes/transform/speech';
+import { GenerateTextNode } from '../nodes/transform/text';
+import { TranscribeNode } from '../nodes/transform/transcribe';
+import { GenerateVideoNode } from '../nodes/transform/video';
 import { Projects } from '../projects';
 import { SaveIndicator } from '../save-indicator';
 import { Toolbar } from '../toolbar';
@@ -44,10 +48,14 @@ import { Toolbar } from '../toolbar';
 const nodeTypes = {
   image: ImageNode,
   text: TextNode,
-  transform: TransformNode,
   drop: DropNode,
   video: VideoNode,
   audio: AudioNode,
+  transcribe: TranscribeNode,
+  generateSpeech: GenerateSpeechNode,
+  generateText: GenerateTextNode,
+  generateVideo: GenerateVideoNode,
+  generateImage: GenerateImageNode,
 };
 
 const edgeTypes = {

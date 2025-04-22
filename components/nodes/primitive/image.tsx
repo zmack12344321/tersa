@@ -1,9 +1,10 @@
+import { NodeLayout } from '@/components/nodes/layout';
+import { Uploader } from '@/components/uploader';
 import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
-import { Uploader } from '../uploader';
-import { NodeLayout } from './layout';
+import Image from 'next/image';
 
-type VideoNodeProps = {
+type ImageNodeProps = {
   data: {
     content?: PutBlobResult;
     width?: number;
@@ -12,24 +13,24 @@ type VideoNodeProps = {
   id: string;
 };
 
-const getVideoDimensions = (url: string) =>
+const getImageDimensions = (url: string) =>
   new Promise<{ width: number; height: number }>((resolve, reject) => {
-    const video = document.createElement('video');
-    video.src = url;
+    const image = new window.Image();
+    image.src = url;
 
-    video.onloadedmetadata = () => {
-      resolve({ width: video.videoWidth, height: video.videoHeight });
+    image.onload = () => {
+      resolve({ width: image.width, height: image.height });
     };
 
-    video.onerror = () => {
-      reject(new Error('Failed to load video'));
+    image.onerror = () => {
+      reject(new Error('Failed to load image'));
     };
   });
 
-export const VideoNode = ({ data, id }: VideoNodeProps) => {
+export const ImageNode = ({ data, id }: ImageNodeProps) => {
   const { updateNodeData } = useReactFlow();
   const handleUploadCompleted = async (blob: PutBlobResult) => {
-    const response = await getVideoDimensions(blob.downloadUrl);
+    const response = await getImageDimensions(blob.downloadUrl);
 
     updateNodeData(id, {
       content: blob,
@@ -39,24 +40,21 @@ export const VideoNode = ({ data, id }: VideoNodeProps) => {
   };
 
   return (
-    <NodeLayout id={id} data={data} type="Video">
+    <NodeLayout id={id} data={data} type="Image">
       {data.content ? (
-        <video
+        <Image
           src={data.content.downloadUrl}
-          width={data.width ?? 100}
-          height={data.height ?? 100}
+          alt="Image"
+          width={data.width ?? 1000}
+          height={data.height ?? 1000}
           className="h-auto w-full rounded-lg"
-          playsInline
-          autoPlay
-          muted
-          loop
         />
       ) : (
         <div className="p-4">
           <Uploader
             onUploadCompleted={handleUploadCompleted}
             accept={{
-              'video/*': [],
+              'image/*': [],
             }}
           />
         </div>

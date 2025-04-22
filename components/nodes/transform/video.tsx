@@ -5,9 +5,8 @@ import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
-import { TypeSelector } from './type-selector';
 
-type TransformVideoNodeProps = {
+type GenerateVideoNodeProps = {
   text?: string[];
   data: {
     text?: string[];
@@ -17,7 +16,7 @@ type TransformVideoNodeProps = {
   id: string;
 };
 
-export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
+export const GenerateVideoNode = ({ data, id }: GenerateVideoNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [video, setVideo] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
@@ -50,9 +49,6 @@ export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
 
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
     {
-      children: <TypeSelector id={id} type="video" key={`${id}-selector`} />,
-    },
-    {
       tooltip: 'Generate',
       children: (
         <Button
@@ -69,7 +65,7 @@ export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
   ];
 
   return (
-    <NodeLayout id={id} data={data} type="Transform" toolbar={toolbar}>
+    <NodeLayout id={id} data={data} type="Generate Video" toolbar={toolbar}>
       <div>
         {loading && !video && (
           <div className="flex items-center justify-center p-4">

@@ -1,7 +1,7 @@
+import { NodeLayout } from '@/components/nodes/layout';
+import { Uploader } from '@/components/uploader';
 import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
-import { Uploader } from '../uploader';
-import { NodeLayout } from './layout';
 
 type AudioNodeProps = {
   data: {

@@ -1,15 +1,15 @@
-import { generateImageAction } from '@/app/actions/generate/image';
+import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import { imageModels } from '@/lib/models';
+import { speechModels } from '@/lib/models';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
-import Image from 'next/image';
 import { type ComponentProps, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { ModelSelector } from '../model-selector';
 
-type GenerateImageNodeProps = {
+type TranscribeNodeProps = {
   data: {
     model?: string;
     type?: string;
@@ -19,9 +19,9 @@ type GenerateImageNodeProps = {
   id: string;
 };
 
-export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
+export const TranscribeNode = ({ data, id }: TranscribeNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
-  const [image, setImage] = useState<Uint8Array | null>(null);
+  const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
@@ -41,14 +41,11 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
 
     try {
       setLoading(true);
-      const response = await generateImageAction(
-        prompts.join('\n'),
-        data.model ?? 'dall-e-3'
-      );
-      setImage(response);
+      const response = await transcribeAction(prompts.join('\n'));
+      setText(response);
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        image: response,
+        audio: response,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');
@@ -62,8 +59,9 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
       children: (
         <ModelSelector
           id={id}
-          value={data.model ?? 'dall-e-3'}
-          options={imageModels}
+          value={data.model ?? 'tts-1'}
+          options={speechModels}
+          key={id}
         />
       ),
     },
@@ -84,29 +82,21 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
   ];
 
   return (
-    <NodeLayout id={id} data={data} type="Generate Image" toolbar={toolbar}>
+    <NodeLayout id={id} data={data} type="Transcribe" toolbar={toolbar}>
       <div>
-        {loading && !image && (
+        {loading && !text && (
           <div className="flex items-center justify-center p-4">
             <Loader2Icon size={16} className="animate-spin" />
           </div>
         )}
-        {!loading && !image && (
+        {!loading && !text && (
           <div className="flex items-center justify-center p-4">
             <p className="text-muted-foreground text-sm">
-              Press "Generate" to create an image
+              Press "Generate" to transcribe text
             </p>
           </div>
         )}
-        {image && (
-          <Image
-            src={URL.createObjectURL(new Blob([image]))}
-            alt="Generated image"
-            width={1600}
-            height={900}
-            className="aspect-video w-full object-cover"
-          />
-        )}
+        {text && <ReactMarkdown>{text}</ReactMarkdown>}
       </div>
       {data.updatedAt && (
         <div className="flex items-center justify-between p-4">

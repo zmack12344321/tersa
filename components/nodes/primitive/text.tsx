@@ -1,9 +1,9 @@
+import { NodeLayout } from '@/components/nodes/layout';
 import { EditorProvider } from '@/components/ui/kibo-ui/editor';
 import { cn } from '@/lib/utils';
 import type { Editor, JSONContent } from '@tiptap/core';
 import { useReactFlow } from '@xyflow/react';
 import { useState } from 'react';
-import { NodeLayout } from './layout';
 
 type TextNodeProps = {
   data: {

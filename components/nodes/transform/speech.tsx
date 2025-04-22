@@ -6,10 +6,9 @@ import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
-import { ModelSelector } from './model-selector';
-import { TypeSelector } from './type-selector';
+import { ModelSelector } from '../model-selector';
 
-type TransformSpeechNodeProps = {
+type GenerateSpeechNodeProps = {
   data: {
     model?: string;
     type?: string;
@@ -19,7 +18,7 @@ type TransformSpeechNodeProps = {
   id: string;
 };
 
-export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
+export const GenerateSpeechNode = ({ data, id }: GenerateSpeechNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [audio, setAudio] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
@@ -56,9 +55,6 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
 
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
     {
-      children: <TypeSelector id={id} type="speech" key={`${id}-selector`} />,
-    },
-    {
       children: (
         <ModelSelector
           id={id}
@@ -85,7 +81,7 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
   ];
 
   return (
-    <NodeLayout id={id} data={data} type="Transform" toolbar={toolbar}>
+    <NodeLayout id={id} data={data} type="Generate Speech" toolbar={toolbar}>
       <div>
         {loading && !audio && (
           <div className="flex items-center justify-center p-4">
