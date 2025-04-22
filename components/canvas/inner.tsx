@@ -334,7 +334,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       <Auth />
       <Projects projects={projects} currentProject={data.id.toString()} />
       <SaveIndicator
-        lastSaved={lastSaved ?? data.updatedAt}
+        lastSaved={lastSaved ?? data.updatedAt ?? data.createdAt}
         saving={isSaving}
       />
     </ReactFlow>

@@ -2,7 +2,7 @@ import { Panel } from '@xyflow/react';
 import { Loader2Icon } from 'lucide-react';
 
 type SaveIndicatorProps = {
-  lastSaved: Date | null;
+  lastSaved: Date;
   saving: boolean;
 };
 
