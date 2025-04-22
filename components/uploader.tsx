@@ -3,21 +3,30 @@ import {
   DropzoneContent,
   DropzoneEmptyState,
 } from '@/components/ui/kibo-ui/dropzone';
-import { useState } from 'react';
+import { upload } from '@vercel/blob/client';
 
 export const Uploader = ({ endpoint }: { endpoint: string }) => {
-  const [files, setFiles] = useState<File[] | undefined>();
+  const handleDrop = async (files: File[]) => {
+    if (!files.length) {
+      throw new Error('No file selected');
+    }
 
-  const handleDrop = (files: File[]) => {
-    console.log(files);
-    setFiles(files);
+    const file = files[0];
+
+    const newBlob = await upload(file.name, file, {
+      access: 'public',
+      handleUploadUrl: '/api/upload',
+    });
+
+    setBlob(newBlob);
   };
 
   return (
     <Dropzone
       maxSize={1024 * 1024 * 10}
       minSize={1024}
-      maxFiles={10}
+      maxFiles={1}
+      multiple={false}
       accept={{ 'image/*': [] }}
       onDrop={handleDrop}
       src={files}
