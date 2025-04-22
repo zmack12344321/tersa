@@ -75,6 +75,8 @@ export const ModelSelector = ({ id, value, options }: ModelSelectorProps) => {
                       handleChange(model.id);
                       setOpen(false);
                     }}
+                    // Temporarily disable non-OpenAI models
+                    disabled={option.label !== 'OpenAI'}
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
                       <model.icon className="size-4 shrink-0" />
