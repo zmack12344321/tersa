@@ -17,9 +17,12 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
+  getNodesBounds,
   getOutgoers,
+  getViewportForBounds,
   useReactFlow,
 } from '@xyflow/react';
+import { toPng } from 'html-to-image';
 import { AudioWaveformIcon, BrainIcon, VideoIcon } from 'lucide-react';
 import { ImageIcon } from 'lucide-react';
 import { TextIcon } from 'lucide-react';
@@ -87,6 +90,27 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
+  const getScreenshot = async () => {
+    const nodesBounds = getNodesBounds(getNodes());
+    const viewport = getViewportForBounds(nodesBounds, 1200, 630, 0.5, 2, 16);
+
+    const image = await toPng(
+      document.querySelector('.react-flow__viewport') as HTMLElement,
+      {
+        backgroundColor: 'transparent',
+        width: 1200,
+        height: 630,
+        style: {
+          width: '1200px',
+          height: '630px',
+          transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+        },
+      }
+    );
+
+    return image;
+  };
+
   const save = useDebouncedCallback(async () => {
     if (!rfInstance) {
       toast.error('No instance found');
@@ -101,7 +125,12 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       setIsSaving(true);
 
       const content = rfInstance.toObject();
-      const response = await saveProjectAction(data.id, content);
+      const image = await getScreenshot();
+
+      const response = await saveProjectAction(data.id, {
+        image,
+        content,
+      });
 
       if ('error' in response) {
         throw new Error(response.error);

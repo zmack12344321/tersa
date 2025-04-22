@@ -7,7 +7,10 @@ import { and, eq } from 'drizzle-orm';
 
 export const saveProjectAction = async (
   projectId: number,
-  content: object
+  data: {
+    image: string;
+    content: object;
+  }
 ): Promise<
   | {
       sucess: true;
@@ -25,7 +28,11 @@ export const saveProjectAction = async (
 
     const project = await database
       .update(projects)
-      .set({ content, updatedAt: new Date() })
+      .set({
+        content: data.content,
+        image: data.image,
+        updatedAt: new Date(),
+      })
       .where(and(eq(projects.id, projectId), eq(projects.userId, user.id)));
 
     if (!project) {

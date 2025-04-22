@@ -14,4 +14,5 @@ export const projects = pgTable('project', {
   content: json(),
   userId: varchar().notNull(),
   organizationId: varchar(),
+  image: varchar(),
 });
