@@ -3,7 +3,6 @@
 import {
   Background,
   type Connection,
-  Controls,
   type Edge,
   type FinalConnectionState,
   type InternalNode,
@@ -28,6 +27,7 @@ import {
 } from 'react';
 import { Auth } from '../auth';
 import { ConnectionLine } from '../connection-line';
+import { Controls } from '../controls';
 import { AnimatedEdge } from '../edges/animated';
 import { TemporaryEdge } from '../edges/temporary';
 import { AudioNode } from '../nodes/audio';
@@ -329,11 +329,7 @@ export const CanvasInner = () => {
       connectionLineComponent={ConnectionLine}
       fitView
     >
-      <Controls
-        orientation="horizontal"
-        className="rounded-full border bg-card/90 p-1 shadow-none! drop-shadow-xs backdrop-blur-sm"
-        showInteractive={false}
-      />
+      <Controls />
       <Background bgColor="var(--secondary)" />
       <Toolbar addNode={addNode} buttons={buttons} />
       <Auth />
