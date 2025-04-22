@@ -18,6 +18,7 @@ export const AudioNode = ({ data, id }: AudioNodeProps) => {
     <NodeLayout id={id} data={data} type="Audio">
       <div className="p-4">
         {data.src ? (
+          // biome-ignore lint/a11y/useMediaCaption: <explanation>
           <audio src={data.src} controls />
         ) : (
           <Uploader endpoint="/api/audio/upload" />

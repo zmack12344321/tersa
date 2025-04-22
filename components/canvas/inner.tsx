@@ -182,7 +182,7 @@ export const CanvasInner = () => {
               ne.source === closeEdge.source && ne.target === closeEdge.target
           )
         ) {
-          closeEdge.className = 'temp';
+          // closeEdge.className = 'temp';
           nextEdges.push(closeEdge);
         }
 

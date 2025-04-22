@@ -11,7 +11,9 @@ export const POST = async (req: Request) => {
     return new Response('Model must be a string', { status: 400 });
   }
 
-  const model = chatModels.find((m) => m.id === modelId);
+  const model = chatModels
+    .flatMap((m) => m.models)
+    .find((m) => m.id === modelId);
 
   if (!model) {
     return new Response('Invalid model', { status: 400 });

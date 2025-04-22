@@ -14,7 +14,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 type NodeLayoutProps = {
   children: ReactNode;
   id: string;
-  data?: object;
+  data?: Record<string, unknown> & {
+    forceToolbarVisible?: boolean;
+    toolbarPosition?: Position;
+  };
   type: string;
   caption?: string;
   toolbar?: {

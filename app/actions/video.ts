@@ -12,5 +12,5 @@ export const generateVideoAction = async (prompt: string) => {
     }, 1000);
   });
 
-  return result;
+  return result as Uint8Array;
 };

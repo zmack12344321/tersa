@@ -87,6 +87,7 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
           </div>
         )}
         {audio && (
+          // biome-ignore lint/a11y/useMediaCaption: <explanation>
           <audio src={URL.createObjectURL(new Blob([audio]))} controls />
         )}
       </div>

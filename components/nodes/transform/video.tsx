@@ -84,9 +84,9 @@ export const TransformVideoNode = ({ data, id }: TransformVideoNodeProps) => {
           </div>
         )}
         {video && (
+          // biome-ignore lint/a11y/useMediaCaption: <explanation>
           <video
             src={URL.createObjectURL(new Blob([video]))}
-            alt="Generated video"
             width={1600}
             height={900}
             className="aspect-video w-full object-cover"

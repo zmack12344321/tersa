@@ -5,6 +5,8 @@ import { NodeLayout } from './layout';
 type VideoNodeProps = {
   data: {
     src?: string;
+    width?: number;
+    height?: number;
   };
   id: string;
 };
@@ -18,7 +20,8 @@ export const VideoNode = ({ data, id }: VideoNodeProps) => {
     <NodeLayout id={id} data={data} type="Video">
       <div className="p-4">
         {data.src ? (
-          <video src={data.src} alt="Video" width={100} height={100} />
+          // biome-ignore lint/a11y/useMediaCaption: <explanation>
+          <video src={data.src} width={data.width} height={data.height} />
         ) : (
           <Uploader endpoint="/api/video/upload" />
         )}
