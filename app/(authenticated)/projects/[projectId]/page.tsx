@@ -38,8 +38,6 @@ const Project = async ({ params }: ProjectProps) => {
     (project) => project.id === Number(projectId)
   );
 
-  console.log(allProjects, projectId, Number(projectId));
-
   if (!project) {
     notFound();
   }

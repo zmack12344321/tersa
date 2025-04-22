@@ -5,14 +5,10 @@ dotenv.config({
   path: '.env.local',
 });
 
-const databaseUrl = process.env.DATABASE_URL as string;
-
-console.log(databaseUrl);
-
 export default defineConfig({
   dialect: 'postgresql',
   schema: './schema.ts',
   dbCredentials: {
-    url: databaseUrl,
+    url: process.env.DATABASE_URL as string,
   },
 });

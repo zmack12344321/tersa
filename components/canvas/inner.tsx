@@ -1,6 +1,6 @@
 'use client';
 
-import { saveProjectAction } from '@/app/actions/save';
+import { saveProjectAction } from '@/app/actions/project/save';
 import type { projects } from '@/schema';
 import {
   Background,
@@ -56,29 +56,38 @@ const edgeTypes = {
   temporary: TemporaryEdge,
 };
 
+type ProjectData = {
+  content:
+    | {
+        nodes: Node[];
+        edges: Edge[];
+        x: number;
+        y: number;
+        zoom: number;
+      }
+    | undefined;
+};
+
 type CanvasProps = {
   projects: (typeof projects.$inferSelect)[];
-  data: typeof projects.$inferSelect & {
-    content:
-      | { nodes: Node[]; edges: Edge[]; x: number; y: number; zoom: number }
-      | undefined;
-  };
+  data: typeof projects.$inferSelect;
 };
 
 export const CanvasInner = ({ projects, data }: CanvasProps) => {
-  const [nodes, setNodes] = useState<Node[]>(data.content?.nodes ?? []);
-  const [edges, setEdges] = useState<Edge[]>(data.content?.edges ?? []);
+  const content = data.content as ProjectData['content'];
+  const [nodes, setNodes] = useState<Node[]>(content?.nodes ?? []);
+  const [edges, setEdges] = useState<Edge[]>(content?.edges ?? []);
   const [viewport, setViewport] = useState<Viewport | undefined>({
-    x: data.content?.x ?? 0,
-    y: data.content?.y ?? 0,
-    zoom: data.content?.zoom ?? 1,
+    x: content?.x ?? 0,
+    y: content?.y ?? 0,
+    zoom: content?.zoom ?? 1,
   });
   const { getEdges, screenToFlowPosition, getNodes } = useReactFlow();
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  const save = useDebouncedCallback(async (source: string) => {
+  const save = useDebouncedCallback(async () => {
     if (!rfInstance) {
       toast.error('No instance found');
       return;
@@ -87,8 +96,6 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     if (isSaving) {
       return;
     }
-
-    console.log('saving', source);
 
     try {
       setIsSaving(true);
@@ -129,7 +136,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
   const onConnect = useCallback(
     (connection: Connection) => {
       setEdges((eds) => addEdge({ ...connection, type: 'animated' }, eds));
-      save('onConnect');
+      save();
     },
     [save]
   );
@@ -235,7 +242,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
-      save('onNodesChange');
+      save();
     },
     [save]
   );
@@ -243,7 +250,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
-      save('onEdgesChange');
+      save();
     },
     [save]
   );
