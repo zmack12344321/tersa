@@ -18,11 +18,14 @@ export const Projects = ({ projects, currentProject }: ProjectsProps) => {
   }
 
   return (
-    <Panel position="top-left" className="flex items-center gap-2">
-      <div className="flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm">
+    <Panel
+      position="top-left"
+      className="top-16! right-0 flex items-center gap-2 sm:top-0! sm:right-auto"
+    >
+      <div className="flex flex-1 items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm">
         <ProjectSelector projects={projects} currentProject={currentProject} />
       </div>
-      <div className="flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm">
+      <div className="flex shrink-0 items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm">
         <ProjectSettings data={currentProjectData} />
       </div>
     </Panel>

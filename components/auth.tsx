@@ -6,7 +6,10 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 
 export const Auth = () => (
-  <Panel position="top-right" className="flex items-center gap-1">
+  <Panel
+    position="top-right"
+    className="left-0! flex items-center justify-between gap-1 sm:left-auto!"
+  >
     <SignedOut>
       <Button size="sm" className="ml-2 rounded-full" asChild>
         <Link href="/sign-in">Log in</Link>

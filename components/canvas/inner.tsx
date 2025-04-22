@@ -254,10 +254,25 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
+
+      // Don't save if only the selected state is changing
+      // or if the node is being dragged
+      if (
+        changes.every(
+          (change) => change.type === 'position' || change.type === 'select'
+        )
+      ) {
+        return;
+      }
+
       save();
     },
     [save]
   );
+
+  const onNodeDragStop = useCallback(() => {
+    save();
+  }, [save]);
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
@@ -297,6 +312,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     <ReactFlow
       nodes={nodes}
       onNodesChange={onNodesChange}
+      onNodeDragStop={onNodeDragStop}
       edges={edges}
       onEdgesChange={onEdgesChange}
       onConnectStart={onConnectStart}
@@ -310,6 +326,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       fitView
       viewport={viewport}
       onViewportChange={setViewport}
+      panOnScroll
     >
       <Controls />
       <Background bgColor="var(--secondary)" />

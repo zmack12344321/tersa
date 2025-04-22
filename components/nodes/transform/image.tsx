@@ -3,6 +3,8 @@ import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { imageModels } from '@/lib/models';
 import { getRecursiveIncomers } from '@/lib/xyflow';
+import type { PutBlobResult } from '@vercel/blob';
+import { upload } from '@vercel/blob/client';
 import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -22,10 +24,10 @@ type GenerateImageNodeProps = {
 
 export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
-  const [image, setImage] = useState<Uint8Array | null>(data.content?.image);
+  const [image, setImage] = useState<string | null>(
+    (data.content as PutBlobResult)?.url ?? null
+  );
   const [loading, setLoading] = useState(false);
-
-  console.log('data.content', data.content);
 
   const handleGenerate = async () => {
     if (loading) {
@@ -48,8 +50,6 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
       .map((node) => node?.transcript)
       .filter(Boolean) as string[];
 
-    console.log(incoming);
-
     if (!prompts.length && !transcriptNodes.length) {
       toast.error('No prompts or transcripts found');
       return;
@@ -57,24 +57,26 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
 
     try {
       setLoading(true);
+
       const response = await generateImageAction(
         [...prompts, ...transcriptNodes].join('\n'),
         data.model ?? 'dall-e-3'
       );
-      setImage(response);
 
-      console.log('Updating node', {
-        updatedAt: new Date().toISOString(),
-        content: {
-          image: response,
-        },
-      });
+      const newBlob = await upload(
+        'generated-image.png',
+        new Blob([response]),
+        {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+        }
+      );
+
+      setImage(newBlob.downloadUrl);
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        content: {
-          image: response,
-        },
+        content: newBlob,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');
@@ -120,7 +122,7 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
         )}
         {image && (
           <Image
-            src={URL.createObjectURL(new Blob([image]))}
+            src={image}
             alt="Generated image"
             width={1600}
             height={900}

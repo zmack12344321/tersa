@@ -1,5 +1,5 @@
 import { Panel } from '@xyflow/react';
-import { Loader2Icon } from 'lucide-react';
+import { CheckIcon, Loader2Icon } from 'lucide-react';
 
 type SaveIndicatorProps = {
   lastSaved: Date;
@@ -12,7 +12,7 @@ export const SaveIndicator = ({ lastSaved, saving }: SaveIndicatorProps) => (
     className="flex items-center gap-1 rounded-full border bg-card/90 p-3 drop-shadow-xs backdrop-blur-sm"
   >
     {lastSaved && (
-      <span className="mx-1 text-muted-foreground text-sm">
+      <span className="mx-1 hidden text-muted-foreground text-sm sm:block">
         Last saved:{' '}
         {new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
           Math.round((lastSaved.getTime() - Date.now()) / 1000 / 60),
@@ -21,5 +21,6 @@ export const SaveIndicator = ({ lastSaved, saving }: SaveIndicatorProps) => (
       </span>
     )}
     {saving && <Loader2Icon size={16} className="animate-spin text-primary" />}
+    {!saving && lastSaved && <CheckIcon size={16} className="text-primary" />}
   </Panel>
 );
