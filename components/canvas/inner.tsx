@@ -17,7 +17,6 @@ import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
-  getNodesBounds,
   getOutgoers,
   getViewportForBounds,
   useReactFlow,
@@ -85,13 +84,15 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     y: content?.y ?? 0,
     zoom: content?.zoom ?? 1,
   });
-  const { getEdges, screenToFlowPosition, getNodes } = useReactFlow();
+  const { getEdges, screenToFlowPosition, getNodes, getNodesBounds } =
+    useReactFlow();
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const getScreenshot = async () => {
-    const nodesBounds = getNodesBounds(getNodes());
+    const nodes = getNodes();
+    const nodesBounds = getNodesBounds(nodes);
     const viewport = getViewportForBounds(nodesBounds, 1200, 630, 0.5, 2, 16);
 
     const image = await toPng(
