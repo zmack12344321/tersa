@@ -41,15 +41,9 @@ export const ThemeSwitcher = () => {
             aria-label="Select theme"
             className="cursor-pointer rounded-full"
           >
-            {theme === 'light' && (
-              <SunIcon size={16} strokeWidth={2} aria-hidden="true" />
-            )}
-            {theme === 'dark' && (
-              <MoonIcon size={16} strokeWidth={2} aria-hidden="true" />
-            )}
-            {theme === 'system' && (
-              <MonitorIcon size={16} strokeWidth={2} aria-hidden="true" />
-            )}
+            {theme === 'light' && <SunIcon size={16} />}
+            {theme === 'dark' && <MoonIcon size={16} />}
+            {theme === 'system' && <MonitorIcon size={16} />}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-32">
