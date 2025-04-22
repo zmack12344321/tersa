@@ -1,10 +1,12 @@
-import { generateSpeechAction } from '@/app/actions/speech';
+import { generateSpeechAction } from '@/app/actions/generate/speech';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
+import { speechModels } from '@/lib/models';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
+import { ModelSelector } from './model-selector';
 import { TypeSelector } from './type-selector';
 
 type TransformSpeechNodeProps = {
@@ -56,6 +58,16 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
       children: <TypeSelector id={id} type="speech" key={`${id}-selector`} />,
     },
     {
+      children: (
+        <ModelSelector
+          id={id}
+          value={data.model ?? 'tts-1'}
+          options={speechModels}
+          key={id}
+        />
+      ),
+    },
+    {
       tooltip: 'Generate',
       children: (
         <Button
@@ -87,8 +99,10 @@ export const TransformSpeechNode = ({ data, id }: TransformSpeechNodeProps) => {
           </div>
         )}
         {audio && (
-          // biome-ignore lint/a11y/useMediaCaption: <explanation>
-          <audio src={URL.createObjectURL(new Blob([audio]))} controls />
+          <div className="flex items-center justify-center p-4">
+            {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
+            <audio src={URL.createObjectURL(new Blob([audio]))} controls />
+          </div>
         )}
       </div>
       {data.updatedAt && (

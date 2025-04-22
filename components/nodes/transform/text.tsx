@@ -1,4 +1,4 @@
-import { transcribeAction } from '@/app/actions/transcribe';
+import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { chatModels } from '@/lib/models';

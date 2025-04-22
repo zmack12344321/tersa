@@ -1,4 +1,4 @@
-import { generateVideoAction } from '@/app/actions/video';
+import { generateVideoAction } from '@/app/actions/generate/video';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { getIncomers, useReactFlow } from '@xyflow/react';

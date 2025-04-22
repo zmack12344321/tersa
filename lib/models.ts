@@ -7,6 +7,8 @@ import { fal } from '@ai-sdk/fal';
 import { fireworks } from '@ai-sdk/fireworks';
 import { google } from '@ai-sdk/google';
 import { groq } from '@ai-sdk/groq';
+import { hume } from '@ai-sdk/hume';
+import { lmnt } from '@ai-sdk/lmnt';
 import { luma } from '@ai-sdk/luma';
 import { mistral } from '@ai-sdk/mistral';
 import { openai } from '@ai-sdk/openai';
@@ -23,6 +25,8 @@ import {
   FireworksIcon,
   GoogleIcon,
   GroqIcon,
+  HumeIcon,
+  LmntIcon,
   LumaIcon,
   MistralIcon,
   OpenAiIcon,
@@ -770,6 +774,61 @@ export const imageModels = [
         label: 'FLUX.1 Schnell Free',
         model: togetherai.image('black-forest-labs/FLUX.1-schnell-Free'),
         dimensions: ['512x512', '768x768', '1024x1024'],
+      },
+    ],
+  },
+];
+
+export const speechModels = [
+  {
+    label: 'OpenAI',
+    models: [
+      {
+        icon: OpenAiIcon,
+        id: 'tts-1',
+        label: 'TTS-1',
+        model: openai('tts-1'),
+      },
+      {
+        icon: OpenAiIcon,
+        id: 'tts-1-hd',
+        label: 'TTS-1-HD',
+        model: openai('tts-1-hd'),
+      },
+      {
+        icon: OpenAiIcon,
+        id: 'gpt-4o-mini-tts',
+        label: 'GPT-4o Mini TTS',
+        model: openai('gpt-4o-mini-tts'),
+      },
+    ],
+  },
+  {
+    label: 'LMNT',
+    models: [
+      {
+        icon: LmntIcon,
+        id: 'aurora',
+        label: 'Aurora',
+        model: lmnt('aurora'),
+      },
+      {
+        icon: LmntIcon,
+        id: 'blizzard',
+        label: 'Blizzard',
+        // @ts-expect-error typo
+        model: lmnt('blizzard'),
+      },
+    ],
+  },
+  {
+    label: 'Hume',
+    models: [
+      {
+        icon: HumeIcon,
+        id: 'default',
+        label: 'Default',
+        model: hume('default'),
       },
     ],
   },

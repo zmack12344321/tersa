@@ -1,4 +1,4 @@
-import { generateImageAction } from '@/app/actions/image';
+import { generateImageAction } from '@/app/actions/generate/image';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { imageModels } from '@/lib/models';
