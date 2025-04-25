@@ -35,7 +35,6 @@ import { AudioNode } from '../nodes/audio';
 import { DropNode } from '../nodes/drop';
 import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
-import { GenerateSpeechNode } from '../nodes/transform/speech';
 import { TranscribeNode } from '../nodes/transform/transcribe';
 import { VideoNode } from '../nodes/video';
 import { Projects } from '../projects';
@@ -49,7 +48,6 @@ const nodeTypes = {
   video: VideoNode,
   audio: AudioNode,
   transcribe: TranscribeNode,
-  generateSpeech: GenerateSpeechNode,
 };
 
 const edgeTypes = {

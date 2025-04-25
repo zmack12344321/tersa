@@ -8,7 +8,8 @@ import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import { ModelSelector } from '../model-selector';
 
-type GenerateSpeechNodeProps = {
+type AudioTransformProps = {
+  type: string;
   data: {
     model?: string;
     type?: string;
@@ -18,7 +19,7 @@ type GenerateSpeechNodeProps = {
   id: string;
 };
 
-export const GenerateSpeechNode = ({ data, id }: GenerateSpeechNodeProps) => {
+export const AudioTransform = ({ data, id, type }: AudioTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [audio, setAudio] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
@@ -75,7 +76,13 @@ export const GenerateSpeechNode = ({ data, id }: GenerateSpeechNodeProps) => {
   ];
 
   return (
-    <NodeLayout id={id} data={data} type="Generate Speech" toolbar={toolbar}>
+    <NodeLayout
+      id={id}
+      data={data}
+      type={type}
+      title="Generate Speech"
+      toolbar={toolbar}
+    >
       <div>
         {loading && !audio && (
           <div className="flex items-center justify-center p-4">
