@@ -7,6 +7,7 @@ export type TextNodeProps = {
   data: {
     source: 'primitive' | 'transform';
     content?: JSONContent;
+    text?: string;
     model?: string;
     updatedAt?: string;
   };
