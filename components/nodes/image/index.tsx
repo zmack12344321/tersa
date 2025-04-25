@@ -11,6 +11,7 @@ export type ImageNodeProps = {
     height?: number;
     updatedAt?: string;
     model?: string;
+    description?: string;
   };
   id: string;
 };

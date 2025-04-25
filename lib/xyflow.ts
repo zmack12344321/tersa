@@ -1,5 +1,3 @@
-import { describeAction } from '@/app/actions/generate/describe';
-import { transcribeAction } from '@/app/actions/generate/transcribe';
 import type { AudioNodeProps } from '@/components/nodes/audio';
 import type { ImageNodeProps } from '@/components/nodes/image';
 import type { TextNodeProps } from '@/components/nodes/text';
@@ -41,50 +39,20 @@ export const getTextFromTextNodes = (nodes: Node[]) => {
     .join('\n');
 };
 
-export const getTranscriptionFromAudioNodes = async (
-  nodes: Node[],
-  projectId: string
-) => {
-  const urls = nodes
+export const getTranscriptionFromAudioNodes = (nodes: Node[]) => {
+  const transcripts = nodes
     .filter((node) => node.type === 'audio')
-    .map((node) => (node.data as AudioNodeProps['data']).content?.downloadUrl)
+    .map((node) => (node.data as AudioNodeProps['data']).transcript)
     .filter(Boolean) as string[];
 
-  const promises = urls.map(async (url) => {
-    const response = await transcribeAction(url, projectId);
-
-    if ('error' in response) {
-      throw new Error(response.error);
-    }
-
-    return response.transcript;
-  });
-
-  const transcriptions = await Promise.all(promises);
-
-  return transcriptions.join('\n');
+  return transcripts.join('\n');
 };
 
-export const getDescriptionsFromImageNodes = async (
-  nodes: Node[],
-  projectId: string
-) => {
-  const urls = nodes
+export const getDescriptionsFromImageNodes = (nodes: Node[]) => {
+  const descriptions = nodes
     .filter((node) => node.type === 'image')
-    .map((node) => (node.data as ImageNodeProps['data']).content?.downloadUrl)
+    .map((node) => (node.data as ImageNodeProps['data']).description)
     .filter(Boolean) as string[];
-
-  const promises = urls.map(async (url) => {
-    const response = await describeAction(url, projectId);
-
-    if ('error' in response) {
-      throw new Error(response.error);
-    }
-
-    return response.description;
-  });
-
-  const descriptions = await Promise.all(promises);
 
   return descriptions.join('\n');
 };

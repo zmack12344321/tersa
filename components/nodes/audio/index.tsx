@@ -9,6 +9,7 @@ export type AudioNodeProps = {
     content?: PutBlobResult;
     updatedAt?: string;
     model?: string;
+    transcript?: string;
   };
   id: string;
 };

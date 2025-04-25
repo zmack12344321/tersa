@@ -1,8 +1,10 @@
+import { describeAction } from '@/app/actions/generate/describe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Uploader } from '@/components/uploader';
 import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import type { ImageNodeProps } from '.';
 
 type ImagePrimitiveProps = ImageNodeProps & {
@@ -30,13 +32,24 @@ export const ImagePrimitive = ({
   title,
 }: ImagePrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
+  const { projectId } = useParams();
+
   const handleUploadCompleted = async (blob: PutBlobResult) => {
     const response = await getImageDimensions(blob.downloadUrl);
+    const description = await describeAction(
+      blob.downloadUrl,
+      projectId as string
+    );
+
+    if ('error' in description) {
+      throw new Error(description.error);
+    }
 
     updateNodeData(id, {
       content: blob,
       width: response.width,
       height: response.height,
+      description: description.description,
     });
   };
 

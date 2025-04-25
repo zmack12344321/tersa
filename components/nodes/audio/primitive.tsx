@@ -1,7 +1,9 @@
+import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Uploader } from '@/components/uploader';
 import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
+import { useParams } from 'next/navigation';
 import type { AudioNodeProps } from '.';
 
 type AudioPrimitiveProps = AudioNodeProps & {
@@ -15,8 +17,19 @@ export const AudioPrimitive = ({
   title,
 }: AudioPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
-  const handleUploadCompleted = (blob: PutBlobResult) => {
-    updateNodeData(id, { content: blob });
+  const { projectId } = useParams();
+
+  const handleUploadCompleted = async (blob: PutBlobResult) => {
+    const transcription = await transcribeAction(
+      blob.downloadUrl,
+      projectId as string
+    );
+
+    if ('error' in transcription) {
+      throw new Error(transcription.error);
+    }
+
+    updateNodeData(id, { content: blob, transcript: transcription.transcript });
   };
 
   return (

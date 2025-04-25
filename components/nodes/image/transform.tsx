@@ -1,3 +1,4 @@
+import { describeAction } from '@/app/actions/generate/describe';
 import { generateImageAction } from '@/app/actions/generate/image';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { upload } from '@vercel/blob/client';
 import { useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
+import { useParams } from 'next/navigation';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import type { ImageNodeProps } from '.';
@@ -28,6 +30,7 @@ export const ImageTransform = ({
     (data.content as PutBlobResult)?.url ?? null
   );
   const [loading, setLoading] = useState(false);
+  const { projectId } = useParams();
 
   const handleGenerate = async () => {
     if (loading) {
@@ -74,9 +77,19 @@ export const ImageTransform = ({
 
       setImage(newBlob.downloadUrl);
 
+      const description = await describeAction(
+        newBlob.downloadUrl,
+        projectId as string
+      );
+
+      if ('error' in description) {
+        throw new Error(description.error);
+      }
+
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
         content: newBlob,
+        description: description.description,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');

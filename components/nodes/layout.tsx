@@ -123,8 +123,10 @@ export const NodeLayout = ({
               <CodeIcon size={12} />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <pre>{JSON.stringify({ id, data, type, title }, null, 2)}</pre>
+          <TooltipContent className="max-w-[600px] text-wrap">
+            <pre className="whitespace-pre-wrap">
+              {JSON.stringify({ id, data, type, title }, null, 2)}
+            </pre>
           </TooltipContent>
         </Tooltip>
         {/* )} */}

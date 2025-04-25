@@ -67,15 +67,9 @@ export const TextTransform = ({
   const handleGenerate = async () => {
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incoming);
-    const audioPrompts = await getTranscriptionFromAudioNodes(
-      incoming,
-      projectId as string
-    );
+    const audioPrompts = getTranscriptionFromAudioNodes(incoming);
     const images = getImageURLsFromImageNodes(incoming);
-    const imageDescriptions = await getDescriptionsFromImageNodes(
-      incoming,
-      projectId as string
-    );
+    const imageDescriptions = getDescriptionsFromImageNodes(incoming);
 
     if (!textPrompts.length && !audioPrompts.length) {
       toast.error('No prompts found');
