@@ -42,13 +42,15 @@ export const TextTransform = ({
     body: {
       modelId: data.model ?? 'gpt-4',
     },
-    initialMessages: [
-      {
-        id: 'system-message',
-        role: 'system',
-        content: data.text,
-      },
-    ],
+    initialMessages: data.text
+      ? [
+          {
+            id: 'system-message',
+            role: 'system',
+            content: data.text,
+          },
+        ]
+      : undefined,
     onError: (error) => toast.error(error.message),
     onFinish: () => {
       updateNodeData(id, {
@@ -61,8 +63,6 @@ export const TextTransform = ({
     },
   });
   const { user } = useUser();
-
-  console.log(data, 'asd');
 
   const handleGenerate = async () => {
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
