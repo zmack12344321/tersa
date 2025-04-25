@@ -1,13 +1,10 @@
 import { generateSpeechAction } from '@/app/actions/generate/speech';
-import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { speechModels } from '@/lib/models';
 import { getRecursiveIncomers, getTextFromTextNodes } from '@/lib/xyflow';
-import { upload } from '@vercel/blob/client';
 import { useReactFlow } from '@xyflow/react';
 import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import type { AudioNodeProps } from '.';
@@ -28,7 +25,6 @@ export const AudioTransform = ({
     data.audio?.downloadUrl ?? null
   );
   const [loading, setLoading] = useState(false);
-  const { projectId } = useParams();
 
   const handleGenerate = async () => {
     if (loading) {
@@ -45,32 +41,19 @@ export const AudioTransform = ({
 
     try {
       setLoading(true);
+
       const response = await generateSpeechAction(textPrompts);
 
-      const newBlob = await upload(
-        'generated-audio.mp3',
-        new Blob([response]),
-        {
-          access: 'public',
-          handleUploadUrl: '/api/upload',
-        }
-      );
-
-      setAudio(newBlob.downloadUrl);
-
-      const transcription = await transcribeAction(
-        newBlob.downloadUrl,
-        projectId as string
-      );
-
-      if ('error' in transcription) {
-        throw new Error(transcription.error);
+      if ('error' in response) {
+        throw new Error(response.error);
       }
+
+      setAudio(response.url);
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        audio: newBlob,
-        transcript: transcription.transcript,
+        audio: response.url,
+        transcript: textPrompts,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');

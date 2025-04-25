@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import Background from '../(unauthenticated)/background.jpg';
+import { createProjectAction } from '../actions/project/create';
 
 export const metadata: Metadata = {
   title: 'Tersa',
@@ -36,15 +37,13 @@ const Home = async () => {
     .where(eq(projects.userId, user.id));
 
   if (!allProjects.length) {
-    const newProject = await database
-      .insert(projects)
-      .values({
-        name: 'Untitled Project',
-        userId: user.id,
-      })
-      .returning();
+    const newProject = await createProjectAction('Untitled Project');
 
-    return redirect(`/projects/${newProject[0].id}`);
+    if ('error' in newProject) {
+      throw new Error(newProject.error);
+    }
+
+    return redirect(`/projects/${newProject.id}`);
   }
 
   redirect(`/projects/${allProjects[0].id}`);
