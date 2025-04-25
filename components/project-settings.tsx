@@ -9,13 +9,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { transcriptionModels, visionModels } from '@/lib/models';
 import type { projects } from '@/schema';
 import { SettingsIcon, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
 import { toast } from 'sonner';
+import { ModelSelector } from './nodes/model-selector';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 type ProjectSettingsProps = {
   data: typeof projects.$inferSelect;
@@ -25,6 +28,10 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
   const [open, setOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [name, setName] = useState(data.name);
+  const [transcriptionModel, setTranscriptionModel] = useState(
+    data.transcriptionModel
+  );
+  const [visionModel, setVisionModel] = useState(data.visionModel);
   const router = useRouter();
 
   const handleUpdateProject: FormEventHandler<HTMLFormElement> = async (
@@ -41,6 +48,8 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
 
       const response = await updateProjectAction(data.id, {
         name,
+        transcriptionModel,
+        visionModel,
       });
 
       if ('error' in response) {
@@ -87,14 +96,38 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
           <DialogDescription>Update your project's details.</DialogDescription>
           <form
             onSubmit={handleUpdateProject}
-            className="mt-2 flex items-center gap-2"
+            className="mt-2 grid gap-4"
             aria-disabled={isUpdating}
           >
-            <Input
-              placeholder="My new project"
-              value={name}
-              onChange={({ target }) => setName(target.value)}
-            />
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                placeholder="My new project"
+                value={name}
+                onChange={({ target }) => setName(target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="transcriptionModel">Transcription model</Label>
+              <ModelSelector
+                id="transcriptionModel"
+                value={transcriptionModel}
+                options={transcriptionModels}
+                width="auto"
+                onChange={setTranscriptionModel}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="visionModel">Vision model</Label>
+              <ModelSelector
+                id="visionModel"
+                value={visionModel}
+                options={visionModels}
+                onChange={setVisionModel}
+                width="auto"
+              />
+            </div>
             <Button
               type="submit"
               className="cursor-pointer"

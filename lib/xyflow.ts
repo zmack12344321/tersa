@@ -41,14 +41,17 @@ export const getTextFromTextNodes = (nodes: Node[]) => {
     .join('\n');
 };
 
-export const getTranscriptionFromAudioNodes = async (nodes: Node[]) => {
+export const getTranscriptionFromAudioNodes = async (
+  nodes: Node[],
+  projectId: string
+) => {
   const urls = nodes
     .filter((node) => node.type === 'audio')
     .map((node) => (node.data as AudioNodeProps['data']).content?.downloadUrl)
     .filter(Boolean) as string[];
 
   const promises = urls.map(async (url) => {
-    const response = await transcribeAction(url);
+    const response = await transcribeAction(url, projectId);
 
     if ('error' in response) {
       throw new Error(response.error);
@@ -62,14 +65,17 @@ export const getTranscriptionFromAudioNodes = async (nodes: Node[]) => {
   return transcriptions.join('\n');
 };
 
-export const getDescriptionsFromImageNodes = async (nodes: Node[]) => {
+export const getDescriptionsFromImageNodes = async (
+  nodes: Node[],
+  projectId: string
+) => {
   const urls = nodes
     .filter((node) => node.type === 'image')
     .map((node) => (node.data as ImageNodeProps['data']).content?.downloadUrl)
     .filter(Boolean) as string[];
 
   const promises = urls.map(async (url) => {
-    const response = await describeAction(url);
+    const response = await describeAction(url, projectId);
 
     if ('error' in response) {
       throw new Error(response.error);

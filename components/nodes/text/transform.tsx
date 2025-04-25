@@ -18,6 +18,7 @@ import {
   RotateCcwIcon,
   SquareIcon,
 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import type { ChangeEventHandler, ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ export const TextTransform = ({
   type,
   title,
 }: TextTransformProps) => {
+  const { projectId } = useParams();
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
@@ -52,13 +54,23 @@ export const TextTransform = ({
   const handleGenerate = async () => {
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incoming);
-    const audioPrompts = await getTranscriptionFromAudioNodes(incoming);
+    const audioPrompts = await getTranscriptionFromAudioNodes(
+      incoming,
+      projectId as string
+    );
     const images = getImageURLsFromImageNodes(incoming);
 
     if (!textPrompts.length && !audioPrompts.length) {
       toast.error('No prompts found');
       return;
     }
+
+    console.log('Synthesizing...', {
+      instructions: data.instructions,
+      textPrompts,
+      audioPrompts,
+      images,
+    });
 
     setMessages([]);
     append({
@@ -86,28 +98,16 @@ export const TextTransform = ({
     {
       children: (
         <ModelSelector
-          id={id}
           value={data.model ?? 'gpt-4'}
           options={chatModels}
           key={id}
+          className="w-[200px] rounded-full"
+          onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),
     },
   ];
 
-  if (data.updatedAt) {
-    toolbar.push({
-      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-      }).format(new Date(data.updatedAt))}`,
-      children: (
-        <Button size="icon" className="rounded-full">
-          <ClockIcon size={12} />
-        </Button>
-      ),
-    });
-  }
   if (user) {
     if (status === 'streaming') {
       toolbar.push({
@@ -123,16 +123,11 @@ export const TextTransform = ({
           </Button>
         ),
       });
-    } else if (status === 'submitted') {
+    } else if (nonUserMessages.length) {
       toolbar.push({
         tooltip: 'Regenerate',
         children: (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={handleGenerate}
-          >
+          <Button size="icon" className="rounded-full" onClick={handleGenerate}>
             <RotateCcwIcon size={12} />
           </Button>
         ),
@@ -149,15 +144,29 @@ export const TextTransform = ({
     }
   }
 
+  if (data.updatedAt) {
+    toolbar.push({
+      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }).format(new Date(data.updatedAt))}`,
+      children: (
+        <Button size="icon" variant="ghost" className="rounded-full">
+          <ClockIcon size={12} />
+        </Button>
+      ),
+    });
+  }
+
   return (
     <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
       <div className="flex-1 p-4">
-        {!nonUserMessages.length && status === 'streaming' && (
+        {status === 'streaming' && (
           <div className="flex items-center justify-center">
             <Loader2Icon size={16} className="animate-spin" />
           </div>
         )}
-        {!nonUserMessages.length && status === 'ready' && (
+        {!nonUserMessages.length && status !== 'streaming' && (
           <div className="flex items-center justify-center">
             <p className="text-muted-foreground text-sm">
               Press "Generate" to generate text

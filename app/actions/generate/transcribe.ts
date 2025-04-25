@@ -1,10 +1,14 @@
 'use server';
 
+import { database } from '@/lib/database';
 import { transcriptionModels } from '@/lib/models';
+import { projects } from '@/schema';
 import { experimental_transcribe as transcribe } from 'ai';
+import { eq } from 'drizzle-orm';
 
 export const transcribeAction = async (
-  url: string
+  url: string,
+  projectId: string
 ): Promise<
   | {
       transcript: string;
@@ -14,17 +18,27 @@ export const transcribeAction = async (
     }
 > => {
   try {
-    // TODO: Make this configurable
+    const project = await database
+      .select({
+        transcriptionModel: projects.transcriptionModel,
+      })
+      .from(projects)
+      .where(eq(projects.id, Number.parseInt(projectId)));
+
+    if (!project?.length) {
+      throw new Error('Project not found');
+    }
+
     const model = transcriptionModels
-      .at(0)
-      ?.models.find((model) => model.id === 'gpt-4o-mini-transcribe')?.model;
+      .flatMap((model) => model.models)
+      .find((model) => model.id === project[0].transcriptionModel);
 
     if (!model) {
-      throw new Error('No model found');
+      throw new Error('Model not found');
     }
 
     const transcript = await transcribe({
-      model,
+      model: model.model,
       audio: new URL(url),
     });
 

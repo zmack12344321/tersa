@@ -57,10 +57,11 @@ export const AudioTransform = ({
     {
       children: (
         <ModelSelector
-          id={id}
           value={data.model ?? 'tts-1'}
           options={speechModels}
           key={id}
+          className="w-[200px] rounded-full"
+          onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),
     },

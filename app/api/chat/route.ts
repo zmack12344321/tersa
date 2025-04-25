@@ -22,8 +22,10 @@ export const POST = async (req: Request) => {
   const result = streamText({
     model: model.model,
     system: [
-      "You are a helpful assistant that generates content based on the user's prompts.",
+      "You are a helpful assistant that synthesizes content based on the user's prompts.",
       'The user will provide instructions; and may provide text, audio transcriptions, or images as context.',
+      "You will then synthesize the content based on the user's instructions and the context provided.",
+      'The output should be a concise summary of the content, no more than 100 words.',
     ].join('\n'),
     messages,
   });

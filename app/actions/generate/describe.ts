@@ -1,10 +1,14 @@
 'use server';
 
+import { database } from '@/lib/database';
 import { visionModels } from '@/lib/models';
+import { projects } from '@/schema';
+import { eq } from 'drizzle-orm';
 import OpenAI from 'openai';
 
 export const describeAction = async (
-  url: string
+  url: string,
+  projectId: string
 ): Promise<
   | {
       description: string;
@@ -16,17 +20,23 @@ export const describeAction = async (
   try {
     const openai = new OpenAI();
 
-    // TODO: Make this configurable
+    const project = await database
+      .select({
+        visionModel: projects.visionModel,
+      })
+      .from(projects)
+      .where(eq(projects.id, Number.parseInt(projectId)));
+
     const model = visionModels
-      .at(0)
-      ?.models.find((model) => model.id === 'gpt-4.1-nano')?.id;
+      .flatMap((model) => model.models)
+      .find((model) => model.id === project[0].visionModel);
 
     if (!model) {
-      throw new Error('No model found');
+      throw new Error('Model not found');
     }
 
     const response = await openai.chat.completions.create({
-      model,
+      model: model.id,
       messages: [
         {
           role: 'user',

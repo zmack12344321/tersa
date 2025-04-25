@@ -89,9 +89,11 @@ export const ImageTransform = ({
     {
       children: (
         <ModelSelector
-          id={id}
           value={data.model ?? 'dall-e-3'}
           options={imageModels}
+          id={id}
+          className="w-[200px] rounded-full"
+          onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),
     },

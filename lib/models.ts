@@ -926,20 +926,20 @@ export const transcriptionModels = [
     models: [
       {
         icon: OpenAiIcon,
-        id: 'whisper-1',
-        label: 'Whisper 1',
+        id: 'gpt-4o-mini-transcribe',
+        label: 'GPT-4o Mini Transcribe',
         model: openai.transcription('gpt-4o-mini-transcribe'),
       },
       {
         icon: OpenAiIcon,
-        id: 'whisper-2',
-        label: 'Whisper 2',
+        id: 'whisper-1',
+        label: 'Whisper 1',
         model: openai.transcription('whisper-1'),
       },
       {
         icon: OpenAiIcon,
-        id: 'whisper-3',
-        label: 'Whisper 3',
+        id: 'gpt-4o-transcribe',
+        label: 'GPT-4o Transcribe',
         model: openai.transcription('gpt-4o-transcribe'),
       },
     ],

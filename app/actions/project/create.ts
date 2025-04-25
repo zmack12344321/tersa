@@ -23,7 +23,12 @@ export const createProjectAction = async (
 
     const project = await database
       .insert(projects)
-      .values({ name, userId: user.id })
+      .values({
+        name,
+        userId: user.id,
+        transcriptionModel: 'gpt-4o-mini-transcribe',
+        visionModel: 'gpt-4.1-nano',
+      })
       .returning({ id: projects.id });
 
     if (!project?.length) {
