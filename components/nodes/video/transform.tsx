@@ -6,17 +6,16 @@ import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 
-type GenerateVideoNodeProps = {
-  text?: string[];
+type VideoTransformProps = {
+  type: string;
   data: {
-    text?: string[];
     type?: string;
     updatedAt?: string;
   };
   id: string;
 };
 
-export const GenerateVideoNode = ({ data, id }: GenerateVideoNodeProps) => {
+export const VideoTransform = ({ data, id, type }: VideoTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [video, setVideo] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
@@ -59,7 +58,13 @@ export const GenerateVideoNode = ({ data, id }: GenerateVideoNodeProps) => {
   ];
 
   return (
-    <NodeLayout id={id} data={data} type="Generate Video" toolbar={toolbar}>
+    <NodeLayout
+      id={id}
+      data={data}
+      type={type}
+      title="Generate Video"
+      toolbar={toolbar}
+    >
       <div>
         {loading && !video && (
           <div className="flex items-center justify-center p-4">

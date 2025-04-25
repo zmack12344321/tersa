@@ -3,7 +3,8 @@ import { Uploader } from '@/components/uploader';
 import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
 
-type VideoNodeProps = {
+type VideoPrimitiveProps = {
+  type: string;
   data: {
     content?: PutBlobResult;
     width?: number;
@@ -26,7 +27,7 @@ const getVideoDimensions = (url: string) =>
     };
   });
 
-export const VideoNode = ({ data, id }: VideoNodeProps) => {
+export const VideoPrimitive = ({ data, id, type }: VideoPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
   const handleUploadCompleted = async (blob: PutBlobResult) => {
     const response = await getVideoDimensions(blob.downloadUrl);
@@ -39,7 +40,7 @@ export const VideoNode = ({ data, id }: VideoNodeProps) => {
   };
 
   return (
-    <NodeLayout id={id} data={data} type="Video">
+    <NodeLayout id={id} data={data} type={type} title="Video">
       {data.content ? (
         <video
           src={data.content.downloadUrl}
