@@ -100,7 +100,7 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
   }, [deleteElements, id]);
 
   return (
-    <NodeLayout id={id} data={data} type="Add a node">
+    <NodeLayout id={id} data={data} type="drop" title="Add a new node">
       <Command className="rounded-lg">
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
