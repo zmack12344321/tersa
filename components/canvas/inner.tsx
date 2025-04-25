@@ -35,7 +35,6 @@ import { AudioNode } from '../nodes/audio';
 import { DropNode } from '../nodes/drop';
 import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
-import { TranscribeNode } from '../nodes/transform/transcribe';
 import { VideoNode } from '../nodes/video';
 import { Projects } from '../projects';
 import { SaveIndicator } from '../save-indicator';
@@ -47,7 +46,6 @@ const nodeTypes = {
   drop: DropNode,
   video: VideoNode,
   audio: AudioNode,
-  transcribe: TranscribeNode,
 };
 
 const edgeTypes = {
