@@ -1,21 +1,15 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { type Node, type XYPosition, useReactFlow } from '@xyflow/react';
+import { type Node, Panel, type XYPosition, useReactFlow } from '@xyflow/react';
 import {
   AudioWaveformIcon,
   ImageIcon,
-  PlusIcon,
   TextIcon,
   VideoIcon,
 } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { Button } from '../ui/button';
+import { Button } from './ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
-export const PrimitiveNodes = () => {
+export const Toolbar = () => {
   const { addNodes } = useReactFlow();
 
   const addNode = (
@@ -65,29 +59,20 @@ export const PrimitiveNodes = () => {
   ];
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="cursor-pointer rounded-full"
-        >
-          <PlusIcon size={16} />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {buttons.map((button) => (
-          <DropdownMenuItem
-            key={button.id}
-            onClick={button.onClick}
-            className="flex items-center gap-2"
-          >
-            <button.icon size={16} />
-            <span>{button.label}</span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Panel
+      position="bottom-center"
+      className="flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm"
+    >
+      {buttons.map((button) => (
+        <Tooltip key={button.id}>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <button.icon size={12} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{button.label}</TooltipContent>
+        </Tooltip>
+      ))}
+    </Panel>
   );
 };
