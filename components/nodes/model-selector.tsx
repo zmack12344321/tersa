@@ -17,7 +17,7 @@ import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
 import { type ComponentType, type SVGProps, useState } from 'react';
 
 type ModelSelectorProps = {
-  id: string;
+  id?: string;
   value: string;
   width?: number | string;
   className?: string;

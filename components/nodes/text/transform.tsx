@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { chatModels } from '@/lib/models';
 import {
+  getDescriptionsFromImageNodes,
   getImageURLsFromImageNodes,
   getRecursiveIncomers,
   getTextFromTextNodes,
@@ -41,15 +42,27 @@ export const TextTransform = ({
     body: {
       modelId: data.model ?? 'gpt-4',
     },
+    initialMessages: [
+      {
+        id: 'system-message',
+        role: 'system',
+        content: data.text,
+      },
+    ],
     onError: (error) => toast.error(error.message),
     onFinish: () => {
       updateNodeData(id, {
-        text: messages.map((message) => message.content),
+        text: messages
+          .filter((message) => message.role !== 'user')
+          .map((message) => message.content)
+          .join('\n'),
         updatedAt: new Date().toISOString(),
       });
     },
   });
   const { user } = useUser();
+
+  console.log(data, 'asd');
 
   const handleGenerate = async () => {
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
@@ -59,6 +72,10 @@ export const TextTransform = ({
       projectId as string
     );
     const images = getImageURLsFromImageNodes(incoming);
+    const imageDescriptions = await getDescriptionsFromImageNodes(
+      incoming,
+      projectId as string
+    );
 
     if (!textPrompts.length && !audioPrompts.length) {
       toast.error('No prompts found');
@@ -69,6 +86,7 @@ export const TextTransform = ({
       instructions: data.instructions,
       textPrompts,
       audioPrompts,
+      imageDescriptions,
       images,
     });
 
@@ -82,6 +100,8 @@ export const TextTransform = ({
         ...textPrompts,
         '--- Audio Prompts ---',
         ...audioPrompts,
+        '--- Image Descriptions ---',
+        ...imageDescriptions,
       ].join('\n'),
       experimental_attachments: images.map((image) => ({
         url: image,
