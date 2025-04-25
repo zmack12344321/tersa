@@ -1,6 +1,7 @@
 'use client';
 
 import { updateProjectAction } from '@/app/actions/project/update';
+import { isValidSourceTarget } from '@/lib/xyflow';
 import type { projects } from '@/schema';
 import {
   Background,
@@ -206,8 +207,15 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
 
       // Prevent connecting audio nodes to anything except transcribe nodes
       if (connection.source) {
-        const sourceNode = nodes.find((node) => node.id === connection.source);
-        if (sourceNode?.type === 'audio' && target?.type !== 'transcribe') {
+        const source = nodes.find((node) => node.id === connection.source);
+
+        if (!source || !target) {
+          return false;
+        }
+
+        const valid = isValidSourceTarget(source, target);
+
+        if (!valid) {
           return false;
         }
       }

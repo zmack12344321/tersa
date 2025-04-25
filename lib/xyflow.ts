@@ -89,3 +89,11 @@ export const getImageURLsFromImageNodes = (nodes: Node[]) => {
     .map((node) => (node.data as ImageNodeProps['data']).content?.downloadUrl)
     .filter(Boolean) as string[];
 };
+
+export const isValidSourceTarget = (source: Node, target: Node) => {
+  if (source.type === 'video') {
+    return false;
+  }
+
+  return true;
+};
