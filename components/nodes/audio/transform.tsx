@@ -6,20 +6,19 @@ import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
+import type { AudioNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
 
-type AudioTransformProps = {
-  type: string;
-  data: {
-    model?: string;
-    type?: string;
-    updatedAt?: string;
-    content?: object;
-  };
-  id: string;
+type AudioTransformProps = AudioNodeProps & {
+  title: string;
 };
 
-export const AudioTransform = ({ data, id, type }: AudioTransformProps) => {
+export const AudioTransform = ({
+  data,
+  id,
+  type,
+  title,
+}: AudioTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [audio, setAudio] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
@@ -76,13 +75,7 @@ export const AudioTransform = ({ data, id, type }: AudioTransformProps) => {
   ];
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type={type}
-      title="Generate Speech"
-      toolbar={toolbar}
-    >
+    <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       <div>
         {loading && !audio && (
           <div className="flex items-center justify-center p-4">

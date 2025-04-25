@@ -3,18 +3,19 @@ import { cn } from '@/lib/utils';
 import type { Editor, JSONContent } from '@tiptap/core';
 import { useReactFlow } from '@xyflow/react';
 import { useState } from 'react';
+import type { TextNodeProps } from '.';
 import { NodeLayout } from '../layout';
 
-type TextPrimitiveProps = {
-  type: string;
-  data: {
-    source: string;
-    content?: JSONContent;
-  };
-  id: string;
+type TextPrimitiveProps = TextNodeProps & {
+  title: string;
 };
 
-export const TextPrimitive = ({ data, id, type }: TextPrimitiveProps) => {
+export const TextPrimitive = ({
+  data,
+  id,
+  type,
+  title,
+}: TextPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
   const [content, setContent] = useState<JSONContent | undefined>(
     data.content ?? undefined
@@ -29,7 +30,7 @@ export const TextPrimitive = ({ data, id, type }: TextPrimitiveProps) => {
   };
 
   return (
-    <NodeLayout id={id} data={data} title="Text" type={type}>
+    <NodeLayout id={id} data={data} title={title} type={type}>
       <div className="p-4">
         <EditorProvider
           autofocus

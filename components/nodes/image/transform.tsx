@@ -10,20 +10,19 @@ import { Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
+import type { ImageNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
 
-type ImageTransformProps = {
-  type: string;
-  data: {
-    model?: string;
-    type?: string;
-    updatedAt?: string;
-    content?: object;
-  };
-  id: string;
+type ImageTransformProps = ImageNodeProps & {
+  title: string;
 };
 
-export const ImageTransform = ({ data, id, type }: ImageTransformProps) => {
+export const ImageTransform = ({
+  data,
+  id,
+  type,
+  title,
+}: ImageTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [image, setImage] = useState<string | null>(
     (data.content as PutBlobResult)?.url ?? null
@@ -107,13 +106,7 @@ export const ImageTransform = ({ data, id, type }: ImageTransformProps) => {
   ];
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type={type}
-      title="Generate Image"
-      toolbar={toolbar}
-    >
+    <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       <div>
         {loading && !image && (
           <div className="flex items-center justify-center p-4">

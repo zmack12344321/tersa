@@ -5,17 +5,18 @@ import { getIncomers, useReactFlow } from '@xyflow/react';
 import { Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
+import type { VideoNodeProps } from '.';
 
-type VideoTransformProps = {
-  type: string;
-  data: {
-    type?: string;
-    updatedAt?: string;
-  };
-  id: string;
+type VideoTransformProps = VideoNodeProps & {
+  title: string;
 };
 
-export const VideoTransform = ({ data, id, type }: VideoTransformProps) => {
+export const VideoTransform = ({
+  data,
+  id,
+  type,
+  title,
+}: VideoTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [video, setVideo] = useState<Uint8Array | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,13 +59,7 @@ export const VideoTransform = ({ data, id, type }: VideoTransformProps) => {
   ];
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      type={type}
-      title="Generate Video"
-      toolbar={toolbar}
-    >
+    <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       <div>
         {loading && !video && (
           <div className="flex items-center justify-center p-4">

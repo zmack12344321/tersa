@@ -11,20 +11,19 @@ import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
+import type { TextNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
 
-type TextTransformProps = {
-  type: string;
-  data: {
-    model?: string;
-    source?: string;
-    updatedAt?: string;
-    content?: object;
-  };
-  id: string;
+type TextTransformProps = TextNodeProps & {
+  title: string;
 };
 
-export const TextTransform = ({ data, id, type }: TextTransformProps) => {
+export const TextTransform = ({
+  data,
+  id,
+  type,
+  title,
+}: TextTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
@@ -136,7 +135,7 @@ export const TextTransform = ({ data, id, type }: TextTransformProps) => {
   }
 
   return (
-    <NodeLayout id={id} data={data} title="Text" type={type} toolbar={toolbar}>
+    <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
       <div className="p-4">
         {!nonUserMessages.length && status === 'streaming' && (
           <div className="flex items-center justify-center">

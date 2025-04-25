@@ -3,15 +3,10 @@ import { Uploader } from '@/components/uploader';
 import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
 import Image from 'next/image';
+import type { ImageNodeProps } from '.';
 
-type ImagePrimitiveProps = {
-  type: string;
-  data: {
-    content?: PutBlobResult;
-    width?: number;
-    height?: number;
-  };
-  id: string;
+type ImagePrimitiveProps = ImageNodeProps & {
+  title: string;
 };
 
 const getImageDimensions = (url: string) =>
@@ -28,7 +23,12 @@ const getImageDimensions = (url: string) =>
     };
   });
 
-export const ImagePrimitive = ({ data, id, type }: ImagePrimitiveProps) => {
+export const ImagePrimitive = ({
+  data,
+  id,
+  type,
+  title,
+}: ImagePrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
   const handleUploadCompleted = async (blob: PutBlobResult) => {
     const response = await getImageDimensions(blob.downloadUrl);
@@ -41,7 +41,7 @@ export const ImagePrimitive = ({ data, id, type }: ImagePrimitiveProps) => {
   };
 
   return (
-    <NodeLayout id={id} data={data} type={type} title="Image">
+    <NodeLayout id={id} data={data} type={type} title={title}>
       {data.content ? (
         <Image
           src={data.content.downloadUrl}
