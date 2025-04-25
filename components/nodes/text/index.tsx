@@ -10,6 +10,7 @@ export type TextNodeProps = {
     text?: string;
     model?: string;
     updatedAt?: string;
+    instructions?: string;
   };
   id: string;
 };

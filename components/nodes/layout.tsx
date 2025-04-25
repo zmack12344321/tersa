@@ -145,7 +145,7 @@ export const NodeLayout = ({
             <BrainIcon size={12} className="text-muted-foreground" />
           </div>
         </div>
-        <div className="node-container size-full divide-y rounded-lg bg-card ring-1 ring-border transition-all">
+        <div className="node-container flex size-full flex-col divide-y rounded-lg bg-card ring-1 ring-border transition-all">
           {children}
         </div>
       </div>

@@ -1,14 +1,24 @@
-import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { chatModels } from '@/lib/models';
-import { getRecursiveIncomers } from '@/lib/xyflow';
+import {
+  getImageURLsFromImageNodes,
+  getRecursiveIncomers,
+  getTextFromTextNodes,
+  getTranscriptionFromAudioNodes,
+} from '@/lib/xyflow';
 import { useChat } from '@ai-sdk/react';
 import { useUser } from '@clerk/nextjs';
-import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
-import { Loader2Icon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
-import type { ComponentProps } from 'react';
+import {
+  ClockIcon,
+  Loader2Icon,
+  PlayIcon,
+  RotateCcwIcon,
+  SquareIcon,
+} from 'lucide-react';
+import type { ChangeEventHandler, ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import type { TextNodeProps } from '.';
@@ -24,7 +34,7 @@ export const TextTransform = ({
   type,
   title,
 }: TextTransformProps) => {
-  const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
       modelId: data.model ?? 'gpt-4',
@@ -41,43 +51,35 @@ export const TextTransform = ({
 
   const handleGenerate = async () => {
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
-    const prompts = incoming
-      .filter((incomer) => getNode(incomer.id)?.type === 'text')
-      .map((incomer) => getNode(incomer.id)?.data.text)
-      .filter(Boolean);
-    const audioNodes = incoming
-      .filter((incomer) => getNode(incomer.id)?.type === 'audio')
-      .map(
-        (incomer) =>
-          getNode(incomer.id)?.data.content as PutBlobResult | undefined
-      )
-      .filter(Boolean);
+    const textPrompts = getTextFromTextNodes(incoming);
+    const audioPrompts = await getTranscriptionFromAudioNodes(incoming);
+    const images = getImageURLsFromImageNodes(incoming);
 
-    if (!prompts.length && !audioNodes.length) {
-      toast.error('No prompts or audio found');
+    if (!textPrompts.length && !audioPrompts.length) {
+      toast.error('No prompts found');
       return;
-    }
-
-    const transcriptions: string[] = [];
-
-    if (audioNodes.length) {
-      for (const audioNode of audioNodes) {
-        if (!audioNode) {
-          continue;
-        }
-
-        const transcript = await transcribeAction(audioNode.downloadUrl);
-
-        transcriptions.push(transcript);
-      }
     }
 
     setMessages([]);
     append({
       role: 'user',
-      content: [...prompts, ...transcriptions].join('\n'),
+      content: [
+        '--- Instructions ---',
+        data.instructions ?? 'None.',
+        '--- Text Prompts ---',
+        ...textPrompts,
+        '--- Audio Prompts ---',
+        ...audioPrompts,
+      ].join('\n'),
+      experimental_attachments: images.map((image) => ({
+        url: image,
+      })),
     });
   };
+
+  const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
+    event
+  ) => updateNodeData(id, { instructions: event.target.value });
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
@@ -93,6 +95,19 @@ export const TextTransform = ({
     },
   ];
 
+  if (data.updatedAt) {
+    toolbar.push({
+      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }).format(new Date(data.updatedAt))}`,
+      children: (
+        <Button size="icon" className="rounded-full">
+          <ClockIcon size={12} />
+        </Button>
+      ),
+    });
+  }
   if (user) {
     if (status === 'streaming') {
       toolbar.push({
@@ -136,7 +151,7 @@ export const TextTransform = ({
 
   return (
     <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
-      <div className="p-4">
+      <div className="flex-1 p-4">
         {!nonUserMessages.length && status === 'streaming' && (
           <div className="flex items-center justify-center">
             <Loader2Icon size={16} className="animate-spin" />
@@ -153,17 +168,12 @@ export const TextTransform = ({
           <ReactMarkdown key={index}>{message.content}</ReactMarkdown>
         ))}
       </div>
-      {data.updatedAt && (
-        <div className="flex items-center justify-between p-4">
-          <p className="text-muted-foreground text-sm">
-            Last updated:{' '}
-            {new Intl.DateTimeFormat('en-US', {
-              dateStyle: 'short',
-              timeStyle: 'short',
-            }).format(new Date(data.updatedAt))}
-          </p>
-        </div>
-      )}
+      <Textarea
+        value={data.instructions ?? ''}
+        onChange={handleInstructionsChange}
+        placeholder="Enter instructions"
+        className="shrink-0 rounded-none rounded-b-lg border-none bg-secondary/50 shadow-none focus-visible:ring-0"
+      />
     </NodeLayout>
   );
 };
