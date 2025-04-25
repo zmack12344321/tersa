@@ -156,7 +156,10 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       const newNode: Node = {
         id: nanoid(),
         type,
-        data: data ?? {},
+        data: {
+          type: 'primitive',
+          ...data,
+        },
         position: position ?? { x: 0, y: 0 },
         origin: [0, 0.5],
       };

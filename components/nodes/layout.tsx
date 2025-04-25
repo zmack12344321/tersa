@@ -5,10 +5,17 @@ import {
   Position,
   useReactFlow,
 } from '@xyflow/react';
-import { CodeIcon, EyeIcon, TrashIcon } from 'lucide-react';
+import {
+  BrainIcon,
+  CodeIcon,
+  EyeIcon,
+  TrashIcon,
+  UserIcon,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Fragment } from 'react';
 import { Button } from '../ui/button';
+import { Switch } from '../ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 type NodeLayoutProps = {
@@ -21,6 +28,7 @@ type NodeLayoutProps = {
     forceToolbarVisible?: boolean;
     toolbarPosition?: Position;
   };
+  title: string;
   type: string;
   caption?: string;
   toolbar?: {
@@ -36,8 +44,9 @@ export const NodeLayout = ({
   data,
   caption,
   toolbar,
+  title,
 }: NodeLayoutProps) => {
-  const { deleteElements, setCenter, getNode } = useReactFlow();
+  const { deleteElements, setCenter, getNode, updateNodeData } = useReactFlow();
 
   const handleDelete = () => {
     deleteElements({
@@ -58,6 +67,12 @@ export const NodeLayout = ({
 
     setCenter(x + width / 2, y + height / 2, {
       duration: 1000,
+    });
+  };
+
+  const handleTypeChange = (value: boolean) => {
+    updateNodeData(id, {
+      type: value ? 'transform' : 'primitive',
     });
   };
 
@@ -112,7 +127,7 @@ export const NodeLayout = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <pre>{JSON.stringify({ id, data, type }, null, 2)}</pre>
+            <pre>{JSON.stringify({ id, data, type, title }, null, 2)}</pre>
           </TooltipContent>
         </Tooltip>
         {/* )} */}
@@ -122,8 +137,13 @@ export const NodeLayout = ({
       <div className="relative size-full">
         <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
           <p className="font-mono text-muted-foreground text-xs tracking-tighter">
-            {type}
+            {title}
           </p>
+          <div className="flex items-center gap-2">
+            <UserIcon size={12} className="text-muted-foreground" />
+            <Switch value={type} onCheckedChange={handleTypeChange} />
+            <BrainIcon size={12} className="text-muted-foreground" />
+          </div>
           {caption && (
             <p className="font-mono text-muted-foreground text-xs tracking-tighter">
               {caption}
