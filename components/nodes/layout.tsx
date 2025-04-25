@@ -23,14 +23,13 @@ type NodeLayoutProps = {
   id: string;
   data?: Record<string, unknown> & {
     model?: string;
-    type?: string;
+    source?: string;
     content?: object;
     forceToolbarVisible?: boolean;
     toolbarPosition?: Position;
   };
   title: string;
   type: string;
-  caption?: string;
   toolbar?: {
     tooltip?: string;
     children: ReactNode;
@@ -42,7 +41,6 @@ export const NodeLayout = ({
   type,
   id,
   data,
-  caption,
   toolbar,
   title,
 }: NodeLayoutProps) => {
@@ -70,11 +68,10 @@ export const NodeLayout = ({
     });
   };
 
-  const handleTypeChange = (value: boolean) => {
+  const handleSourceChange = (value: boolean) =>
     updateNodeData(id, {
-      type: value ? 'transform' : 'primitive',
+      source: value ? 'transform' : 'primitive',
     });
-  };
 
   return (
     <>
@@ -141,14 +138,12 @@ export const NodeLayout = ({
           </p>
           <div className="flex items-center gap-2">
             <UserIcon size={12} className="text-muted-foreground" />
-            <Switch value={type} onCheckedChange={handleTypeChange} />
+            <Switch
+              checked={data?.source === 'transform'}
+              onCheckedChange={handleSourceChange}
+            />
             <BrainIcon size={12} className="text-muted-foreground" />
           </div>
-          {caption && (
-            <p className="font-mono text-muted-foreground text-xs tracking-tighter">
-              {caption}
-            </p>
-          )}
         </div>
         <div className="node-container size-full divide-y rounded-lg bg-card ring-1 ring-border transition-all">
           {children}

@@ -21,7 +21,7 @@ export const Toolbar = () => {
       id: nanoid(),
       type,
       data: {
-        type: 'primitive',
+        source: 'primitive',
         ...data,
       },
       position: position ?? { x: 0, y: 0 },
@@ -66,7 +66,12 @@ export const Toolbar = () => {
       {buttons.map((button) => (
         <Tooltip key={button.id}>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              onClick={button.onClick}
+            >
               <button.icon size={12} />
             </Button>
           </TooltipTrigger>

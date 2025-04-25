@@ -1,36 +1,35 @@
-import { NodeLayout } from '@/components/nodes/layout';
 import { EditorProvider } from '@/components/ui/kibo-ui/editor';
 import { cn } from '@/lib/utils';
 import type { Editor, JSONContent } from '@tiptap/core';
 import { useReactFlow } from '@xyflow/react';
 import { useState } from 'react';
+import { NodeLayout } from '../layout';
 
-type TextNodeProps = {
+type TextPrimitiveProps = {
+  type: string;
   data: {
+    source: string;
     content?: JSONContent;
   };
   id: string;
 };
 
-export const TextNode = ({ data, id }: TextNodeProps) => {
+export const TextPrimitive = ({ data, id, type }: TextPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
   const [content, setContent] = useState<JSONContent | undefined>(
     data.content ?? undefined
   );
-  const [words, setWords] = useState<number>(0);
 
   const handleUpdate = ({ editor }: { editor: Editor }) => {
     const json = editor.getJSON();
     const text = editor.getText();
-    const newWords = editor.storage.characterCount.words();
 
     setContent(json);
-    setWords(newWords);
     updateNodeData(id, { content: json, text });
   };
 
   return (
-    <NodeLayout id={id} data={data} type="Text" caption={`${words} words`}>
+    <NodeLayout id={id} data={data} title="Text" type={type}>
       <div className="p-4">
         <EditorProvider
           autofocus

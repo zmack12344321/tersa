@@ -13,18 +13,18 @@ import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { ModelSelector } from '../model-selector';
 
-type GenerateTextNodeProps = {
-  text?: string[];
+type TextTransformProps = {
+  type: string;
   data: {
     model?: string;
-    type?: string;
+    source?: string;
     updatedAt?: string;
     content?: object;
   };
   id: string;
 };
 
-export const GenerateTextNode = ({ data, id }: GenerateTextNodeProps) => {
+export const TextTransform = ({ data, id, type }: TextTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
@@ -136,7 +136,7 @@ export const GenerateTextNode = ({ data, id }: GenerateTextNodeProps) => {
   }
 
   return (
-    <NodeLayout id={id} data={data} type="Generate Text" toolbar={toolbar}>
+    <NodeLayout id={id} data={data} title="Text" type={type} toolbar={toolbar}>
       <div className="p-4">
         {!nonUserMessages.length && status === 'streaming' && (
           <div className="flex items-center justify-center">

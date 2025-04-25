@@ -37,7 +37,6 @@ import { ImageNode } from '../nodes/image';
 import { TextNode } from '../nodes/text';
 import { GenerateImageNode } from '../nodes/transform/image';
 import { GenerateSpeechNode } from '../nodes/transform/speech';
-import { GenerateTextNode } from '../nodes/transform/text';
 import { TranscribeNode } from '../nodes/transform/transcribe';
 import { GenerateVideoNode } from '../nodes/transform/video';
 import { VideoNode } from '../nodes/video';
@@ -53,7 +52,6 @@ const nodeTypes = {
   audio: AudioNode,
   transcribe: TranscribeNode,
   generateSpeech: GenerateSpeechNode,
-  generateText: GenerateTextNode,
   generateVideo: GenerateVideoNode,
   generateImage: GenerateImageNode,
 };
@@ -157,7 +155,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
         id: nanoid(),
         type,
         data: {
-          type: 'primitive',
+          source: 'primitive',
           ...data,
         },
         position: position ?? { x: 0, y: 0 },
