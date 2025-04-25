@@ -12,7 +12,8 @@ import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import { ModelSelector } from '../model-selector';
 
-type GenerateImageNodeProps = {
+type ImageTransformProps = {
+  type: string;
   data: {
     model?: string;
     type?: string;
@@ -22,7 +23,7 @@ type GenerateImageNodeProps = {
   id: string;
 };
 
-export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
+export const ImageTransform = ({ data, id, type }: ImageTransformProps) => {
   const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
   const [image, setImage] = useState<string | null>(
     (data.content as PutBlobResult)?.url ?? null
@@ -106,7 +107,13 @@ export const GenerateImageNode = ({ data, id }: GenerateImageNodeProps) => {
   ];
 
   return (
-    <NodeLayout id={id} data={data} type="Generate Image" toolbar={toolbar}>
+    <NodeLayout
+      id={id}
+      data={data}
+      type={type}
+      title="Generate Image"
+      toolbar={toolbar}
+    >
       <div>
         {loading && !image && (
           <div className="flex items-center justify-center p-4">
