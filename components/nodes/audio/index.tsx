@@ -6,7 +6,7 @@ export type AudioNodeProps = {
   type: string;
   data: {
     source: 'primitive' | 'transform';
-    content?: PutBlobResult;
+    audio?: PutBlobResult;
     updatedAt?: string;
     model?: string;
     transcript?: string;

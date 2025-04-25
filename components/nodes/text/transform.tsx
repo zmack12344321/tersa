@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { chatModels } from '@/lib/models';
 import {
   getDescriptionsFromImageNodes,
-  getImageURLsFromImageNodes,
+  getImagesFromImageNodes,
   getRecursiveIncomers,
   getTextFromTextNodes,
   getTranscriptionFromAudioNodes,
@@ -19,7 +19,6 @@ import {
   RotateCcwIcon,
   SquareIcon,
 } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import type { ChangeEventHandler, ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
@@ -36,7 +35,6 @@ export const TextTransform = ({
   type,
   title,
 }: TextTransformProps) => {
-  const { projectId } = useParams();
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
@@ -68,7 +66,7 @@ export const TextTransform = ({
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incoming);
     const audioPrompts = getTranscriptionFromAudioNodes(incoming);
-    const images = getImageURLsFromImageNodes(incoming);
+    const images = getImagesFromImageNodes(incoming);
     const imageDescriptions = getDescriptionsFromImageNodes(incoming);
 
     if (!textPrompts.length && !audioPrompts.length) {
@@ -98,7 +96,7 @@ export const TextTransform = ({
         ...imageDescriptions,
       ].join('\n'),
       experimental_attachments: images.map((image) => ({
-        url: image,
+        url: image.url,
       })),
     });
   };

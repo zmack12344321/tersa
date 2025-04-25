@@ -3,9 +3,10 @@ import { transcribeAction } from '@/app/actions/generate/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { speechModels } from '@/lib/models';
+import { getRecursiveIncomers, getTextFromTextNodes } from '@/lib/xyflow';
 import { upload } from '@vercel/blob/client';
-import { getIncomers, useReactFlow } from '@xyflow/react';
-import { Loader2Icon, PlayIcon } from 'lucide-react';
+import { useReactFlow } from '@xyflow/react';
+import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
@@ -22,8 +23,10 @@ export const AudioTransform = ({
   type,
   title,
 }: AudioTransformProps) => {
-  const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
-  const [audio, setAudio] = useState<string | null>(null);
+  const { updateNodeData, getNodes, getEdges } = useReactFlow();
+  const [audio, setAudio] = useState<string | null>(
+    data.audio?.downloadUrl ?? null
+  );
   const [loading, setLoading] = useState(false);
   const { projectId } = useParams();
 
@@ -32,19 +35,17 @@ export const AudioTransform = ({
       return;
     }
 
-    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
-    const prompts = incomers
-      .map((incomer) => getNode(incomer.id)?.data.text)
-      .filter(Boolean);
+    const incomers = getRecursiveIncomers(id, getNodes(), getEdges());
+    const textPrompts = getTextFromTextNodes(incomers);
 
-    if (!prompts.length) {
+    if (!textPrompts.length) {
       toast.error('No prompts found');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await generateSpeechAction(prompts.join('\n'));
+      const response = await generateSpeechAction(textPrompts);
 
       const newBlob = await upload(
         'generated-audio.mp3',
@@ -68,7 +69,7 @@ export const AudioTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        audio: response,
+        audio: newBlob,
         transcript: transcription.transcript,
       });
     } catch (error) {
@@ -100,6 +101,20 @@ export const AudioTransform = ({
     },
   ];
 
+  if (data.updatedAt) {
+    toolbar.push({
+      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }).format(new Date(data.updatedAt))}`,
+      children: (
+        <Button size="icon" variant="ghost" className="rounded-full">
+          <ClockIcon size={12} />
+        </Button>
+      ),
+    });
+  }
+
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       <div>
@@ -122,17 +137,6 @@ export const AudioTransform = ({
           </div>
         )}
       </div>
-      {data.updatedAt && (
-        <div className="flex items-center justify-between p-4">
-          <p className="text-muted-foreground text-sm">
-            Last updated:{' '}
-            {new Intl.DateTimeFormat('en-US', {
-              dateStyle: 'short',
-              timeStyle: 'short',
-            }).format(new Date(data.updatedAt))}
-          </p>
-        </div>
-      )}
     </NodeLayout>
   );
 };

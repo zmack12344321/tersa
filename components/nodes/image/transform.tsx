@@ -1,16 +1,21 @@
 import { describeAction } from '@/app/actions/generate/describe';
+import { editImageAction } from '@/app/actions/generate/edit-image';
 import { generateImageAction } from '@/app/actions/generate/image';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { imageModels } from '@/lib/models';
-import { getRecursiveIncomers } from '@/lib/xyflow';
+import {
+  getImagesFromImageNodes,
+  getRecursiveIncomers,
+  getTextFromTextNodes,
+} from '@/lib/xyflow';
 import type { PutBlobResult } from '@vercel/blob';
-import { upload } from '@vercel/blob/client';
 import { useReactFlow } from '@xyflow/react';
-import { Loader2Icon, PlayIcon } from 'lucide-react';
+import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { type ComponentProps, useState } from 'react';
+import { type ChangeEventHandler, type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import type { ImageNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
@@ -25,7 +30,7 @@ export const ImageTransform = ({
   type,
   title,
 }: ImageTransformProps) => {
-  const { updateNodeData, getNodes, getEdges, getNode } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const [image, setImage] = useState<string | null>(
     (data.content as PutBlobResult)?.url ?? null
   );
@@ -38,47 +43,28 @@ export const ImageTransform = ({
     }
 
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
-    const prompts: string[] = incoming
-      .filter((incomer) => getNode(incomer.id)?.type === 'text')
-      .map((incomer) => getNode(incomer.id)?.data.text)
-      .filter(Boolean) as string[];
-    const transcriptNodes: string[] = incoming
-      .filter((incomer) => getNode(incomer.id)?.type === 'transcribe')
-      .map(
-        (incomer) =>
-          getNode(incomer.id)?.data.content as
-            | { transcript: string }
-            | undefined
-      )
-      .map((node) => node?.transcript)
-      .filter(Boolean) as string[];
-
-    if (!prompts.length && !transcriptNodes.length) {
-      toast.error('No prompts or transcripts found');
-      return;
-    }
+    const textNodes = getTextFromTextNodes(incoming);
+    const imageNodes = getImagesFromImageNodes(incoming);
 
     try {
       setLoading(true);
 
-      const response = await generateImageAction(
-        [...prompts, ...transcriptNodes].join('\n'),
-        data.model ?? 'dall-e-3'
-      );
+      const response = imageNodes.length
+        ? await editImageAction(imageNodes, data.instructions)
+        : await generateImageAction(
+            [...textNodes, ...imageNodes].join('\n'),
+            data.model ?? 'dall-e-3',
+            data.instructions
+          );
 
-      const newBlob = await upload(
-        'generated-image.png',
-        new Blob([response]),
-        {
-          access: 'public',
-          handleUploadUrl: '/api/upload',
-        }
-      );
+      if ('error' in response) {
+        throw new Error(response.error);
+      }
 
-      setImage(newBlob.downloadUrl);
+      setImage(response.url);
 
       const description = await describeAction(
-        newBlob.downloadUrl,
+        response.url,
         projectId as string
       );
 
@@ -88,7 +74,7 @@ export const ImageTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        content: newBlob,
+        content: response.url,
         description: description.description,
       });
     } catch (error) {
@@ -97,6 +83,10 @@ export const ImageTransform = ({
       setLoading(false);
     }
   };
+
+  const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
+    event
+  ) => updateNodeData(id, { instructions: event.target.value });
 
   const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
     {
@@ -120,10 +110,24 @@ export const ImageTransform = ({
     },
   ];
 
+  if (data.updatedAt) {
+    toolbar.push({
+      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }).format(new Date(data.updatedAt))}`,
+      children: (
+        <Button size="icon" variant="ghost" className="rounded-full">
+          <ClockIcon size={12} />
+        </Button>
+      ),
+    });
+  }
+
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       <div>
-        {loading && !image && (
+        {loading && (
           <div className="flex items-center justify-center p-4">
             <Loader2Icon size={16} className="animate-spin" />
           </div>
@@ -135,7 +139,7 @@ export const ImageTransform = ({
             </p>
           </div>
         )}
-        {image && (
+        {image && !loading && (
           <Image
             src={image}
             alt="Generated image"
@@ -145,17 +149,12 @@ export const ImageTransform = ({
           />
         )}
       </div>
-      {data.updatedAt && (
-        <div className="flex items-center justify-between p-4">
-          <p className="text-muted-foreground text-sm">
-            Last updated:{' '}
-            {new Intl.DateTimeFormat('en-US', {
-              dateStyle: 'short',
-              timeStyle: 'short',
-            }).format(new Date(data.updatedAt))}
-          </p>
-        </div>
-      )}
+      <Textarea
+        value={data.instructions ?? ''}
+        onChange={handleInstructionsChange}
+        placeholder="Enter instructions"
+        className="shrink-0 rounded-none rounded-b-lg border-none bg-secondary/50 shadow-none focus-visible:ring-0"
+      />
     </NodeLayout>
   );
 };

@@ -1,6 +1,7 @@
 import type { AudioNodeProps } from '@/components/nodes/audio';
 import type { ImageNodeProps } from '@/components/nodes/image';
 import type { TextNodeProps } from '@/components/nodes/text';
+import type { PutBlobResult } from '@vercel/blob';
 import { type Edge, type Node, getIncomers } from '@xyflow/react';
 
 export const getRecursiveIncomers = (
@@ -57,15 +58,21 @@ export const getDescriptionsFromImageNodes = (nodes: Node[]) => {
   return descriptions.join('\n');
 };
 
-export const getImageURLsFromImageNodes = (nodes: Node[]) => {
-  return nodes
+export const getImagesFromImageNodes = (nodes: Node[]) => {
+  const images = nodes
     .filter((node) => node.type === 'image')
-    .map((node) => (node.data as ImageNodeProps['data']).content?.downloadUrl)
-    .filter(Boolean) as string[];
+    .map((node) => (node.data as ImageNodeProps['data']).content)
+    .filter(Boolean) as PutBlobResult[];
+
+  return images;
 };
 
 export const isValidSourceTarget = (source: Node, target: Node) => {
-  if (source.type === 'video') {
+  if (source.type === 'video' || source.type === 'drop') {
+    return false;
+  }
+
+  if (target.type === 'audio' && source.type !== 'text') {
     return false;
   }
 

@@ -1,8 +1,9 @@
 import { generateVideoAction } from '@/app/actions/generate/video';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import { getIncomers, useReactFlow } from '@xyflow/react';
-import { Loader2Icon, PlayIcon } from 'lucide-react';
+import { getRecursiveIncomers } from '@/lib/xyflow';
+import { useReactFlow } from '@xyflow/react';
+import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import type { VideoNodeProps } from '.';
@@ -22,7 +23,7 @@ export const VideoTransform = ({
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
-    const incomers = getIncomers({ id, type: 'text' }, getNodes(), getEdges());
+    const incomers = getRecursiveIncomers(id, getNodes(), getEdges());
     const prompts = incomers
       .map((incomer) => getNode(incomer.id)?.data.text)
       .filter(Boolean);
@@ -58,6 +59,20 @@ export const VideoTransform = ({
     },
   ];
 
+  if (data.updatedAt) {
+    toolbar.push({
+      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }).format(new Date(data.updatedAt))}`,
+      children: (
+        <Button size="icon" variant="ghost" className="rounded-full">
+          <ClockIcon size={12} />
+        </Button>
+      ),
+    });
+  }
+
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       <div>
@@ -83,17 +98,6 @@ export const VideoTransform = ({
           />
         )}
       </div>
-      {data.updatedAt && (
-        <div className="flex items-center justify-between p-4">
-          <p className="text-muted-foreground text-sm">
-            Last updated:{' '}
-            {new Intl.DateTimeFormat('en-US', {
-              dateStyle: 'short',
-              timeStyle: 'short',
-            }).format(new Date(data.updatedAt))}
-          </p>
-        </div>
-      )}
     </NodeLayout>
   );
 };

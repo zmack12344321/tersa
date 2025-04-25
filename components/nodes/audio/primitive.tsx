@@ -29,15 +29,18 @@ export const AudioPrimitive = ({
       throw new Error(transcription.error);
     }
 
-    updateNodeData(id, { content: blob, transcript: transcription.transcript });
+    updateNodeData(id, {
+      audio: blob,
+      transcript: transcription.transcript,
+    });
   };
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title}>
       <div className="p-4">
-        {data.content ? (
+        {data.audio ? (
           // biome-ignore lint/a11y/useMediaCaption: <explanation>
-          <audio src={data.content.downloadUrl} controls />
+          <audio src={data.audio.downloadUrl} controls />
         ) : (
           <Uploader
             onUploadCompleted={handleUploadCompleted}
