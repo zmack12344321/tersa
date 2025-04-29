@@ -140,7 +140,7 @@ export const TextTransform = ({
       });
     } else {
       toolbar.push({
-        tooltip: 'Generate',
+        tooltip: data.generated?.length ? 'Regenerate' : 'Generate',
         children: (
           <Button
             size="icon"

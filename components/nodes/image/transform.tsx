@@ -99,7 +99,7 @@ export const ImageTransform = ({
       ),
     },
     {
-      tooltip: 'Generate',
+      tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
       children: (
         <Button
           size="icon"
