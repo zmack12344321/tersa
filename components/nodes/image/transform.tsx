@@ -1,6 +1,6 @@
-import { describeAction } from '@/app/actions/generate/describe';
-import { editImageAction } from '@/app/actions/generate/edit-image';
-import { generateImageAction } from '@/app/actions/generate/image';
+import { generateImageAction } from '@/app/actions/image/create';
+import { describeAction } from '@/app/actions/image/describe';
+import { editImageAction } from '@/app/actions/image/edit';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,7 +10,6 @@ import {
   getRecursiveIncomers,
   getTextFromTextNodes,
 } from '@/lib/xyflow';
-import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
 import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -31,9 +30,7 @@ export const ImageTransform = ({
   title,
 }: ImageTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
-  const [image, setImage] = useState<string | null>(
-    (data.content as PutBlobResult)?.url ?? null
-  );
+  const [image, setImage] = useState<string | null>(data.content?.url ?? null);
   const [loading, setLoading] = useState(false);
   const { projectId } = useParams();
 
@@ -74,7 +71,10 @@ export const ImageTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        content: response.url,
+        content: {
+          url: response.url,
+          type: response.type,
+        },
         description: description.description,
       });
     } catch (error) {
@@ -103,7 +103,12 @@ export const ImageTransform = ({
     {
       tooltip: 'Generate',
       children: (
-        <Button size="icon" className="rounded-full" onClick={handleGenerate}>
+        <Button
+          size="icon"
+          className="rounded-full"
+          onClick={handleGenerate}
+          disabled={loading || !projectId}
+        >
           <PlayIcon size={12} />
         </Button>
       ),
@@ -153,7 +158,7 @@ export const ImageTransform = ({
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
         placeholder="Enter instructions"
-        className="shrink-0 rounded-none rounded-b-lg border-none bg-secondary/50 shadow-none focus-visible:ring-0"
+        className="shrink-0 resize-none rounded-none rounded-b-lg border-none bg-secondary/50 shadow-none focus-visible:ring-0"
       />
     </NodeLayout>
   );

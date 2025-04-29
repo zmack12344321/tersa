@@ -24,22 +24,21 @@ import {
 } from '@xyflow/react';
 import { toPng } from 'html-to-image';
 import { nanoid } from 'nanoid';
-import { useCallback, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { useDebouncedCallback } from 'use-debounce';
-import { Auth } from '../auth';
 import { ConnectionLine } from '../connection-line';
-import { Controls } from '../controls';
+import { CreateAccount } from '../create-account';
 import { AnimatedEdge } from '../edges/animated';
 import { TemporaryEdge } from '../edges/temporary';
 import { AudioNode } from '../nodes/audio';
+import { CommentNode } from '../nodes/comment';
 import { DropNode } from '../nodes/drop';
 import { ImageNode } from '../nodes/image';
+import { LogoNode } from '../nodes/logo';
 import { TextNode } from '../nodes/text';
 import { VideoNode } from '../nodes/video';
-import { Projects } from '../projects';
-import { SaveIndicator } from '../save-indicator';
-import { Toolbar } from '../toolbar';
 
 const nodeTypes = {
   image: ImageNode,
@@ -47,6 +46,8 @@ const nodeTypes = {
   drop: DropNode,
   video: VideoNode,
   audio: AudioNode,
+  logo: LogoNode,
+  comment: CommentNode,
 };
 
 const edgeTypes = {
@@ -54,32 +55,74 @@ const edgeTypes = {
   temporary: TemporaryEdge,
 };
 
+const SAVE_TIMEOUT = 1000;
+
 type ProjectData = {
-  content:
+  content?:
     | {
         nodes: Node[];
         edges: Edge[];
-        x: number;
-        y: number;
-        zoom: number;
+        viewport: Viewport;
       }
     | undefined;
 };
 
-type CanvasProps = {
+export type CanvasProps = {
   projects: (typeof projects.$inferSelect)[];
   data: typeof projects.$inferSelect;
+  userId?: string | undefined;
+  defaultContent?: {
+    nodes: Node[];
+    edges: Edge[];
+    viewport: Viewport;
+  };
 };
 
-export const CanvasInner = ({ projects, data }: CanvasProps) => {
+const SaveIndicator = dynamic(
+  () => import('../save-indicator').then((mod) => mod.SaveIndicator),
+  {
+    ssr: false,
+  }
+);
+
+const Menu = dynamic(() => import('../menu').then((mod) => mod.Menu), {
+  ssr: false,
+});
+
+const Controls = dynamic(
+  () => import('../controls').then((mod) => mod.Controls),
+  {
+    ssr: false,
+  }
+);
+
+const Toolbar = dynamic(() => import('../toolbar').then((mod) => mod.Toolbar), {
+  ssr: false,
+});
+
+const Projects = dynamic(
+  () => import('../projects').then((mod) => mod.Projects),
+  {
+    ssr: false,
+  }
+);
+
+export const CanvasInner = ({
+  projects,
+  data,
+  userId,
+  defaultContent,
+}: CanvasProps) => {
   const content = data.content as ProjectData['content'];
-  const [nodes, setNodes] = useState<Node[]>(content?.nodes ?? []);
-  const [edges, setEdges] = useState<Edge[]>(content?.edges ?? []);
-  const [viewport, setViewport] = useState<Viewport | undefined>({
-    x: content?.x ?? 0,
-    y: content?.y ?? 0,
-    zoom: content?.zoom ?? 1,
-  });
+  const [nodes, setNodes] = useState<Node[]>(
+    content?.nodes ?? defaultContent?.nodes ?? []
+  );
+  const [edges, setEdges] = useState<Edge[]>(
+    content?.edges ?? defaultContent?.edges ?? []
+  );
+  const [viewport, setViewport] = useState<Viewport>(
+    content?.viewport ?? defaultContent?.viewport ?? { x: 0, y: 0, zoom: 1 }
+  );
   const { getEdges, screenToFlowPosition, getNodes, getNodesBounds } =
     useReactFlow();
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
@@ -114,7 +157,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
       return;
     }
 
-    if (isSaving) {
+    if (isSaving || !userId || !data.id) {
       return;
     }
 
@@ -123,7 +166,6 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
 
       const content = rfInstance.toObject();
       const image = await getScreenshot();
-
       const response = await updateProjectAction(data.id, {
         image,
         content,
@@ -140,7 +182,7 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     } finally {
       setIsSaving(false);
     }
-  }, 2000);
+  }, SAVE_TIMEOUT);
 
   const addNode = useCallback(
     (type: string, position?: XYPosition, data?: Record<string, unknown>) => {
@@ -256,13 +298,8 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     (changes: NodeChange[]) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
 
-      // Don't save if only the selected state is changing
-      // or if the node is being dragged
-      if (
-        changes.every(
-          (change) => change.type === 'position' || change.type === 'select'
-        )
-      ) {
+      // Don't save if only the selected state is changing.
+      if (changes.every((change) => change.type === 'select')) {
         return;
       }
 
@@ -283,61 +320,52 @@ export const CanvasInner = ({ projects, data }: CanvasProps) => {
     [save]
   );
 
-  useEffect(() => {
-    // Add keyboard shortcut for selecting all nodes (Cmd/Ctrl + A)
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Check for meta key (Cmd on Mac, Ctrl on Windows) + A
-      if ((event.metaKey || event.ctrlKey) && event.key === 'a') {
-        event.preventDefault(); // Prevent default browser select all behavior
-
-        // Select all nodes by setting their selected property to true
-        setNodes((nodes) =>
-          nodes.map((node) => ({
-            ...node,
-            selected: true,
-          }))
-        );
-      }
-    };
-
-    // Add event listener when component mounts
-    window.addEventListener('keydown', handleKeyDown);
-
-    // Clean up event listener when component unmounts
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  const onViewportChange = useCallback(
+    (viewport: Viewport) => {
+      setViewport(viewport);
+      save();
+    },
+    [save]
+  );
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      onNodesChange={onNodesChange}
-      onNodeDragStop={onNodeDragStop}
-      edges={edges}
-      onEdgesChange={onEdgesChange}
-      onConnectStart={onConnectStart}
-      onConnect={onConnect}
-      onConnectEnd={onConnectEnd}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      isValidConnection={isValidConnection}
-      connectionLineComponent={ConnectionLine}
-      onInit={setRfInstance}
-      fitView
-      viewport={viewport}
-      onViewportChange={setViewport}
-      panOnScroll
-    >
-      <Controls />
-      <Background bgColor="var(--secondary)" />
-      <Toolbar />
-      <Auth />
-      <Projects projects={projects} currentProject={data.id.toString()} />
-      <SaveIndicator
-        lastSaved={lastSaved ?? data.updatedAt ?? data.createdAt}
-        saving={isSaving}
-      />
-    </ReactFlow>
+    <>
+      <ReactFlow
+        nodes={nodes}
+        onNodesChange={onNodesChange}
+        onNodeDragStop={onNodeDragStop}
+        edges={edges}
+        onEdgesChange={onEdgesChange}
+        onConnectStart={onConnectStart}
+        onConnect={onConnect}
+        onConnectEnd={onConnectEnd}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        isValidConnection={isValidConnection}
+        connectionLineComponent={ConnectionLine}
+        onInit={setRfInstance}
+        fitView
+        panOnScroll
+        viewport={viewport}
+        onViewportChange={onViewportChange}
+      >
+        <Controls />
+        <Background bgColor="var(--secondary)" />
+        <Toolbar />
+        <Projects projects={projects} currentProject={data.id} />
+        {userId ? (
+          <>
+            <Menu />
+            <SaveIndicator
+              lastSaved={lastSaved ?? data.updatedAt ?? data.createdAt}
+              saving={isSaving}
+            />
+          </>
+        ) : (
+          <CreateAccount />
+        )}
+      </ReactFlow>
+      {/* <RealtimeCursors roomName={data.id} username={userId ?? 'Demo user'} /> */}
+    </>
   );
 };

@@ -4,15 +4,24 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
+      // Supabase storage, production
       {
         protocol: 'https',
-        hostname: 'hsbwwsadm9nwvz1a.public.blob.vercel-storage.com',
+        hostname: 'zszbbhofscgnnkvyonow.supabase.co',
       },
+
+      // Supabase storage, development
       {
-        protocol: 'https',
-        hostname: 'lhp3nvhhmxw8ikcx.public.blob.vercel-storage.com',
+        protocol: 'http',
+        hostname: '127.0.0.1',
       },
     ],
+  },
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '5mb',
+    },
   },
 };
 

@@ -10,7 +10,6 @@ import {
   getTranscriptionFromAudioNodes,
 } from '@/lib/xyflow';
 import { useChat } from '@ai-sdk/react';
-import { useUser } from '@clerk/nextjs';
 import { useReactFlow } from '@xyflow/react';
 import {
   ClockIcon,
@@ -19,6 +18,7 @@ import {
   RotateCcwIcon,
   SquareIcon,
 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import type { ChangeEventHandler, ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
@@ -36,6 +36,7 @@ export const TextTransform = ({
   title,
 }: TextTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
+  const { projectId } = useParams();
   const { append, messages, setMessages, status, stop } = useChat({
     body: {
       modelId: data.model ?? 'gpt-4',
@@ -60,7 +61,6 @@ export const TextTransform = ({
       });
     },
   });
-  const { user } = useUser();
 
   const handleGenerate = async () => {
     const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
@@ -73,14 +73,6 @@ export const TextTransform = ({
       toast.error('No prompts found');
       return;
     }
-
-    console.log('Synthesizing...', {
-      instructions: data.instructions,
-      textPrompts,
-      audioPrompts,
-      imageDescriptions,
-      images,
-    });
 
     setMessages([]);
     append({
@@ -106,8 +98,11 @@ export const TextTransform = ({
   ) => updateNodeData(id, { instructions: event.target.value });
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
-  const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
-    {
+
+  const createToolbar = (): ComponentProps<typeof NodeLayout>['toolbar'] => {
+    const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [];
+
+    toolbar.push({
       children: (
         <ModelSelector
           value={data.model ?? 'gpt-4'}
@@ -117,19 +112,17 @@ export const TextTransform = ({
           onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),
-    },
-  ];
+    });
 
-  if (user) {
-    if (status === 'streaming') {
+    if (status === 'submitted') {
       toolbar.push({
         tooltip: 'Stop',
         children: (
           <Button
-            variant="ghost"
             size="icon"
             className="rounded-full"
             onClick={stop}
+            disabled={!projectId}
           >
             <SquareIcon size={12} />
           </Button>
@@ -139,7 +132,12 @@ export const TextTransform = ({
       toolbar.push({
         tooltip: 'Regenerate',
         children: (
-          <Button size="icon" className="rounded-full" onClick={handleGenerate}>
+          <Button
+            size="icon"
+            className="rounded-full"
+            onClick={handleGenerate}
+            disabled={!projectId}
+          >
             <RotateCcwIcon size={12} />
           </Button>
         ),
@@ -148,30 +146,43 @@ export const TextTransform = ({
       toolbar.push({
         tooltip: 'Generate',
         children: (
-          <Button size="icon" className="rounded-full" onClick={handleGenerate}>
+          <Button
+            size="icon"
+            className="rounded-full"
+            onClick={handleGenerate}
+            disabled={!projectId}
+          >
             <PlayIcon size={12} />
           </Button>
         ),
       });
     }
-  }
 
-  if (data.updatedAt) {
-    toolbar.push({
-      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-      }).format(new Date(data.updatedAt))}`,
-      children: (
-        <Button size="icon" variant="ghost" className="rounded-full">
-          <ClockIcon size={12} />
-        </Button>
-      ),
-    });
-  }
+    if (data.updatedAt) {
+      toolbar.push({
+        tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }).format(new Date(data.updatedAt))}`,
+        children: (
+          <Button size="icon" variant="ghost" className="rounded-full">
+            <ClockIcon size={12} />
+          </Button>
+        ),
+      });
+    }
+
+    return toolbar;
+  };
 
   return (
-    <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
+    <NodeLayout
+      id={id}
+      data={data}
+      title={title}
+      type={type}
+      toolbar={createToolbar()}
+    >
       <div className="flex-1 p-4">
         {status === 'streaming' && (
           <div className="flex items-center justify-center">
@@ -193,7 +204,7 @@ export const TextTransform = ({
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
         placeholder="Enter instructions"
-        className="shrink-0 rounded-none rounded-b-lg border-none bg-secondary/50 shadow-none focus-visible:ring-0"
+        className="shrink-0 resize-none rounded-none rounded-b-lg border-none bg-secondary/50 shadow-none focus-visible:ring-0"
       />
     </NodeLayout>
   );

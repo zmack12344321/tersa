@@ -1,7 +1,8 @@
 import { Canvas } from '@/components/canvas';
+import { RealtimeCursors } from '@/components/supabase-ui/realtime-cursors';
 import { database } from '@/lib/database';
+import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
-import { currentUser } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
   description: 'Create and share AI workflows',
 };
 
+export const maxDuration = 800; // 13 minutes
+
 type ProjectProps = {
   params: Promise<{
     projectId: string;
@@ -18,25 +21,24 @@ type ProjectProps = {
 };
 
 const Project = async ({ params }: ProjectProps) => {
-  const user = await currentUser();
+  const client = await createClient();
+  const { data } = await client.auth.getUser();
   const { projectId } = await params;
 
-  if (!user) {
+  if (!data?.user) {
     return redirect('/sign-in');
   }
 
   const allProjects = await database
     .select()
     .from(projects)
-    .where(eq(projects.userId, user.id));
+    .where(eq(projects.userId, data.user.id));
 
   if (!allProjects.length) {
     notFound();
   }
 
-  const project = allProjects.find(
-    (project) => project.id === Number(projectId)
-  );
+  const project = allProjects.find((project) => project.id === projectId);
 
   if (!project) {
     notFound();
@@ -44,7 +46,11 @@ const Project = async ({ params }: ProjectProps) => {
 
   return (
     <div className="h-screen w-screen">
-      <Canvas projects={allProjects} data={project} />
+      <RealtimeCursors
+        roomName={project.id}
+        username={data.user.user_metadata.full_name ?? data.user.email}
+      />
+      <Canvas projects={allProjects} data={project} userId={data.user.id} />
     </div>
   );
 };

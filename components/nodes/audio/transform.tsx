@@ -1,10 +1,11 @@
-import { generateSpeechAction } from '@/app/actions/generate/speech';
+import { generateSpeechAction } from '@/app/actions/generate/speech/create';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { speechModels } from '@/lib/models';
 import { getRecursiveIncomers, getTextFromTextNodes } from '@/lib/xyflow';
 import { useReactFlow } from '@xyflow/react';
 import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import type { AudioNodeProps } from '.';
@@ -21,10 +22,9 @@ export const AudioTransform = ({
   title,
 }: AudioTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
-  const [audio, setAudio] = useState<string | null>(
-    data.audio?.downloadUrl ?? null
-  );
+  const [audio, setAudio] = useState<string | null>(data.audio?.url ?? null);
   const [loading, setLoading] = useState(false);
+  const { projectId } = useParams();
 
   const handleGenerate = async () => {
     if (loading) {
@@ -77,7 +77,12 @@ export const AudioTransform = ({
     {
       tooltip: 'Generate',
       children: (
-        <Button size="icon" className="rounded-full" onClick={handleGenerate}>
+        <Button
+          size="icon"
+          className="rounded-full"
+          onClick={handleGenerate}
+          disabled={loading || !projectId}
+        >
           <PlayIcon size={12} />
         </Button>
       ),

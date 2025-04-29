@@ -1,4 +1,3 @@
-import type { PutBlobResult } from '@vercel/blob';
 import { VideoPrimitive } from './primitive';
 import { VideoTransform } from './transform';
 
@@ -6,11 +5,13 @@ export type VideoNodeProps = {
   type: string;
   data: {
     source: 'primitive' | 'transform';
-    content?: PutBlobResult;
-    width?: number;
-    height?: number;
+    content?: {
+      url: string;
+      type: string;
+    };
     updatedAt?: string;
     model?: string;
+    instructions?: string;
   };
   id: string;
 };

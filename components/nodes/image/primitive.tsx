@@ -1,10 +1,10 @@
-import { describeAction } from '@/app/actions/generate/describe';
+import { describeAction } from '@/app/actions/image/describe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Uploader } from '@/components/uploader';
-import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 import type { ImageNodeProps } from '.';
 
 type ImagePrimitiveProps = ImageNodeProps & {
@@ -34,30 +34,36 @@ export const ImagePrimitive = ({
   const { updateNodeData } = useReactFlow();
   const { projectId } = useParams();
 
-  const handleUploadCompleted = async (blob: PutBlobResult) => {
-    const response = await getImageDimensions(blob.downloadUrl);
-    const description = await describeAction(
-      blob.downloadUrl,
-      projectId as string
-    );
+  const handleUploadCompleted = async (url: string, type: string) => {
+    try {
+      const response = await getImageDimensions(url);
+      const description = await describeAction(url, projectId as string);
 
-    if ('error' in description) {
-      throw new Error(description.error);
+      if ('error' in description) {
+        throw new Error(description.error);
+      }
+
+      updateNodeData(id, {
+        content: {
+          url,
+          type,
+        },
+        width: response.width,
+        height: response.height,
+        description: description.description,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+
+      toast.error(message);
     }
-
-    updateNodeData(id, {
-      content: blob,
-      width: response.width,
-      height: response.height,
-      description: description.description,
-    });
   };
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title}>
       {data.content ? (
         <Image
-          src={data.content.downloadUrl}
+          src={data.content.url}
           alt="Image"
           width={data.width ?? 1000}
           height={data.height ?? 1000}
@@ -70,6 +76,7 @@ export const ImagePrimitive = ({
             accept={{
               'image/*': [],
             }}
+            className="rounded-none border-none bg-transparent p-0 shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
           />
         </div>
       )}

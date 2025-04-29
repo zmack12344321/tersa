@@ -78,7 +78,7 @@ export const NodeLayout = ({
       {type !== 'drop' && (
         <NodeToolbar
           isVisible={data?.forceToolbarVisible || undefined}
-          position={data?.toolbarPosition}
+          position={Position.Bottom}
           className="flex items-center gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
         >
           {toolbar?.map((button, index) =>
@@ -117,23 +117,27 @@ export const NodeLayout = ({
             </TooltipTrigger>
             <TooltipContent>Delete</TooltipContent>
           </Tooltip>
-          {/* {process.env.NODE_ENV === 'development' && ( */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <CodeIcon size={12} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[600px] text-wrap">
-              <pre className="whitespace-pre-wrap">
-                {JSON.stringify({ id, data, type, title }, null, 2)}
-              </pre>
-            </TooltipContent>
-          </Tooltip>
-          {/* )} */}
+          {process.env.NODE_ENV === 'development' && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <CodeIcon size={12} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[600px] text-wrap">
+                <pre className="whitespace-pre-wrap">
+                  {JSON.stringify({ id, data, type, title }, null, 2)}
+                </pre>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </NodeToolbar>
       )}
-      <NodeResizeControl minWidth={400} minHeight={170} />
+      <NodeResizeControl
+        minWidth={400}
+        minHeight={170}
+        keepAspectRatio={type === 'image' || type === 'video'}
+      />
       <Handle type="target" position={Position.Left} />
       <div className="relative size-full">
         <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">

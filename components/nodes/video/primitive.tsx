@@ -1,26 +1,11 @@
 import { NodeLayout } from '@/components/nodes/layout';
 import { Uploader } from '@/components/uploader';
-import type { PutBlobResult } from '@vercel/blob';
 import { useReactFlow } from '@xyflow/react';
 import type { VideoNodeProps } from '.';
 
 type VideoPrimitiveProps = VideoNodeProps & {
   title: string;
 };
-
-const getVideoDimensions = (url: string) =>
-  new Promise<{ width: number; height: number }>((resolve, reject) => {
-    const video = document.createElement('video');
-    video.src = url;
-
-    video.onloadedmetadata = () => {
-      resolve({ width: video.videoWidth, height: video.videoHeight });
-    };
-
-    video.onerror = () => {
-      reject(new Error('Failed to load video'));
-    };
-  });
 
 export const VideoPrimitive = ({
   data,
@@ -29,13 +14,12 @@ export const VideoPrimitive = ({
   title,
 }: VideoPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
-  const handleUploadCompleted = async (blob: PutBlobResult) => {
-    const response = await getVideoDimensions(blob.downloadUrl);
-
+  const handleUploadCompleted = (url: string, type: string) => {
     updateNodeData(id, {
-      content: blob,
-      width: response.width,
-      height: response.height,
+      content: {
+        url,
+        type,
+      },
     });
   };
 
@@ -43,9 +27,7 @@ export const VideoPrimitive = ({
     <NodeLayout id={id} data={data} type={type} title={title}>
       {data.content ? (
         <video
-          src={data.content.downloadUrl}
-          width={data.width ?? 100}
-          height={data.height ?? 100}
+          src={data.content.url}
           className="h-auto w-full rounded-lg"
           playsInline
           autoPlay
@@ -59,6 +41,7 @@ export const VideoPrimitive = ({
             accept={{
               'video/*': [],
             }}
+            className="rounded-none border-none bg-transparent p-0 shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
           />
         </div>
       )}

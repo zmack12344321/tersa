@@ -55,6 +55,10 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
       if ('error' in response) {
         throw new Error(response.error);
       }
+
+      toast.success('Project updated successfully');
+      setOpen(false);
+      router.refresh();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       toast.error(message);
@@ -80,13 +84,9 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
     }
   };
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal={false}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="cursor-pointer rounded-full"
-        >
+        <Button variant="ghost" size="icon" className="rounded-full">
           <SettingsIcon size={16} />
         </Button>
       </DialogTrigger>
@@ -94,49 +94,45 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
         <DialogHeader>
           <DialogTitle>Project settings</DialogTitle>
           <DialogDescription>Update your project's details.</DialogDescription>
-          <form
-            onSubmit={handleUpdateProject}
-            className="mt-2 grid gap-4"
-            aria-disabled={isUpdating}
-          >
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                placeholder="My new project"
-                value={name}
-                onChange={({ target }) => setName(target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="transcriptionModel">Transcription model</Label>
-              <ModelSelector
-                id="transcriptionModel"
-                value={transcriptionModel}
-                options={transcriptionModels}
-                width="auto"
-                onChange={setTranscriptionModel}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="visionModel">Vision model</Label>
-              <ModelSelector
-                id="visionModel"
-                value={visionModel}
-                options={visionModels}
-                onChange={setVisionModel}
-                width="auto"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="cursor-pointer"
-              disabled={isUpdating || !name.trim()}
-            >
-              Update
-            </Button>
-          </form>
         </DialogHeader>
+        <form
+          onSubmit={handleUpdateProject}
+          className="mt-2 grid gap-4"
+          aria-disabled={isUpdating}
+        >
+          <div className="grid gap-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              placeholder="My new project"
+              value={name}
+              onChange={({ target }) => setName(target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="transcriptionModel">Transcription model</Label>
+            <ModelSelector
+              id="transcriptionModel"
+              value={transcriptionModel}
+              options={transcriptionModels}
+              width={462}
+              onChange={setTranscriptionModel}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="visionModel">Vision model</Label>
+            <ModelSelector
+              id="visionModel"
+              value={visionModel}
+              options={visionModels}
+              onChange={setVisionModel}
+              width={462}
+            />
+          </div>
+          <Button type="submit" disabled={isUpdating || !name.trim()}>
+            Update
+          </Button>
+        </form>
         <DialogFooter className="-mx-6 mt-4 border-t px-6 pt-4 sm:justify-center">
           <Button
             variant="link"

@@ -1,36 +1,39 @@
 'use server';
 
 import { database } from '@/lib/database';
+import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
-import { currentUser } from '@clerk/nextjs/server';
 import { and, eq } from 'drizzle-orm';
 
 export const deleteProjectAction = async (
-  projectId: number
+  projectId: string
 ): Promise<
   | {
-      sucess: true;
+      success: true;
     }
   | {
       error: string;
     }
 > => {
   try {
-    const user = await currentUser();
+    const client = await createClient();
+    const { data } = await client.auth.getUser();
 
-    if (!user) {
-      throw new Error('User not found');
+    if (!data?.user) {
+      throw new Error('You need to be logged in to delete a project!');
     }
 
     const project = await database
       .delete(projects)
-      .where(and(eq(projects.id, projectId), eq(projects.userId, user.id)));
+      .where(
+        and(eq(projects.id, projectId), eq(projects.userId, data.user.id))
+      );
 
     if (!project) {
       throw new Error('Project not found');
     }
 
-    return { sucess: true };
+    return { success: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return { error: message };

@@ -1,31 +1,32 @@
 'use server';
 
 import { database } from '@/lib/database';
+import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
-import { currentUser } from '@clerk/nextjs/server';
 
 export const createProjectAction = async (
   name: string
 ): Promise<
   | {
-      id: number;
+      id: string;
     }
   | {
       error: string;
     }
 > => {
   try {
-    const user = await currentUser();
+    const client = await createClient();
+    const { data } = await client.auth.getUser();
 
-    if (!user) {
-      throw new Error('User not found');
+    if (!data?.user) {
+      throw new Error('You need to be logged in to create a project!');
     }
 
     const project = await database
       .insert(projects)
       .values({
         name,
-        userId: user.id,
+        userId: data.user.id,
         transcriptionModel: 'gpt-4o-mini-transcribe',
         visionModel: 'gpt-4.1-nano',
       })

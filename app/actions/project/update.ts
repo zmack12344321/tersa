@@ -1,26 +1,27 @@
 'use server';
 
 import { database } from '@/lib/database';
+import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
-import { currentUser } from '@clerk/nextjs/server';
 import { and, eq } from 'drizzle-orm';
 
 export const updateProjectAction = async (
-  projectId: number,
+  projectId: string,
   data: Partial<typeof projects.$inferInsert>
 ): Promise<
   | {
-      sucess: true;
+      success: true;
     }
   | {
       error: string;
     }
 > => {
   try {
-    const user = await currentUser();
+    const client = await createClient();
+    const { data: userData } = await client.auth.getUser();
 
-    if (!user) {
-      throw new Error('User not found');
+    if (!userData?.user) {
+      throw new Error('You need to be logged in to update a project!');
     }
 
     const project = await database
@@ -29,13 +30,15 @@ export const updateProjectAction = async (
         ...data,
         updatedAt: new Date(),
       })
-      .where(and(eq(projects.id, projectId), eq(projects.userId, user.id)));
+      .where(
+        and(eq(projects.id, projectId), eq(projects.userId, userData.user.id))
+      );
 
     if (!project) {
       throw new Error('Project not found');
     }
 
-    return { sucess: true };
+    return { success: true };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return { error: message };
