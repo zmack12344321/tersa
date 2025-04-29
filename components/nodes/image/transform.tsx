@@ -5,12 +5,8 @@ import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { imageModels } from '@/lib/models';
-import {
-  getImagesFromImageNodes,
-  getRecursiveIncomers,
-  getTextFromTextNodes,
-} from '@/lib/xyflow';
-import { useReactFlow } from '@xyflow/react';
+import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
@@ -41,9 +37,9 @@ export const ImageTransform = ({
       return;
     }
 
-    const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
-    const textNodes = getTextFromTextNodes(incoming);
-    const imageNodes = getImagesFromImageNodes(incoming);
+    const incomers = getIncomers({ id }, getNodes(), getEdges());
+    const textNodes = getTextFromTextNodes(incomers);
+    const imageNodes = getImagesFromImageNodes(incomers);
 
     try {
       setLoading(true);

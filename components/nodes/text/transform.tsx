@@ -5,12 +5,11 @@ import { chatModels } from '@/lib/models';
 import {
   getDescriptionsFromImageNodes,
   getImagesFromImageNodes,
-  getRecursiveIncomers,
   getTextFromTextNodes,
   getTranscriptionFromAudioNodes,
 } from '@/lib/xyflow';
 import { useChat } from '@ai-sdk/react';
-import { useReactFlow } from '@xyflow/react';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import {
   ClockIcon,
   Loader2Icon,
@@ -54,11 +53,11 @@ export const TextTransform = ({
   });
 
   const handleGenerate = async () => {
-    const incoming = getRecursiveIncomers(id, getNodes(), getEdges());
-    const textPrompts = getTextFromTextNodes(incoming);
-    const audioPrompts = getTranscriptionFromAudioNodes(incoming);
-    const images = getImagesFromImageNodes(incoming);
-    const imageDescriptions = getDescriptionsFromImageNodes(incoming);
+    const incomers = getIncomers({ id }, getNodes(), getEdges());
+    const textPrompts = getTextFromTextNodes(incomers);
+    const audioPrompts = getTranscriptionFromAudioNodes(incomers);
+    const images = getImagesFromImageNodes(incomers);
+    const imageDescriptions = getDescriptionsFromImageNodes(incomers);
 
     if (!textPrompts.length && !audioPrompts.length) {
       toast.error('No prompts found');

@@ -3,12 +3,8 @@ import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { videoModels } from '@/lib/models';
-import {
-  getImagesFromImageNodes,
-  getRecursiveIncomers,
-  getTextFromTextNodes,
-} from '@/lib/xyflow';
-import { useReactFlow } from '@xyflow/react';
+import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { type ChangeEventHandler, type ComponentProps, useState } from 'react';
@@ -34,7 +30,7 @@ export const VideoTransform = ({
   const { projectId } = useParams();
 
   const handleGenerate = async () => {
-    const incomers = getRecursiveIncomers(id, getNodes(), getEdges());
+    const incomers = getIncomers({ id }, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incomers);
     const images = getImagesFromImageNodes(incomers);
 

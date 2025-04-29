@@ -2,8 +2,8 @@ import { generateSpeechAction } from '@/app/actions/generate/speech/create';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { speechModels } from '@/lib/models';
-import { getRecursiveIncomers, getTextFromTextNodes } from '@/lib/xyflow';
-import { useReactFlow } from '@xyflow/react';
+import { getTextFromTextNodes } from '@/lib/xyflow';
+import { getIncomers, useReactFlow } from '@xyflow/react';
 import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { type ComponentProps, useState } from 'react';
@@ -33,7 +33,7 @@ export const AudioTransform = ({
       return;
     }
 
-    const incomers = getRecursiveIncomers(id, getNodes(), getEdges());
+    const incomers = getIncomers({ id }, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incomers);
 
     if (!textPrompts.length) {

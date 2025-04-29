@@ -1,40 +1,12 @@
 import type { AudioNodeProps } from '@/components/nodes/audio';
 import type { ImageNodeProps } from '@/components/nodes/image';
 import type { TextNodeProps } from '@/components/nodes/text';
-import { type Edge, type Node, getIncomers } from '@xyflow/react';
-
-export const getRecursiveIncomers = (
-  nodeId: string,
-  nodes: Node[],
-  edges: Edge[],
-  visited = new Set<string>()
-): Node[] => {
-  if (visited.has(nodeId)) {
-    return [];
-  }
-
-  visited.add(nodeId);
-
-  const directIncomers = getIncomers({ id: nodeId }, nodes, edges);
-  const allIncomers: Node[] = [...directIncomers];
-
-  for (const incomer of directIncomers) {
-    const recursiveIncomers = getRecursiveIncomers(
-      incomer.id,
-      nodes,
-      edges,
-      visited
-    );
-    allIncomers.push(...recursiveIncomers);
-  }
-
-  return allIncomers;
-};
+import type { Node } from '@xyflow/react';
 
 export const getTextFromTextNodes = (nodes: Node[]) => {
   return nodes
     .filter((node) => node.type === 'text')
-    .map((node) => (node.data as TextNodeProps['data']).text)
+    .map((node) => (node.data as TextNodeProps['data']).content)
     .filter(Boolean)
     .join('\n');
 };
