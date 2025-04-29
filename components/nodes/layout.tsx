@@ -24,7 +24,7 @@ type NodeLayoutProps = {
   data?: Record<string, unknown> & {
     model?: string;
     source?: string;
-    content?: object;
+    generated?: object;
     forceToolbarVisible?: boolean;
     toolbarPosition?: Position;
   };

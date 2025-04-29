@@ -5,7 +5,7 @@ export type ImageNodeProps = {
   type: string;
   data: {
     source: 'primitive' | 'transform';
-    content?: {
+    generated?: {
       url: string;
       type: string;
     };

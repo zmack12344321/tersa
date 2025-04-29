@@ -30,7 +30,9 @@ export const ImageTransform = ({
   title,
 }: ImageTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
-  const [image, setImage] = useState<string | null>(data.content?.url ?? null);
+  const [image, setImage] = useState<string | null>(
+    data.generated?.url ?? null
+  );
   const [loading, setLoading] = useState(false);
   const { projectId } = useParams();
 
@@ -71,7 +73,7 @@ export const ImageTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        content: {
+        generated: {
           url: response.url,
           type: response.type,
         },

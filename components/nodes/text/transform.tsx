@@ -18,6 +18,7 @@ import {
   RotateCcwIcon,
   SquareIcon,
 } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { useParams } from 'next/navigation';
 import type { ChangeEventHandler, ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -44,10 +45,9 @@ export const TextTransform = ({
     onError: (error) => toast.error(error.message),
     onFinish: () => {
       updateNodeData(id, {
-        text: messages
+        generated: messages
           .filter((message) => message.role !== 'user')
-          .map((message) => message.content)
-          .join('\n'),
+          .map((message) => message.content),
         updatedAt: new Date().toISOString(),
       });
     },
@@ -90,13 +90,11 @@ export const TextTransform = ({
 
   const nonUserMessages = messages.length
     ? messages.filter((message) => message.role !== 'user')
-    : [
-        {
-          id: 'system-message',
-          role: 'system',
-          content: data.text,
-        },
-      ];
+    : data.generated?.map((message) => ({
+        id: nanoid(),
+        role: 'system',
+        content: message,
+      }));
 
   const createToolbar = (): ComponentProps<typeof NodeLayout>['toolbar'] => {
     const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [];
@@ -127,7 +125,7 @@ export const TextTransform = ({
           </Button>
         ),
       });
-    } else if (nonUserMessages.length) {
+    } else if (nonUserMessages?.length) {
       toolbar.push({
         tooltip: 'Regenerate',
         children: (
@@ -188,14 +186,14 @@ export const TextTransform = ({
             <Loader2Icon size={16} className="animate-spin" />
           </div>
         )}
-        {!nonUserMessages.length && status !== 'streaming' && (
+        {!nonUserMessages?.length && status !== 'streaming' && (
           <div className="flex items-center justify-center">
             <p className="text-muted-foreground text-sm">
               Press "Generate" to generate text
             </p>
           </div>
         )}
-        {nonUserMessages.map((message, index) => (
+        {nonUserMessages?.map((message, index) => (
           <ReactMarkdown key={index}>{message.content}</ReactMarkdown>
         ))}
       </div>

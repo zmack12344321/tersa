@@ -27,7 +27,9 @@ export const VideoTransform = ({
   title,
 }: VideoTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
-  const [video, setVideo] = useState<string | null>(data.content?.url ?? null);
+  const [video, setVideo] = useState<string | null>(
+    data.generated?.url ?? null
+  );
   const [loading, setLoading] = useState(false);
   const { projectId } = useParams();
 
@@ -58,7 +60,7 @@ export const VideoTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        content: response,
+        generated: response,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');
