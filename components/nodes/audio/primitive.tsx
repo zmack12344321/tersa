@@ -26,7 +26,7 @@ export const AudioPrimitive = ({
     }
 
     updateNodeData(id, {
-      audio: {
+      content: {
         url,
         type,
       },
@@ -37,9 +37,9 @@ export const AudioPrimitive = ({
   return (
     <NodeLayout id={id} data={data} type={type} title={title}>
       <div className="p-4">
-        {data.audio ? (
+        {data.content ? (
           // biome-ignore lint/a11y/useMediaCaption: <explanation>
-          <audio src={data.audio.url} controls />
+          <audio src={data.content.url} controls />
         ) : (
           <Uploader
             onUploadCompleted={handleUploadCompleted}
