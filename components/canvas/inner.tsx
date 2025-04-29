@@ -165,9 +165,9 @@ export const CanvasInner = ({
       setIsSaving(true);
 
       const content = rfInstance.toObject();
-      const image = await getScreenshot();
+      // const image = await getScreenshot();
       const response = await updateProjectAction(data.id, {
-        image,
+        // image,
         content,
       });
 
