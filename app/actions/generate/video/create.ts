@@ -88,8 +88,7 @@ export const generateVideoAction = async (
     const props: CreateJobProps = {
       model: model.id as CreateJobProps['model'],
       prompt,
-      first_frame_image:
-        'https://zszbbhofscgnnkvyonow.supabase.co/storage/v1/object/public/files/97131ce3-3415-4ea5-893c-7c30d201dec1/-lhMcumQRWpbaqJRVe7sr.jpg',
+      first_frame_image: images.at(0)?.url,
     };
 
     // Create job
