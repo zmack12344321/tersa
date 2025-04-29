@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { videoModels } from '@/lib/models';
 import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
+import { ClockIcon, Loader2Icon, PlayIcon, RotateCcwIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { type ChangeEventHandler, type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
@@ -86,7 +86,11 @@ export const VideoTransform = ({
           onClick={handleGenerate}
           disabled={loading || !projectId}
         >
-          <PlayIcon size={12} />
+          {data.generated?.url ? (
+            <RotateCcwIcon size={12} />
+          ) : (
+            <PlayIcon size={12} />
+          )}
         </Button>
       ),
     },

@@ -148,7 +148,11 @@ export const TextTransform = ({
             onClick={handleGenerate}
             disabled={!projectId}
           >
-            <PlayIcon size={12} />
+            {data.generated?.length ? (
+              <RotateCcwIcon size={12} />
+            ) : (
+              <PlayIcon size={12} />
+            )}
           </Button>
         ),
       });

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { speechModels } from '@/lib/models';
 import { getTextFromTextNodes } from '@/lib/xyflow';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { ClockIcon, Loader2Icon, PlayIcon } from 'lucide-react';
+import { ClockIcon, Loader2Icon, PlayIcon, RotateCcwIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
@@ -85,7 +85,11 @@ export const AudioTransform = ({
           onClick={handleGenerate}
           disabled={loading || !projectId}
         >
-          <PlayIcon size={12} />
+          {data.generated?.url ? (
+            <RotateCcwIcon size={12} />
+          ) : (
+            <PlayIcon size={12} />
+          )}
         </Button>
       ),
     },
