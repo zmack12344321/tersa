@@ -140,19 +140,21 @@ export const NodeLayout = ({
       />
       <Handle type="target" position={Position.Left} />
       <div className="relative size-full">
-        <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
-          <p className="font-mono text-muted-foreground text-xs tracking-tighter">
-            {title}
-          </p>
-          <div className="flex items-center gap-2">
-            <UserIcon size={12} className="text-muted-foreground" />
-            <Switch
-              checked={data?.source === 'transform'}
-              onCheckedChange={handleSourceChange}
-            />
-            <BrainIcon size={12} className="text-muted-foreground" />
+        {type !== 'drop' && (
+          <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
+            <p className="font-mono text-muted-foreground text-xs tracking-tighter">
+              {title}
+            </p>
+            <div className="flex items-center gap-2">
+              <UserIcon size={12} className="text-muted-foreground" />
+              <Switch
+                checked={data?.source === 'transform'}
+                onCheckedChange={handleSourceChange}
+              />
+              <BrainIcon size={12} className="text-muted-foreground" />
+            </div>
           </div>
-        </div>
+        )}
         <div className="node-container flex size-full flex-col divide-y rounded-lg bg-card ring-1 ring-border transition-all">
           {children}
         </div>
