@@ -64,7 +64,9 @@ export const sampleNodes: Node[] = [
     position: { x: 261, y: -220 },
     data: {
       source: 'transform',
-      text: 'To care for delphiniums, plant them in rich, well-draining soil with full sun exposure. Water regularly, keeping the soil moist but not waterlogged. Support tall stems with stakes, and remove faded blooms to encourage more flowers. Fertilize during the growing season and cut back after flowering to promote new growth.',
+      generated: [
+        'To care for delphiniums, plant them in rich, well-draining soil with full sun exposure. Water regularly, keeping the soil moist but not waterlogged. Support tall stems with stakes, and remove faded blooms to encourage more flowers. Fertilize during the growing season and cut back after flowering to promote new growth.',
+      ],
       instructions: 'How do you care for them?',
     },
     origin: [0, 0.5],
@@ -123,7 +125,7 @@ export const sampleNodes: Node[] = [
     position: { x: 259, y: 115 },
     data: {
       source: 'transform',
-      content: {
+      generated: {
         url: '/demo/delphiniums-anime.jpg',
         type: 'image/jpeg',
       },
@@ -142,7 +144,7 @@ export const sampleNodes: Node[] = [
     type: 'audio',
     data: {
       source: 'primitive',
-      audio: {
+      content: {
         url: '/demo/delphiniums-primitive.mp3',
         type: 'audio/mpeg',
       },
@@ -160,7 +162,7 @@ export const sampleNodes: Node[] = [
       source: 'transform',
       instructions: 'Make the flowers move softly in the wind.',
       model: 'T2V-01-Director',
-      content: {
+      generated: {
         url: '/demo/delphiniums.mp4',
         type: 'video/mp4',
       },
@@ -178,7 +180,9 @@ export const sampleNodes: Node[] = [
     type: 'text',
     data: {
       source: 'transform',
-      text: 'The image is a 2D anime-style digital illustration showing a wide, panoramic (16:9 ratio) field of tall, blue delphinium flowers under a bright blue sky with scattered fluffy white clouds. The delphiniums are richly detailed, with layered petals and lush green leaves, creating a vibrant and cheerful atmosphere. The perspective feels open and expansive, emphasizing the endless stretch of flowers and the peacefulness of the clear day.',
+      generated: [
+        'The image is a 2D anime-style digital illustration showing a wide, panoramic (16:9 ratio) field of tall, blue delphinium flowers under a bright blue sky with scattered fluffy white clouds. The delphiniums are richly detailed, with layered petals and lush green leaves, creating a vibrant and cheerful atmosphere. The perspective feels open and expansive, emphasizing the endless stretch of flowers and the peacefulness of the clear day.',
+      ],
       instructions: 'Describe this image.',
     },
     position: { x: 800, y: 0 },
@@ -194,7 +198,7 @@ export const sampleNodes: Node[] = [
     type: 'image',
     data: {
       source: 'transform',
-      content: {
+      generated: {
         url: '/demo/delphiniums-fantasy.jpg',
         type: 'image/jpeg',
       },
@@ -213,7 +217,7 @@ export const sampleNodes: Node[] = [
     type: 'audio',
     data: {
       source: 'transform',
-      audio: {
+      generated: {
         url: '/demo/delphiniums-transform.mp3',
         type: 'audio/mpeg',
       },
