@@ -22,7 +22,7 @@ export const AudioTransform = ({
   title,
 }: AudioTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
-  const [audio, setAudio] = useState<string | null>(data.audio?.url ?? null);
+  const [audio, setAudio] = useState<string | null>(data.content?.url ?? null);
   const [loading, setLoading] = useState(false);
   const { projectId } = useParams();
 
@@ -52,7 +52,7 @@ export const AudioTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        audio: response,
+        content: response,
         transcript: textPrompts,
       });
     } catch (error) {

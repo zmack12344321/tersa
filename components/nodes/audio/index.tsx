@@ -5,7 +5,7 @@ export type AudioNodeProps = {
   type: string;
   data: {
     source: 'primitive' | 'transform';
-    audio?: {
+    content?: {
       url: string;
       type: string;
     };

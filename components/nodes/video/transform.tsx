@@ -58,10 +58,7 @@ export const VideoTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        content: {
-          url: response.url,
-          type: 'video/mp4',
-        },
+        content: response,
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error');
