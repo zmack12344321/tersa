@@ -41,15 +41,6 @@ export const TextTransform = ({
     body: {
       modelId: data.model ?? 'gpt-4',
     },
-    initialMessages: data.text
-      ? [
-          {
-            id: 'system-message',
-            role: 'system',
-            content: data.text,
-          },
-        ]
-      : undefined,
     onError: (error) => toast.error(error.message),
     onFinish: () => {
       updateNodeData(id, {
@@ -97,7 +88,15 @@ export const TextTransform = ({
     event
   ) => updateNodeData(id, { instructions: event.target.value });
 
-  const nonUserMessages = messages.filter((message) => message.role !== 'user');
+  const nonUserMessages = messages.length
+    ? messages.filter((message) => message.role !== 'user')
+    : [
+        {
+          id: 'system-message',
+          role: 'system',
+          content: data.text,
+        },
+      ];
 
   const createToolbar = (): ComponentProps<typeof NodeLayout>['toolbar'] => {
     const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [];

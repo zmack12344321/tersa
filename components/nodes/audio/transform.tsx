@@ -52,7 +52,7 @@ export const AudioTransform = ({
 
       updateNodeData(id, {
         updatedAt: new Date().toISOString(),
-        audio: response.url,
+        audio: response,
         transcript: textPrompts,
       });
     } catch (error) {

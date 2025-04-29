@@ -11,6 +11,7 @@ export const generateSpeechAction = async (
 ): Promise<
   | {
       url: string;
+      type: string;
     }
   | {
       error: string;
@@ -40,7 +41,7 @@ export const generateSpeechAction = async (
       .from('files')
       .getPublicUrl(blob.data.path);
 
-    return { url: downloadUrl.publicUrl };
+    return { url: downloadUrl.publicUrl, type: 'audio/mpeg' };
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Unknown error' };
   }
