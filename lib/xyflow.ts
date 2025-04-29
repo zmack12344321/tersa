@@ -6,7 +6,7 @@ import type { Node } from '@xyflow/react';
 export const getTextFromTextNodes = (nodes: Node[]) => {
   return nodes
     .filter((node) => node.type === 'text')
-    .map((node) => (node.data as TextNodeProps['data']).content)
+    .map((node) => (node.data as TextNodeProps['data']).text)
     .filter(Boolean)
     .join('\n');
 };

@@ -6,11 +6,16 @@ export type TextNodeProps = {
   type: string;
   data: {
     source: 'primitive' | 'transform';
-    content?: JSONContent;
     generated?: string[];
     model?: string;
     updatedAt?: string;
     instructions?: string;
+
+    // Tiptap generated JSON content
+    content?: JSONContent;
+
+    // Tiptap text content
+    text?: string;
   };
   id: string;
 };
