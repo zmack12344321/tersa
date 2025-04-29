@@ -5,6 +5,10 @@ export type VideoNodeProps = {
   type: string;
   data: {
     source: 'primitive' | 'transform';
+    content?: {
+      url: string;
+      type: string;
+    };
     generated?: {
       url: string;
       type: string;
