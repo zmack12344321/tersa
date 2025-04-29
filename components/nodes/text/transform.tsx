@@ -41,7 +41,10 @@ export const TextTransform = ({
     body: {
       modelId: data.model ?? 'gpt-4',
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error) =>
+      toast.error('Error generating text', {
+        description: error.message,
+      }),
     onFinish: () => {
       updateNodeData(id, {
         generated: messages
@@ -60,7 +63,9 @@ export const TextTransform = ({
     const imageDescriptions = getDescriptionsFromImageNodes(incomers);
 
     if (!textPrompts.length && !audioPrompts.length) {
-      toast.error('No prompts found');
+      toast.error('Error generating text', {
+        description: 'No prompts found',
+      });
       return;
     }
 

@@ -76,7 +76,9 @@ export const ImageTransform = ({
         description: description.description,
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unknown error');
+      toast.error('Error generating image', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setLoading(false);
     }

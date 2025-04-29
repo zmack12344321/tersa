@@ -61,7 +61,7 @@ export const Uploader = ({
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
-      toast.error(message);
+      toast.error('Error uploading file', { description: message });
     }
   };
 

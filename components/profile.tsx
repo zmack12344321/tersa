@@ -93,7 +93,7 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
-      toast.error(message);
+      toast.error('Error updating profile', { description: message });
     } finally {
       setIsUpdating(false);
     }
@@ -119,7 +119,7 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
-      toast.error(message);
+      toast.error('Error updating avatar', { description: message });
     } finally {
       setIsUpdating(false);
     }

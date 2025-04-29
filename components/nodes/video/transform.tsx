@@ -35,7 +35,9 @@ export const VideoTransform = ({
     const images = getImagesFromImageNodes(incomers);
 
     if (!textPrompts.length && !images.length) {
-      toast.error('No prompts found');
+      toast.error('Error generating video', {
+        description: 'No prompts found',
+      });
       return;
     }
 
@@ -59,7 +61,9 @@ export const VideoTransform = ({
         generated: response,
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unknown error');
+      toast.error('Error generating video', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setLoading(false);
     }

@@ -61,7 +61,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
       router.refresh();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(message);
+      toast.error('Error updating project', { description: message });
     } finally {
       setIsUpdating(false);
     }
@@ -80,7 +80,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
       router.push('/');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(message);
+      toast.error('Error deleting project', { description: message });
     }
   };
   return (

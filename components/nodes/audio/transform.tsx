@@ -37,7 +37,9 @@ export const AudioTransform = ({
     const textPrompts = getTextFromTextNodes(incomers);
 
     if (!textPrompts.length) {
-      toast.error('No prompts found');
+      toast.error('Error generating audio', {
+        description: 'No prompts found',
+      });
       return;
     }
 
@@ -58,7 +60,9 @@ export const AudioTransform = ({
         transcript: textPrompts,
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unknown error');
+      toast.error('Error generating audio', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setLoading(false);
     }

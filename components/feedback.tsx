@@ -50,7 +50,7 @@ export const Feedback = ({ open, setOpen }: FeedbackProps) => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
-      toast.error(message);
+      toast.error('Error sending feedback', { description: message });
     } finally {
       setIsSending(false);
     }

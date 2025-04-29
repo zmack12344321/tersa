@@ -55,7 +55,7 @@ export const ImagePrimitive = ({
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
-      toast.error(message);
+      toast.error('Error uploading image', { description: message });
     }
   };
 

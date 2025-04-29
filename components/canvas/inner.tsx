@@ -153,7 +153,7 @@ export const CanvasInner = ({
 
   const save = useDebouncedCallback(async () => {
     if (!rfInstance) {
-      toast.error('No instance found');
+      toast.error('Error saving project', { description: 'No instance found' });
       return;
     }
 
@@ -178,7 +178,8 @@ export const CanvasInner = ({
       setLastSaved(new Date());
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
-      toast.error(message);
+
+      toast.error('Error saving project', { description: message });
     } finally {
       setIsSaving(false);
     }
