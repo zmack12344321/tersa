@@ -30,6 +30,7 @@ import { type ComponentProps, type ReactNode, useMemo, useState } from 'react';
 
 type HeroProps = {
   currentPlan?: 'hobby' | 'pro' | undefined;
+  authenticated: boolean;
 };
 
 type Plan = {
