@@ -1,3 +1,15 @@
+# v1.0.18 (Thu May 15 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update page.tsx ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.17 (Thu May 15 2025)
 
 #### ⚠️ Pushed to `main`
