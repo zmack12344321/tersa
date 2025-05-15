@@ -149,5 +149,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "ultracite": "4.2.4"
-  }
+  },
+  "packageManager": "pnpm@10.8.0"
 }
