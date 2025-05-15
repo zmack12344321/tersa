@@ -39,11 +39,9 @@ export const TopLeft = async ({ id }: TopLeftProps) => {
           currentProject={currentProject.id}
         />
       </div>
-      {user.id === currentProject.userId && (
-        <div className="flex shrink-0 items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm">
-          <ProjectSettings data={currentProject} />
-        </div>
-      )}
+      <div className="flex shrink-0 items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm">
+        <ProjectSettings data={currentProject} />
+      </div>
     </div>
   );
 };
