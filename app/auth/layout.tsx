@@ -1,20 +1,19 @@
-import Image from 'next/image';
+import { Logo } from '@/components/logo';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
-import Background from './background.jpg';
 
 type AuthLayoutProps = {
   readonly children: ReactNode;
 };
 
 const AuthLayout = ({ children }: AuthLayoutProps) => (
-  <div className="relative flex h-screen w-full items-center justify-center p-8">
-    <Image
-      src={Background}
-      alt="Background"
-      className="absolute inset-0 size-full object-cover"
-      placeholder="blur"
-    />
-    <div className="relative z-10 size-full">{children}</div>
+  <div className="relative flex h-screen min-h-[50rem] w-full items-center justify-center bg-secondary/50 p-8 dark:bg-background">
+    <div className="grid w-full max-w-sm gap-8">
+      <Link href="/" className="mx-auto h-10 w-auto">
+        <Logo className="h-full text-border" />
+      </Link>
+      {children}
+    </div>
   </div>
 );
 

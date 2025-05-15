@@ -8,31 +8,6 @@ import {
 } from '@xyflow/react';
 import { Position } from '@xyflow/react';
 
-const getParams = (
-  nodeA: InternalNode<Node>,
-  nodeB: InternalNode<Node>
-): [number, number, Position] => {
-  const centerA = getNodeCenter(nodeA);
-  const centerB = getNodeCenter(nodeB);
-
-  const horizontalDiff = Math.abs(centerA.x - centerB.x);
-  const verticalDiff = Math.abs(centerA.y - centerB.y);
-
-  let position: Position;
-
-  // when the horizontal difference between the nodes is bigger, we use Position.Left or Position.Right for the handle
-  if (horizontalDiff > verticalDiff) {
-    position = centerA.x > centerB.x ? Position.Left : Position.Right;
-  } else {
-    // here the vertical difference between the nodes is bigger, so we use Position.Top or Position.Bottom for the handle
-    position = centerA.y > centerB.y ? Position.Top : Position.Bottom;
-  }
-
-  const [x, y] = getHandleCoordsByPosition(nodeA, position);
-
-  return [x, y, position];
-};
-
 const getHandleCoordsByPosition = (
   node: InternalNode<Node>,
   handlePosition: Position
@@ -77,23 +52,14 @@ const getHandleCoordsByPosition = (
   return [x, y];
 };
 
-const getNodeCenter = (node: InternalNode<Node>) => {
-  if (!node.measured.width || !node.measured.height) {
-    throw new Error('Node has no measured dimensions');
-  }
-
-  return {
-    x: node.internals.positionAbsolute.x + node.measured.width / 2,
-    y: node.internals.positionAbsolute.y + node.measured.height / 2,
-  };
-};
-
 const getEdgeParams = (
   source: InternalNode<Node>,
   target: InternalNode<Node>
 ) => {
-  const [sx, sy, sourcePos] = getParams(source, target);
-  const [tx, ty, targetPos] = getParams(target, source);
+  const sourcePos = Position.Right;
+  const [sx, sy] = getHandleCoordsByPosition(source, sourcePos);
+  const targetPos = Position.Left;
+  const [tx, ty] = getHandleCoordsByPosition(target, targetPos);
 
   return {
     sx,

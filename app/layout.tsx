@@ -1,21 +1,12 @@
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { mono, sans, serif } from '@/lib/fonts';
 import { cn } from '@/lib/utils';
+import { PostHogProvider } from '@/providers/posthog-provider';
 import { ThemeProvider } from '@/providers/theme';
 import { Analytics } from '@vercel/analytics/next';
 import type { ReactNode } from 'react';
 import { Toaster } from 'sonner';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -25,21 +16,24 @@ const RootLayout = ({ children }: RootLayoutProps) => (
   <html lang="en" suppressHydrationWarning>
     <body
       className={cn(
-        geistSans.variable,
-        geistMono.variable,
-        'text-foreground antialiased'
+        sans.variable,
+        serif.variable,
+        mono.variable,
+        'bg-background text-foreground antialiased'
       )}
     >
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster className="z-[99999999]" />
-      </ThemeProvider>
-      <Analytics />
+      <PostHogProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster className="z-[99999999]" />
+        </ThemeProvider>
+        <Analytics />
+      </PostHogProvider>
     </body>
   </html>
 );

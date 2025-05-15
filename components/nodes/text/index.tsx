@@ -6,7 +6,9 @@ export type TextNodeProps = {
   type: string;
   data: {
     source: 'primitive' | 'transform';
-    generated?: string[];
+    generated?: {
+      text: string;
+    };
     model?: string;
     updatedAt?: string;
     instructions?: string;
@@ -20,8 +22,9 @@ export type TextNodeProps = {
   id: string;
 };
 
-export const TextNode = ({ data, id, type }: TextNodeProps) => {
-  const Component = data.source === 'primitive' ? TextPrimitive : TextTransform;
+export const TextNode = (props: TextNodeProps) => {
+  const Component =
+    props.data.source === 'primitive' ? TextPrimitive : TextTransform;
 
-  return <Component data={data} id={id} type={type} title="Text" />;
+  return <Component {...props} title="Text" />;
 };

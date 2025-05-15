@@ -1,10 +1,19 @@
 import { Canvas } from '@/components/canvas';
+import { TopLeft } from '@/components/top-left';
+import { TopRight } from '@/components/top-right';
+import { currentUser, currentUserProfile } from '@/lib/auth';
 import { database } from '@/lib/database';
-import { createClient } from '@/lib/supabase/server';
+import { env } from '@/lib/env';
+import { ProjectProvider } from '@/providers/project';
+import {
+  type SubscriptionContextType,
+  SubscriptionProvider,
+} from '@/providers/subscription';
 import { projects } from '@/schema';
 import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Tersa',
@@ -20,18 +29,23 @@ type ProjectProps = {
 };
 
 const Project = async ({ params }: ProjectProps) => {
-  const client = await createClient();
-  const { data } = await client.auth.getUser();
+  const user = await currentUser();
   const { projectId } = await params;
 
-  if (!data?.user) {
+  if (!user) {
     return redirect('/sign-in');
+  }
+
+  const profile = await currentUserProfile();
+
+  if (!profile) {
+    return null;
   }
 
   const allProjects = await database
     .select()
     .from(projects)
-    .where(eq(projects.userId, data.user.id));
+    .where(eq(projects.userId, user.id));
 
   if (!allProjects.length) {
     notFound();
@@ -43,9 +57,30 @@ const Project = async ({ params }: ProjectProps) => {
     notFound();
   }
 
+  let plan: SubscriptionContextType['plan'];
+
+  if (profile.subscriptionId === env.STRIPE_HOBBY_PRODUCT_ID) {
+    plan = 'hobby';
+  } else if (profile.subscriptionId === env.STRIPE_PRO_PRODUCT_ID) {
+    plan = 'pro';
+  }
+
   return (
     <div className="h-screen w-screen">
-      <Canvas projects={allProjects} data={project} userId={data.user.id} />
+      <ProjectProvider data={project}>
+        <SubscriptionProvider
+          isSubscribed={Boolean(profile.subscriptionId)}
+          plan={plan}
+        >
+          <Canvas data={project} />
+        </SubscriptionProvider>
+      </ProjectProvider>
+      <Suspense fallback={null}>
+        <TopLeft id={projectId} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <TopRight id={projectId} />
+      </Suspense>
     </div>
   );
 };

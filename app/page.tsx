@@ -1,29 +1,33 @@
+import { currentUser } from '@/lib/auth';
 import { database } from '@/lib/database';
-import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
 import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Home from './(unauthenticated)/home/page';
+import UnauthenticatedLayout from './(unauthenticated)/layout';
 import { createProjectAction } from './actions/project/create';
-import { Demo } from './components/demo';
 
 export const metadata: Metadata = {
   title: 'Tersa',
-  description: 'Join the waitlist to get early access to Tersa.',
+  description: 'Visualize your AI workflows.',
 };
 
-const Home = async () => {
-  const client = await createClient();
-  const { data } = await client.auth.getUser();
+const Index = async () => {
+  const user = await currentUser();
 
-  if (!data?.user) {
-    return <Demo />;
+  if (!user) {
+    return (
+      <UnauthenticatedLayout>
+        <Home />
+      </UnauthenticatedLayout>
+    );
   }
 
   const allProjects = await database
     .select()
     .from(projects)
-    .where(eq(projects.userId, data.user.id));
+    .where(eq(projects.userId, user.id));
 
   if (!allProjects.length) {
     const newProject = await createProjectAction('Untitled Project');
@@ -38,4 +42,4 @@ const Home = async () => {
   redirect(`/projects/${allProjects[0].id}`);
 };
 
-export default Home;
+export default Index;

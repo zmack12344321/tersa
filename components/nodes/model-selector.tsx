@@ -1,20 +1,27 @@
-import { Button } from '@/components/ui/button';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+} from '@/components/ui/kibo-ui/combobox';
+import type { PriceBracket } from '@/lib/models/text';
 import { cn } from '@/lib/utils';
-import { CheckIcon, ChevronsUpDownIcon } from 'lucide-react';
+import {
+  type SubscriptionContextType,
+  useSubscription,
+} from '@/providers/subscription';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ChevronsDownIcon,
+  ChevronsUpIcon,
+} from 'lucide-react';
 import { type ComponentType, type SVGProps, useState } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 type ModelSelectorProps = {
   id?: string;
@@ -22,87 +29,191 @@ type ModelSelectorProps = {
   width?: number | string;
   className?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean;
   options: {
     label: string;
     models: {
-      icon: ComponentType<SVGProps<SVGSVGElement>>;
+      icon?: ComponentType<SVGProps<SVGSVGElement>>;
       id: string;
       label: string;
+      disabled?: boolean;
+      priceIndicator?: PriceBracket;
     }[];
   }[];
+};
+
+const getCostBracketIcon = (bracket: PriceBracket, className?: string) => {
+  switch (bracket) {
+    case 'lowest':
+      return (
+        <ChevronsDownIcon
+          size={16}
+          className={cn('text-green-500 dark:text-green-400', className)}
+        />
+      );
+    case 'low':
+      return (
+        <ChevronDownIcon
+          size={16}
+          className={cn('text-blue-500 dark:text-blue-400', className)}
+        />
+      );
+    case 'high':
+      return (
+        <ChevronUpIcon
+          size={16}
+          className={cn('text-orange-500 dark:text-orange-400', className)}
+        />
+      );
+    case 'highest':
+      return (
+        <ChevronsUpIcon
+          size={16}
+          className={cn('text-red-500 dark:text-red-400', className)}
+        />
+      );
+    default:
+      return null;
+  }
+};
+
+const getCostBracketLabel = (bracket: PriceBracket) => {
+  switch (bracket) {
+    case 'lowest':
+      return 'This model uses a lot less credits.';
+    case 'low':
+      return 'This model uses less credits.';
+    case 'high':
+      return 'This model uses more credits.';
+    case 'highest':
+      return 'This model uses a lot of credits.';
+    default:
+      return '';
+  }
+};
+
+const getModelDisabled = (
+  model: ModelSelectorProps['options'][number]['models'][number],
+  plan: SubscriptionContextType['plan']
+) => {
+  if (model.disabled) {
+    return true;
+  }
+
+  if (
+    (!plan || plan === 'hobby') &&
+    (model.priceIndicator === 'highest' || model.priceIndicator === 'high')
+  ) {
+    return true;
+  }
+
+  return false;
 };
 
 export const ModelSelector = ({
   id,
   value,
   options,
-  width = 200,
+  width = 250,
   className,
   onChange,
+  disabled,
 }: ModelSelectorProps) => {
   const [open, setOpen] = useState(false);
-  const currentOption = options
+  const { plan } = useSubscription();
+  const activeModel = options
     .flatMap((option) => option.models)
     .find((model) => model.id === value);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          aria-expanded={open}
-          className={cn(className, 'justify-between')}
-          style={{ width }}
-          id={id}
-        >
-          {currentOption ? (
-            <div className="flex items-center gap-2 overflow-hidden">
-              <currentOption.icon className="size-4 shrink-0" />
-              <span className="block truncate">{currentOption.label}</span>
-            </div>
-          ) : (
-            'Select model...'
-          )}
-          <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="p-0" style={{ width }}>
-        <Command>
-          <CommandInput placeholder="Search models..." />
-          <CommandList>
-            <CommandEmpty>No model found.</CommandEmpty>
-            {options.map((option) => (
-              <CommandGroup key={option.label} heading={option.label}>
+    <Combobox
+      open={open}
+      onOpenChange={setOpen}
+      value={value}
+      onValueChange={onChange}
+      data={options
+        .flatMap((option) => option.models)
+        .map((model) => ({
+          label: model.label,
+          value: model.id,
+        }))}
+      type="model"
+    >
+      <ComboboxTrigger
+        className={className}
+        id={id}
+        style={{ width }}
+        disabled={disabled}
+      >
+        {activeModel && (
+          <div className="flex w-full items-center gap-2 overflow-hidden">
+            {activeModel.icon && (
+              <activeModel.icon className="size-4 shrink-0" />
+            )}
+            <span className="block truncate">{activeModel.label}</span>
+          </div>
+        )}
+      </ComboboxTrigger>
+      <ComboboxContent
+        popoverOptions={{
+          sideOffset: 8,
+        }}
+      >
+        <ComboboxInput />
+        <ComboboxList>
+          <ComboboxEmpty />
+          {options
+            .filter((option) => option.models.length)
+            .map((option) => (
+              <ComboboxGroup key={option.label} heading={option.label}>
                 {option.models.map((model) => (
-                  <CommandItem
+                  <ComboboxItem
                     key={model.id}
                     value={model.id}
                     onSelect={() => {
                       onChange?.(model.id);
                       setOpen(false);
                     }}
-                    // Temporarily disable non-OpenAI / non-Minimax models
-                    disabled={
-                      option.label !== 'OpenAI' && option.label !== 'Minimax'
-                    }
+                    disabled={getModelDisabled(model, plan)}
+                    className={cn(
+                      value === model.id &&
+                        'bg-primary text-primary-foreground data-[selected=true]:bg-primary/80 data-[selected=true]:text-primary-foreground'
+                    )}
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <model.icon className="size-4 shrink-0" />
+                      {model.icon && (
+                        <model.icon
+                          className={cn(
+                            'size-4 shrink-0',
+                            value === model.id && 'text-primary-foreground'
+                          )}
+                        />
+                      )}
                       <span className="block truncate">{model.label}</span>
                     </div>
-                    <CheckIcon
-                      className={cn(
-                        'ml-auto size-4',
-                        value === model.id ? 'opacity-100' : 'opacity-0'
-                      )}
-                    />
-                  </CommandItem>
+                    {model.priceIndicator && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="ml-auto">
+                            {getCostBracketIcon(
+                              model.priceIndicator,
+                              value === model.id
+                                ? 'text-primary-foreground'
+                                : ''
+                            )}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p>{getCostBracketLabel(model.priceIndicator)}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </ComboboxItem>
                 ))}
-              </CommandGroup>
+              </ComboboxGroup>
             ))}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 };

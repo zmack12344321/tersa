@@ -1,7 +1,8 @@
 'use server';
 
+import { currentUser } from '@/lib/auth';
 import { database } from '@/lib/database';
-import { createClient } from '@/lib/supabase/server';
+import { parseError } from '@/lib/error/parse';
 import { projects } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 
@@ -17,10 +18,9 @@ export const updateProjectAction = async (
     }
 > => {
   try {
-    const client = await createClient();
-    const { data: userData } = await client.auth.getUser();
+    const user = await currentUser();
 
-    if (!userData?.user) {
+    if (!user) {
       throw new Error('You need to be logged in to update a project!');
     }
 
@@ -30,9 +30,7 @@ export const updateProjectAction = async (
         ...data,
         updatedAt: new Date(),
       })
-      .where(
-        and(eq(projects.id, projectId), eq(projects.userId, userData.user.id))
-      );
+      .where(and(eq(projects.id, projectId), eq(projects.userId, user.id)));
 
     if (!project) {
       throw new Error('Project not found');
@@ -40,7 +38,8 @@ export const updateProjectAction = async (
 
     return { success: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = parseError(error);
+
     return { error: message };
   }
 };

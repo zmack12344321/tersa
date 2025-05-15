@@ -1,8 +1,9 @@
 import { EditorProvider } from '@/components/ui/kibo-ui/editor';
 import { cn } from '@/lib/utils';
-import type { Editor, JSONContent } from '@tiptap/core';
+import { useProject } from '@/providers/project';
+import type { Editor, EditorEvents, JSONContent } from '@tiptap/core';
 import { useReactFlow } from '@xyflow/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { TextNodeProps } from '.';
 import { NodeLayout } from '../layout';
 
@@ -20,6 +21,15 @@ export const TextPrimitive = ({
   const [content, setContent] = useState<JSONContent | undefined>(
     data.content ?? undefined
   );
+  const editor = useRef<Editor | null>(null);
+  const { project } = useProject();
+
+  useEffect(() => {
+    if (data.content) {
+      setContent(data.content);
+      editor.current?.commands.setContent(data.content);
+    }
+  }, [data.content]);
 
   const handleUpdate = ({ editor }: { editor: Editor }) => {
     const json = editor.getJSON();
@@ -29,16 +39,30 @@ export const TextPrimitive = ({
     updateNodeData(id, { content: json, text });
   };
 
+  const handleCreate = (props: EditorEvents['create']) => {
+    editor.current = props.editor;
+
+    if (project) {
+      props.editor.chain().focus().run();
+    }
+  };
+
   return (
-    <NodeLayout id={id} data={data} title={title} type={type}>
-      <div className="p-4">
+    <NodeLayout
+      id={id}
+      data={data}
+      title={title}
+      type={type}
+      className="overflow-hidden p-0"
+    >
+      <div className="nowheel h-full max-h-[30rem] overflow-auto">
         <EditorProvider
-          autofocus
+          onCreate={handleCreate}
           immediatelyRender={false}
           content={content}
           placeholder="Start typing..."
           className={cn(
-            'prose dark:prose-invert size-full',
+            'prose prose-sm dark:prose-invert size-full p-6',
             '[&_p:first-child]:mt-0',
             '[&_p:last-child]:mb-0'
           )}

@@ -1,3 +1,5 @@
+'use client';
+
 import { deleteProjectAction } from '@/app/actions/project/delete';
 import { updateProjectAction } from '@/app/actions/project/update';
 import {
@@ -9,7 +11,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { transcriptionModels, visionModels } from '@/lib/models';
+import { handleError } from '@/lib/error/handle';
+import { transcriptionModels } from '@/lib/models/transcription';
+import { visionModels } from '@/lib/models/vision';
 import type { projects } from '@/schema';
 import { SettingsIcon, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -60,8 +64,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
       setOpen(false);
       router.refresh();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      toast.error('Error updating project', { description: message });
+      handleError('Error updating project', error);
     } finally {
       setIsUpdating(false);
     }
@@ -79,8 +82,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
       setOpen(false);
       router.push('/');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      toast.error('Error deleting project', { description: message });
+      handleError('Error deleting project', error);
     }
   };
   return (
@@ -117,6 +119,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
               options={transcriptionModels}
               width={462}
               onChange={setTranscriptionModel}
+              disabled
             />
           </div>
           <div className="grid gap-2">
@@ -127,6 +130,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
               options={visionModels}
               onChange={setVisionModel}
               width={462}
+              disabled
             />
           </div>
           <Button type="submit" disabled={isUpdating || !name.trim()}>

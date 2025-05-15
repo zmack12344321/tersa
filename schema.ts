@@ -13,4 +13,12 @@ export const projects = pgTable('project', {
   content: json('content'),
   userId: varchar('user_id').notNull(),
   image: varchar('image'),
+  members: text('members').array(),
+});
+
+export const profile = pgTable('profile', {
+  id: text('id').primaryKey().notNull(),
+  customerId: text('customer_id'),
+  subscriptionId: text('subscription_id'),
+  productId: text('product_id'),
 });

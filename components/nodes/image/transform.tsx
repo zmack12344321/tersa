@@ -1,22 +1,44 @@
 import { generateImageAction } from '@/app/actions/image/create';
-import { describeAction } from '@/app/actions/image/describe';
 import { editImageAction } from '@/app/actions/image/edit';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import { imageModels } from '@/lib/models';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { download } from '@/lib/download';
+import { handleError } from '@/lib/error/handle';
+import { imageModels } from '@/lib/models/image';
 import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { ClockIcon, Loader2Icon, PlayIcon, RotateCcwIcon } from 'lucide-react';
+import {
+  ClockIcon,
+  DownloadIcon,
+  Loader2Icon,
+  PlayIcon,
+  RotateCcwIcon,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { type ChangeEventHandler, type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
+import { mutate } from 'swr';
 import type { ImageNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
 
 type ImageTransformProps = ImageNodeProps & {
   title: string;
+};
+
+const getDefaultModel = (models: typeof imageModels) => {
+  const defaultModel = models
+    .flatMap((model) => model.models)
+    .find((model) => model.default);
+
+  if (!defaultModel) {
+    throw new Error('No default model found');
+  }
+
+  return defaultModel;
 };
 
 export const ImageTransform = ({
@@ -26,14 +48,26 @@ export const ImageTransform = ({
   title,
 }: ImageTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
-  const [image, setImage] = useState<string | null>(
-    data.generated?.url ?? null
-  );
   const [loading, setLoading] = useState(false);
   const { projectId } = useParams();
+  const hasIncomingImageNodes =
+    getImagesFromImageNodes(getIncomers({ id }, getNodes(), getEdges()))
+      .length > 0;
+  const modelId = data.model ?? getDefaultModel(imageModels).id;
+  const analytics = useAnalytics();
+
+  const availableModels = imageModels.map((provider) => ({
+    ...provider,
+    models: hasIncomingImageNodes
+      ? provider.models.map((model) => ({
+          ...model,
+          disabled: !model.supportsEdit,
+        }))
+      : provider.models,
+  }));
 
   const handleGenerate = async () => {
-    if (loading) {
+    if (loading || typeof projectId !== 'string') {
       return;
     }
 
@@ -44,41 +78,41 @@ export const ImageTransform = ({
     try {
       setLoading(true);
 
+      analytics.track('canvas', 'node', 'generate', {
+        type,
+        textPromptsLength: textNodes.length,
+        imagePromptsLength: imageNodes.length,
+        model: modelId,
+        instructionsLength: data.instructions?.length ?? 0,
+      });
+
       const response = imageNodes.length
-        ? await editImageAction(imageNodes, data.instructions)
-        : await generateImageAction(
-            [...textNodes, ...imageNodes].join('\n'),
-            data.model ?? 'dall-e-3',
-            data.instructions
-          );
+        ? await editImageAction({
+            images: imageNodes,
+            instructions: data.instructions,
+            nodeId: id,
+            projectId,
+            modelId,
+          })
+        : await generateImageAction({
+            prompt: textNodes.join('\n'),
+            modelId,
+            instructions: data.instructions,
+            projectId,
+            nodeId: id,
+          });
 
       if ('error' in response) {
         throw new Error(response.error);
       }
 
-      setImage(response.url);
+      updateNodeData(id, response.nodeData);
 
-      const description = await describeAction(
-        response.url,
-        projectId as string
-      );
+      toast.success('Image generated successfully');
 
-      if ('error' in description) {
-        throw new Error(description.error);
-      }
-
-      updateNodeData(id, {
-        updatedAt: new Date().toISOString(),
-        generated: {
-          url: response.url,
-          type: response.type,
-        },
-        description: description.description,
-      });
+      setTimeout(() => mutate('credits'), 5000);
     } catch (error) {
-      toast.error('Error generating image', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      });
+      handleError('Error generating image', error);
     } finally {
       setLoading(false);
     }
@@ -92,32 +126,57 @@ export const ImageTransform = ({
     {
       children: (
         <ModelSelector
-          value={data.model ?? 'dall-e-3'}
-          options={imageModels}
+          value={modelId}
+          options={availableModels}
           id={id}
           className="w-[200px] rounded-full"
           onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),
     },
-    {
-      tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
+    loading
+      ? {
+          tooltip: 'Generating...',
+          children: (
+            <Button size="icon" className="rounded-full" disabled>
+              <Loader2Icon className="animate-spin" size={12} />
+            </Button>
+          ),
+        }
+      : {
+          tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
+          children: (
+            <Button
+              size="icon"
+              className="rounded-full"
+              onClick={handleGenerate}
+              disabled={loading || !projectId}
+            >
+              {data.generated?.url ? (
+                <RotateCcwIcon size={12} />
+              ) : (
+                <PlayIcon size={12} />
+              )}
+            </Button>
+          ),
+        },
+  ];
+
+  if (data.generated) {
+    toolbar.push({
+      tooltip: 'Download',
       children: (
         <Button
+          variant="ghost"
           size="icon"
           className="rounded-full"
-          onClick={handleGenerate}
-          disabled={loading || !projectId}
+          onClick={() => download(data.generated, id, 'png')}
         >
-          {data.generated?.url ? (
-            <RotateCcwIcon size={12} />
-          ) : (
-            <PlayIcon size={12} />
-          )}
+          <DownloadIcon size={12} />
         </Button>
       ),
-    },
-  ];
+    });
+  }
 
   if (data.updatedAt) {
     toolbar.push({
@@ -135,34 +194,31 @@ export const ImageTransform = ({
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
-      <div>
-        {loading && (
-          <div className="flex items-center justify-center p-4">
-            <Loader2Icon size={16} className="animate-spin" />
-          </div>
-        )}
-        {!loading && !image && (
-          <div className="flex items-center justify-center p-4">
-            <p className="text-muted-foreground text-sm">
-              Press "Generate" to create an image
-            </p>
-          </div>
-        )}
-        {image && !loading && (
-          <Image
-            src={image}
-            alt="Generated image"
-            width={1600}
-            height={900}
-            className="aspect-video w-full rounded-t-lg object-cover"
-          />
-        )}
-      </div>
+      {loading && (
+        <Skeleton className="aspect-square w-full animate-pulse rounded-b-xl" />
+      )}
+      {!loading && !data.generated?.url && (
+        <div className="flex aspect-square w-full items-center justify-center rounded-b-xl bg-secondary p-4">
+          <p className="text-muted-foreground text-sm">
+            Press <PlayIcon size={12} className="-translate-y-px inline" /> to
+            create an image
+          </p>
+        </div>
+      )}
+      {!loading && data.generated?.url && (
+        <Image
+          src={data.generated.url}
+          alt="Generated image"
+          width={1000}
+          height={1000}
+          className="w-full rounded-b-xl object-cover"
+        />
+      )}
       <Textarea
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
         placeholder="Enter instructions"
-        className="shrink-0 resize-none rounded-none rounded-b-lg border-none bg-secondary/50 shadow-none focus-visible:ring-0"
+        className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
       />
     </NodeLayout>
   );

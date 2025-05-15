@@ -44,7 +44,6 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
-
   @keyframes accordion-down {
     from {
       height: 0;
@@ -100,8 +99,7 @@
 }
 
 .dark {
-  /* --background: oklch(0.145 0 0); */
-  --background: oklch(0.269 0 0);
+  --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -109,8 +107,7 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.60 0.13 163);
   --primary-foreground: oklch(1 0 0);
-  /* --secondary: oklch(0.269 0 0); */
-  --secondary: oklch(0.145 0 0);
+  --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
@@ -144,12 +141,36 @@
   }
 }
 
+@layer utilities {
+  .prose-sm h1 {
+    @apply text-3xl font-semibold tracking-tight;
+  }
+  .prose-sm h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  .prose-sm h3 {
+    @apply text-xl font-semibold tracking-tight;
+  }
+  .prose-sm h4 {
+    @apply text-lg font-semibold tracking-tight;
+  }
+  .prose-sm h5 {
+    @apply text-base font-semibold tracking-tight;
+  }
+  .prose-sm h6 {
+    @apply text-sm font-semibold tracking-tight;
+  }
+}
+
 @layer base {
+  .react-flow__background {
+    @apply bg-secondary! dark:bg-background!;
+  }
   .react-flow__background-pattern.dots {
     @apply fill-foreground/25!;
   }
   .react-flow__node.selected .node-container {
-    @apply ring-2! ring-primary!;
+    @apply ring-2! ring-[var(--cursor-color,var(--primary))]!;
   }
   .react-flow__controls-button {
     @apply inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 rounded-full;

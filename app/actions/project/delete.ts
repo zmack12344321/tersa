@@ -1,7 +1,8 @@
 'use server';
 
+import { currentUser } from '@/lib/auth';
 import { database } from '@/lib/database';
-import { createClient } from '@/lib/supabase/server';
+import { parseError } from '@/lib/error/parse';
 import { projects } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 
@@ -16,18 +17,15 @@ export const deleteProjectAction = async (
     }
 > => {
   try {
-    const client = await createClient();
-    const { data } = await client.auth.getUser();
+    const user = await currentUser();
 
-    if (!data?.user) {
+    if (!user) {
       throw new Error('You need to be logged in to delete a project!');
     }
 
     const project = await database
       .delete(projects)
-      .where(
-        and(eq(projects.id, projectId), eq(projects.userId, data.user.id))
-      );
+      .where(and(eq(projects.id, projectId), eq(projects.userId, user.id)));
 
     if (!project) {
       throw new Error('Project not found');
@@ -35,7 +33,8 @@ export const deleteProjectAction = async (
 
     return { success: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = parseError(error);
+
     return { error: message };
   }
 };

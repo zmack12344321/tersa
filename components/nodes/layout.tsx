@@ -1,22 +1,31 @@
 import {
-  Handle,
-  NodeResizeControl,
-  NodeToolbar,
-  Position,
-  useReactFlow,
-} from '@xyflow/react';
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
+import { useNodeOperations } from '@/providers/node-operations';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 import {
   BrainIcon,
   CodeIcon,
+  CopyIcon,
   EyeIcon,
   TrashIcon,
   UserIcon,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { Fragment } from 'react';
-import { Button } from '../ui/button';
+import { type ReactNode, useState } from 'react';
 import { Switch } from '../ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { NodeToolbar } from './toolbar';
 
 type NodeLayoutProps = {
   children: ReactNode;
@@ -25,8 +34,6 @@ type NodeLayoutProps = {
     model?: string;
     source?: string;
     generated?: object;
-    forceToolbarVisible?: boolean;
-    toolbarPosition?: Position;
   };
   title: string;
   type: string;
@@ -34,6 +41,7 @@ type NodeLayoutProps = {
     tooltip?: string;
     children: ReactNode;
   }[];
+  className?: string;
 };
 
 export const NodeLayout = ({
@@ -43,14 +51,17 @@ export const NodeLayout = ({
   data,
   toolbar,
   title,
+  className,
 }: NodeLayoutProps) => {
-  const { deleteElements, setCenter, getNode, updateNodeData } = useReactFlow();
+  const { deleteElements, setCenter, getNode, updateNodeData, updateNode } =
+    useReactFlow();
+  const { duplicateNode } = useNodeOperations();
+  const [showData, setShowData] = useState(false);
 
-  const handleDelete = () => {
-    deleteElements({
-      nodes: [{ id }],
+  const handleSourceChange = (value: boolean) =>
+    updateNodeData(id, {
+      source: value ? 'transform' : 'primitive',
     });
-  };
 
   const handleFocus = () => {
     const node = getNode(id);
@@ -61,105 +72,118 @@ export const NodeLayout = ({
 
     const { x, y } = node.position;
     const width = node.measured?.width ?? 0;
-    const height = node.measured?.height ?? 0;
 
-    setCenter(x + width / 2, y + height / 2, {
+    setCenter(x + width / 2, y, {
       duration: 1000,
     });
   };
 
-  const handleSourceChange = (value: boolean) =>
-    updateNodeData(id, {
-      source: value ? 'transform' : 'primitive',
+  const handleDelete = () => {
+    deleteElements({
+      nodes: [{ id }],
     });
+  };
+
+  const handleShowData = () => {
+    setTimeout(() => {
+      setShowData(true);
+    }, 100);
+  };
+
+  const handleSelect = (open: boolean) => {
+    if (!open) {
+      return;
+    }
+
+    const node = getNode(id);
+
+    if (!node) {
+      return;
+    }
+
+    updateNode(id, { selected: true });
+  };
 
   return (
     <>
-      {type !== 'drop' && (
-        <NodeToolbar
-          isVisible={data?.forceToolbarVisible || undefined}
-          position={Position.Bottom}
-          className="flex items-center gap-1 rounded-full border bg-background/90 p-1 drop-shadow-xs backdrop-blur-sm"
-        >
-          {toolbar?.map((button, index) =>
-            button.tooltip ? (
-              <Tooltip key={button.tooltip}>
-                <TooltipTrigger asChild>{button.children}</TooltipTrigger>
-                <TooltipContent>{button.tooltip}</TooltipContent>
-              </Tooltip>
-            ) : (
-              <Fragment key={index}>{button.children}</Fragment>
-            )
+      <ContextMenu onOpenChange={handleSelect}>
+        <ContextMenuTrigger>
+          {type !== 'drop' && toolbar?.length && (
+            <NodeToolbar id={id} items={toolbar} />
           )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-                onClick={handleFocus}
-              >
-                <EyeIcon size={12} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Focus</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-destructive/10 hover:text-destructive"
-                onClick={handleDelete}
-              >
-                <TrashIcon size={12} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Delete</TooltipContent>
-          </Tooltip>
-          {process.env.NODE_ENV === 'development' && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <CodeIcon size={12} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-[600px] text-wrap">
-                <pre className="whitespace-pre-wrap">
-                  {JSON.stringify({ id, data, type, title }, null, 2)}
-                </pre>
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </NodeToolbar>
-      )}
-      <NodeResizeControl
-        minWidth={400}
-        minHeight={170}
-        keepAspectRatio={type === 'image' || type === 'video'}
-      />
-      <Handle type="target" position={Position.Left} />
-      <div className="relative size-full">
-        {type !== 'drop' && (
-          <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
-            <p className="font-mono text-muted-foreground text-xs tracking-tighter">
-              {title}
-            </p>
-            <div className="flex items-center gap-2">
-              <UserIcon size={12} className="text-muted-foreground" />
-              <Switch
-                checked={data?.source === 'transform'}
-                onCheckedChange={handleSourceChange}
-              />
-              <BrainIcon size={12} className="text-muted-foreground" />
+          {type !== 'file' && <Handle type="target" position={Position.Left} />}
+          <div className="relative size-full h-auto w-sm">
+            {type !== 'drop' && (
+              <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
+                <p className="font-mono text-muted-foreground text-xs tracking-tighter">
+                  {title}
+                </p>
+                {type !== 'file' && (
+                  <div className="flex items-center gap-2">
+                    <UserIcon size={12} className="text-muted-foreground" />
+                    <Switch
+                      checked={data?.source === 'transform'}
+                      onCheckedChange={handleSourceChange}
+                    />
+                    <BrainIcon size={12} className="text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+            )}
+            <div
+              className={cn(
+                'node-container flex size-full flex-col divide-y rounded-[28px] bg-card p-2 ring-1 ring-border transition-all',
+                className
+              )}
+            >
+              <div className="overflow-hidden rounded-3xl bg-card">
+                {children}
+              </div>
             </div>
           </div>
-        )}
-        <div className="node-container flex size-full flex-col divide-y rounded-lg bg-card ring-1 ring-border transition-all">
-          {children}
-        </div>
-      </div>
-      <Handle type="source" position={Position.Right} />
+          <Handle type="source" position={Position.Right} />
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onClick={() => duplicateNode(id)}>
+            <CopyIcon size={12} />
+            <span>Duplicate</span>
+          </ContextMenuItem>
+          <ContextMenuItem onClick={handleFocus}>
+            <EyeIcon size={12} />
+            <span>Focus</span>
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem onClick={handleDelete} variant="destructive">
+            <TrashIcon size={12} />
+            <span>Delete</span>
+          </ContextMenuItem>
+          {process.env.NODE_ENV === 'development' && (
+            <>
+              <ContextMenuSeparator />
+              <ContextMenuItem onClick={handleShowData}>
+                <CodeIcon size={12} />
+                <span>Show data</span>
+              </ContextMenuItem>
+            </>
+          )}
+        </ContextMenuContent>
+      </ContextMenu>
+      <Dialog open={showData} onOpenChange={setShowData}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Node data</DialogTitle>
+            <DialogDescription>
+              Data for node{' '}
+              <code className="rounded-sm bg-secondary px-2 py-1 font-mono">
+                {id}
+              </code>
+            </DialogDescription>
+          </DialogHeader>
+          <pre className="rounded-lg bg-black p-4 text-sm text-white">
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -1,6 +1,8 @@
-import { chatModels } from '@/lib/models';
-import { getSubscribedUser } from '@/lib/protect';
+import { getSubscribedUser } from '@/lib/auth';
+import { parseError } from '@/lib/error/parse';
+import { textModels } from '@/lib/models/text';
 import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
+import { trackCreditUsage } from '@/lib/stripe';
 import { streamText } from 'ai';
 
 // Allow streaming responses up to 30 seconds
@@ -16,7 +18,9 @@ export const POST = async (req: Request) => {
   try {
     await getSubscribedUser();
   } catch (error) {
-    return new Response('Unauthorized', { status: 401 });
+    const message = parseError(error);
+
+    return new Response(message, { status: 401 });
   }
 
   // Apply rate limiting
@@ -42,7 +46,7 @@ export const POST = async (req: Request) => {
     return new Response('Model must be a string', { status: 400 });
   }
 
-  const model = chatModels
+  const model = textModels
     .flatMap((m) => m.models)
     .find((m) => m.id === modelId);
 
@@ -59,6 +63,15 @@ export const POST = async (req: Request) => {
       'The output should be a concise summary of the content, no more than 100 words.',
     ].join('\n'),
     messages,
+    onFinish: async ({ usage }) => {
+      await trackCreditUsage({
+        action: 'chat',
+        cost: model.getCost({
+          input: usage.promptTokens,
+          output: usage.completionTokens,
+        }),
+      });
+    },
   });
 
   return result.toDataStreamResponse();

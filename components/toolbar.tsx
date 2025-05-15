@@ -1,19 +1,22 @@
-import { type Node, Panel, useReactFlow } from '@xyflow/react';
+import { useNodeOperations } from '@/providers/node-operations';
+import { Panel, useReactFlow } from '@xyflow/react';
 import {
   AudioWaveformIcon,
+  CodeIcon,
+  FileIcon,
   ImageIcon,
-  MessageSquareIcon,
   TextIcon,
   VideoIcon,
 } from 'lucide-react';
-import { nanoid } from 'nanoid';
+import { memo } from 'react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
-export const Toolbar = () => {
-  const { addNodes, getViewport } = useReactFlow();
+export const ToolbarInner = () => {
+  const { getViewport } = useReactFlow();
+  const { addNode } = useNodeOperations();
 
-  const addNode = (type: string) => {
+  const handleAddNode = (type: string, options?: Record<string, unknown>) => {
     // Get the current viewport
     const viewport = getViewport();
 
@@ -24,18 +27,16 @@ export const Toolbar = () => {
       -viewport.y / viewport.zoom + window.innerHeight / 2 / viewport.zoom;
 
     const position = { x: centerX, y: centerY };
+    const { data: nodeData, ...rest } = options ?? {};
 
-    const newNode: Node = {
-      id: nanoid(),
-      type,
+    addNode(type, {
+      position,
       data: {
+        ...(nodeData ? nodeData : {}),
         source: 'primitive',
       },
-      position,
-      origin: [0, 0.5],
-    };
-
-    addNodes([newNode]);
+      ...rest,
+    });
   };
 
   const buttons = [
@@ -43,38 +44,49 @@ export const Toolbar = () => {
       id: 'text',
       label: 'Text',
       icon: TextIcon,
-      onClick: () => addNode('text'),
+      onClick: () => handleAddNode('text'),
     },
     {
       id: 'image',
       label: 'Image',
       icon: ImageIcon,
-      onClick: () => addNode('image'),
+      onClick: () => handleAddNode('image'),
     },
     {
       id: 'audio',
       label: 'Audio',
       icon: AudioWaveformIcon,
-      onClick: () => addNode('audio'),
+      onClick: () => handleAddNode('audio'),
     },
     {
       id: 'video',
       label: 'Video',
       icon: VideoIcon,
-      onClick: () => addNode('video'),
+      onClick: () => handleAddNode('video'),
     },
     {
-      id: 'comment',
-      label: 'Comment',
-      icon: MessageSquareIcon,
-      onClick: () => addNode('comment'),
+      id: 'code',
+      label: 'Code',
+      icon: CodeIcon,
+      onClick: () =>
+        handleAddNode('code', {
+          data: {
+            content: { language: 'javascript' },
+          },
+        }),
+    },
+    {
+      id: 'file',
+      label: 'File',
+      icon: FileIcon,
+      onClick: () => handleAddNode('file'),
     },
   ];
 
   return (
     <Panel
       position="bottom-center"
-      className="flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm"
+      className="m-4 flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm"
     >
       {buttons.map((button) => (
         <Tooltip key={button.id}>
@@ -94,3 +106,5 @@ export const Toolbar = () => {
     </Panel>
   );
 };
+
+export const Toolbar = memo(ToolbarInner);

@@ -1,8 +1,27 @@
 'use server';
 
+import { currentUser } from '@/lib/auth';
 import { database } from '@/lib/database';
-import { createClient } from '@/lib/supabase/server';
+import { parseError } from '@/lib/error/parse';
+import { transcriptionModels } from '@/lib/models/transcription';
+import { visionModels } from '@/lib/models/vision';
 import { projects } from '@/schema';
+
+const defaultTranscriptionModel = transcriptionModels
+  .flatMap((model) => model.models)
+  .find((model) => model.default);
+
+const defaultVisionModel = visionModels
+  .flatMap((model) => model.models)
+  .find((model) => model.default);
+
+if (!defaultTranscriptionModel) {
+  throw new Error('No default transcription model found');
+}
+
+if (!defaultVisionModel) {
+  throw new Error('No default vision model found');
+}
 
 export const createProjectAction = async (
   name: string
@@ -15,10 +34,9 @@ export const createProjectAction = async (
     }
 > => {
   try {
-    const client = await createClient();
-    const { data } = await client.auth.getUser();
+    const user = await currentUser();
 
-    if (!data?.user) {
+    if (!user) {
       throw new Error('You need to be logged in to create a project!');
     }
 
@@ -26,9 +44,9 @@ export const createProjectAction = async (
       .insert(projects)
       .values({
         name,
-        userId: data.user.id,
-        transcriptionModel: 'gpt-4o-mini-transcribe',
-        visionModel: 'gpt-4.1-nano',
+        userId: user.id,
+        transcriptionModel: defaultTranscriptionModel.id,
+        visionModel: defaultVisionModel.id,
       })
       .returning({ id: projects.id });
 
@@ -38,7 +56,7 @@ export const createProjectAction = async (
 
     return { id: project[0].id };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = parseError(error);
 
     return { error: message };
   }

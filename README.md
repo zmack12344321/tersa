@@ -2,14 +2,13 @@
 
 # Tersa
 
-Tersa is an AI canvas powered by [Supabase](https://supabase.com/), [shadcn/ui](https://ui.shadcn.com/) and Vercel's [AI SDK](https://sdk.vercel.ai/). It allows you to drag, drop and connect nodes together; then run all sorts of AI models on your data, images, audio and more.
+Visualize your AI workflows. Tersa is an open source canvas for building AI workflows. Drag, drop connect and run nodes to build your own workflows powered by various industry-leading AI models.
 
 ## Features
 
 - **Visual Workflow Builder**: Create AI workflows by connecting nodes in an intuitive drag-and-drop interface
 - **Multiple AI Models**: Seamlessly integrate with leading AI models from various providers
 - **Multimedia Processing**: Process images, text, audio, and video content through your workflows
-- **Real-time Collaboration**: Work together with team members in real-time with cursor sharing
 - **Automatic Saving**: Changes are automatically saved to your projects
 - **Cloud Storage**: All workflows are securely stored in Supabase with Row Level Security enabled
 - **Modern UI**: Clean, responsive interface built with Next.js, React, and Tailwind CSS
@@ -24,7 +23,7 @@ Tersa is an AI canvas powered by [Supabase](https://supabase.com/), [shadcn/ui](
 - [TipTap](https://tiptap.dev/) for rich text editing
 - [Drizzle ORM](https://orm.drizzle.team/) for database queries
 - [Tailwind CSS](https://tailwindcss.com/) for styling
-- [shadcn/ui](https://ui.shadcn.com/), [Supabase UI](https://supabase.com/ui) and [Radix UI](https://www.radix-ui.com/) for accessible UI components
+- [shadcn/ui](https://ui.shadcn.com/), [Kibo UI](https://www.kibo-ui.com/\) and [Radix UI](https://www.radix-ui.com/) for accessible UI components
 
 ## Getting Started
 
@@ -34,6 +33,7 @@ Tersa is an AI canvas powered by [Supabase](https://supabase.com/), [shadcn/ui](
 - PNPM package manager
 - Supabase account and project
 - [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) installed
+- [Stripe CLI](https://docs.stripe.com/stripe-cli) installed
 
 ### Installation
 
@@ -59,7 +59,7 @@ Tersa is an AI canvas powered by [Supabase](https://supabase.com/), [shadcn/ui](
 
 ## Usage
 
-1. Sign in or create an account
+1. Login or create an account
 2. Create a new project or open an existing one
 3. Add nodes to your canvas by clicking the toolbar buttons
 4. Connect nodes by dragging from one node's output to another node's input

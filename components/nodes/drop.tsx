@@ -9,16 +9,18 @@ import {
 import { type XYPosition, useReactFlow } from '@xyflow/react';
 import {
   AudioWaveformIcon,
+  CodeIcon,
   ImageIcon,
   TextIcon,
   VideoIcon,
 } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { NodeLayout } from './layout';
 
 type DropNodeProps = {
   data: {
+    isSource?: boolean;
     position: XYPosition;
   };
   id: string;
@@ -45,13 +47,22 @@ const buttons = [
     label: 'Video',
     icon: VideoIcon,
   },
+  {
+    id: 'code',
+    label: 'Code',
+    icon: CodeIcon,
+    options: {
+      data: { content: { language: 'javascript' } },
+    },
+  },
 ];
 
 export const DropNode = ({ data, id }: DropNodeProps) => {
   const { addNodes, deleteElements, getNode, addEdges, getNodeConnections } =
     useReactFlow();
+  const ref = useRef<HTMLDivElement>(null);
 
-  const handleSelect = (type: string) => {
+  const handleSelect = (type: string, options?: Record<string, unknown>) => {
     // Get the position of the current node
     const currentNode = getNode(id);
     const position = currentNode?.position || { x: 0, y: 0 };
@@ -65,6 +76,7 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
     });
 
     const newNodeId = nanoid();
+    const { data: nodeData, ...rest } = options ?? {};
 
     // Add the new node of the selected type
     addNodes({
@@ -73,15 +85,17 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
       position,
       data: {
         source: 'transform',
+        ...(nodeData ? nodeData : {}),
       },
       origin: [0, 0.5],
+      ...rest,
     });
 
     for (const sourceNode of sourceNodes) {
       addEdges({
         id: nanoid(),
-        source: sourceNode.source,
-        target: newNodeId,
+        source: data.isSource ? newNodeId : sourceNode.source,
+        target: data.isSource ? sourceNode.source : newNodeId,
         type: 'animated',
       });
     }
@@ -97,34 +111,51 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
       }
     };
 
-    // Add event listener for escape key
+    const handleClick = (event: MouseEvent) => {
+      // Get the DOM element for this node
+      const nodeElement = ref.current;
+
+      // Check if the click was outside the node
+      if (nodeElement && !nodeElement.contains(event.target as Node)) {
+        deleteElements({
+          nodes: [{ id }],
+        });
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
 
-    // Clean up the event listener when component unmounts
+    setTimeout(() => {
+      window.addEventListener('click', handleClick);
+    }, 50);
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('click', handleClick);
     };
   }, [deleteElements, id]);
 
   return (
-    <NodeLayout id={id} data={data} type="drop" title="Add a new node">
-      <Command className="rounded-lg">
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Add node">
-            {buttons.map((button) => (
-              <CommandItem
-                key={button.id}
-                onSelect={() => handleSelect(button.id)}
-              >
-                <button.icon size={16} />
-                {button.label}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </Command>
-    </NodeLayout>
+    <div ref={ref}>
+      <NodeLayout id={id} data={data} type="drop" title="Add a new node">
+        <Command className="rounded-lg">
+          <CommandInput placeholder="Type a command or search..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Add node">
+              {buttons.map((button) => (
+                <CommandItem
+                  key={button.id}
+                  onSelect={() => handleSelect(button.id, button.options)}
+                >
+                  <button.icon size={16} />
+                  {button.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </NodeLayout>
+    </div>
   );
 };

@@ -1,18 +1,46 @@
-import { generateSpeechAction } from '@/app/actions/generate/speech/create';
+import { generateSpeechAction } from '@/app/actions/speech/create';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
-import { speechModels } from '@/lib/models';
-import { getTextFromTextNodes } from '@/lib/xyflow';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { download } from '@/lib/download';
+import { handleError } from '@/lib/error/handle';
+import { speechModels } from '@/lib/models/speech';
+import { capitalize } from '@/lib/utils';
+import {
+  getDescriptionsFromImageNodes,
+  getTextFromTextNodes,
+} from '@/lib/xyflow';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { ClockIcon, Loader2Icon, PlayIcon, RotateCcwIcon } from 'lucide-react';
+import {
+  ClockIcon,
+  DownloadIcon,
+  Loader2Icon,
+  PlayIcon,
+  RotateCcwIcon,
+} from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { type ComponentProps, useState } from 'react';
+import { type ChangeEventHandler, type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
+import { mutate } from 'swr';
 import type { AudioNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
 
 type AudioTransformProps = AudioNodeProps & {
   title: string;
+};
+
+const getDefaultModel = (models: typeof speechModels) => {
+  const defaultModel = models
+    .flatMap((model) => model.models)
+    .find((model) => model.default);
+
+  if (!defaultModel) {
+    throw new Error('No default model found');
+  }
+
+  return defaultModel;
 };
 
 export const AudioTransform = ({
@@ -22,47 +50,60 @@ export const AudioTransform = ({
   title,
 }: AudioTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
-  const [audio, setAudio] = useState<string | null>(
-    data.generated?.url ?? null
-  );
   const [loading, setLoading] = useState(false);
   const { projectId } = useParams();
+  const modelId = data.model ?? getDefaultModel(speechModels).id;
+  const model = speechModels
+    .flatMap((model) => model.models)
+    .find((model) => model.id === modelId);
+  const analytics = useAnalytics();
 
   const handleGenerate = async () => {
-    if (loading) {
-      return;
-    }
-
-    const incomers = getIncomers({ id }, getNodes(), getEdges());
-    const textPrompts = getTextFromTextNodes(incomers);
-
-    if (!textPrompts.length) {
-      toast.error('Error generating audio', {
-        description: 'No prompts found',
-      });
+    if (loading || typeof projectId !== 'string') {
       return;
     }
 
     try {
+      const incomers = getIncomers({ id }, getNodes(), getEdges());
+      const textPrompts = getTextFromTextNodes(incomers);
+      const imagePrompts = getDescriptionsFromImageNodes(incomers);
+
+      if (!textPrompts.length && !imagePrompts.length) {
+        throw new Error('No prompts found');
+      }
+
       setLoading(true);
 
-      const response = await generateSpeechAction(textPrompts);
+      const text = [...textPrompts, ...imagePrompts].join('\n');
+
+      analytics.track('canvas', 'node', 'generate', {
+        type,
+        promptLength: text.length,
+        model: modelId,
+        instructionsLength: data.instructions?.length ?? 0,
+        voice: data.voice ?? null,
+      });
+
+      const response = await generateSpeechAction({
+        text,
+        nodeId: id,
+        modelId,
+        projectId,
+        voice: data.voice,
+        instructions: data.instructions,
+      });
 
       if ('error' in response) {
         throw new Error(response.error);
       }
 
-      setAudio(response.url);
+      updateNodeData(id, response.nodeData);
 
-      updateNodeData(id, {
-        updatedAt: new Date().toISOString(),
-        generated: response,
-        transcript: textPrompts,
-      });
+      toast.success('Audio generated successfully');
+
+      setTimeout(() => mutate('credits'), 5000);
     } catch (error) {
-      toast.error('Error generating audio', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-      });
+      handleError('Error generating audio', error);
     } finally {
       setLoading(false);
     }
@@ -72,7 +113,7 @@ export const AudioTransform = ({
     {
       children: (
         <ModelSelector
-          value={data.model ?? 'tts-1'}
+          value={modelId}
           options={speechModels}
           key={id}
           className="w-[200px] rounded-full"
@@ -80,24 +121,74 @@ export const AudioTransform = ({
         />
       ),
     },
-    {
-      tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
+  ];
+
+  if (model?.voices.length) {
+    toolbar.push({
+      children: (
+        <ModelSelector
+          value={data.voice ?? model.voices[0]}
+          options={[
+            {
+              label: `${modelId} voices`,
+              models: model.voices.map((voice) => ({
+                id: voice,
+                label: capitalize(voice),
+              })),
+            },
+          ]}
+          key={id}
+          className="w-[200px] rounded-full"
+          onChange={(value) => updateNodeData(id, { voice: value })}
+        />
+      ),
+    });
+  }
+
+  toolbar.push(
+    loading
+      ? {
+          tooltip: 'Generating...',
+          children: (
+            <Button size="icon" className="rounded-full" disabled>
+              <Loader2Icon className="animate-spin" size={12} />
+            </Button>
+          ),
+        }
+      : {
+          tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
+          children: (
+            <Button
+              size="icon"
+              className="rounded-full"
+              onClick={handleGenerate}
+              disabled={loading || !projectId}
+            >
+              {data.generated?.url ? (
+                <RotateCcwIcon size={12} />
+              ) : (
+                <PlayIcon size={12} />
+              )}
+            </Button>
+          ),
+        }
+  );
+
+  if (data.generated) {
+    toolbar.push({
+      tooltip: 'Download',
       children: (
         <Button
+          variant="ghost"
           size="icon"
           className="rounded-full"
-          onClick={handleGenerate}
-          disabled={loading || !projectId}
+          onClick={() => download(data.generated, id, 'mp3')}
         >
-          {data.generated?.url ? (
-            <RotateCcwIcon size={12} />
-          ) : (
-            <PlayIcon size={12} />
-          )}
+          <DownloadIcon size={12} />
         </Button>
       ),
-    },
-  ];
+    });
+  }
 
   if (data.updatedAt) {
     toolbar.push({
@@ -113,28 +204,37 @@ export const AudioTransform = ({
     });
   }
 
+  const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
+    event
+  ) => updateNodeData(id, { instructions: event.target.value });
+
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
-      <div>
-        {loading && !audio && (
-          <div className="flex items-center justify-center p-4">
-            <Loader2Icon size={16} className="animate-spin" />
-          </div>
-        )}
-        {!loading && !audio && (
-          <div className="flex items-center justify-center p-4">
-            <p className="text-muted-foreground text-sm">
-              Press "Generate" to synthesize speech
-            </p>
-          </div>
-        )}
-        {audio && (
-          <div className="flex items-center justify-center p-4">
-            {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
-            <audio src={audio} controls />
-          </div>
-        )}
-      </div>
+      {loading && (
+        <Skeleton className="h-[50px] w-full animate-pulse rounded-full" />
+      )}
+      {!loading && !data.generated?.url && (
+        <div className="flex h-[50px] w-full items-center justify-center rounded-full bg-secondary">
+          <p className="text-muted-foreground text-sm">
+            Press <PlayIcon size={12} className="-translate-y-px inline" /> to
+            generate audio
+          </p>
+        </div>
+      )}
+      {!loading && data.generated?.url && (
+        // biome-ignore lint/a11y/useMediaCaption: <explanation>
+        <audio
+          src={data.generated.url}
+          controls
+          className="w-full rounded-none"
+        />
+      )}
+      <Textarea
+        value={data.instructions ?? ''}
+        onChange={handleInstructionsChange}
+        placeholder="Enter instructions"
+        className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
+      />
     </NodeLayout>
   );
 };

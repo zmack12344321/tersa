@@ -1,8 +1,16 @@
-import { transcribeAction } from '@/app/actions/generate/speech/transcribe';
+import { transcribeAction } from '@/app/actions/speech/transcribe';
 import { NodeLayout } from '@/components/nodes/layout';
-import { Uploader } from '@/components/uploader';
+import {
+  Dropzone,
+  DropzoneContent,
+  DropzoneEmptyState,
+} from '@/components/ui/kibo-ui/dropzone';
+import { Skeleton } from '@/components/ui/skeleton';
+import { handleError } from '@/lib/error/handle';
+import { uploadFile } from '@/lib/upload';
 import { useReactFlow } from '@xyflow/react';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 import type { AudioNodeProps } from '.';
 
 type AudioPrimitiveProps = AudioNodeProps & {
@@ -16,40 +24,80 @@ export const AudioPrimitive = ({
   title,
 }: AudioPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
+  const [files, setFiles] = useState<File[] | undefined>();
   const { projectId } = useParams();
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleUploadCompleted = async (url: string, type: string) => {
-    const transcription = await transcribeAction(url, projectId as string);
-
-    if ('error' in transcription) {
-      throw new Error(transcription.error);
+  const handleDrop = async (files: File[]) => {
+    if (isUploading) {
+      return;
     }
 
-    updateNodeData(id, {
-      content: {
-        url,
-        type,
-      },
-      transcript: transcription.transcript,
-    });
+    try {
+      if (!files.length) {
+        throw new Error('No file selected');
+      }
+
+      setIsUploading(true);
+      setFiles(files);
+      const [file] = files;
+
+      const { url, type } = await uploadFile(file, 'files');
+
+      updateNodeData(id, {
+        content: {
+          url,
+          type,
+        },
+      });
+
+      const response = await transcribeAction(url, projectId as string);
+
+      if ('error' in response) {
+        throw new Error(response.error);
+      }
+
+      updateNodeData(id, {
+        transcript: response.transcript,
+      });
+    } catch (error) {
+      handleError('Error uploading video', error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title}>
-      <div className="p-4">
-        {data.content ? (
-          // biome-ignore lint/a11y/useMediaCaption: <explanation>
-          <audio src={data.content.url} controls />
-        ) : (
-          <Uploader
-            onUploadCompleted={handleUploadCompleted}
-            accept={{
-              'audio/*': [],
-            }}
-            className="rounded-none border-none bg-transparent p-0 shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-          />
-        )}
-      </div>
+      {isUploading && (
+        <Skeleton className="h-[50px] w-full animate-pulse rounded-full" />
+      )}
+      {!isUploading && data.content && (
+        // biome-ignore lint/a11y/useMediaCaption: <explanation>
+        <audio
+          src={data.content.url}
+          controls
+          className="w-full rounded-none"
+        />
+      )}
+      {!isUploading && !data.content && (
+        <Dropzone
+          maxSize={1024 * 1024 * 10}
+          minSize={1024}
+          maxFiles={1}
+          multiple={false}
+          accept={{
+            'audio/*': [],
+          }}
+          onDrop={handleDrop}
+          src={files}
+          onError={console.error}
+          className="rounded-none border-none bg-transparent shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+        >
+          <DropzoneEmptyState />
+          <DropzoneContent />
+        </Dropzone>
+      )}
     </NodeLayout>
   );
 };

@@ -30,7 +30,6 @@ import type { Editor, Range } from '@tiptap/core';
 import { Node, mergeAttributes } from '@tiptap/core';
 import CharacterCount from '@tiptap/extension-character-count';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import Color from '@tiptap/extension-color';
 import Placeholder from '@tiptap/extension-placeholder';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
@@ -549,7 +548,6 @@ export const EditorProvider = ({
         width: 4,
       },
     }),
-    Color,
     Typography,
     Placeholder.configure({
       placeholder,
@@ -616,7 +614,8 @@ export const EditorProvider = ({
               });
 
               popup = tippy(document.body, {
-                getReferenceClientRect: () => props.clientRect?.() || new DOMRect(),
+                getReferenceClientRect: () =>
+                  props.clientRect?.() || new DOMRect(),
                 appendTo: () => document.body,
                 content: component.element,
                 showOnCreate: true,
@@ -630,7 +629,8 @@ export const EditorProvider = ({
               component.updateProps(props);
 
               popup.setProps({
-                getReferenceClientRect: () => props.clientRect?.() || new DOMRect(),
+                getReferenceClientRect: () =>
+                  props.clientRect?.() || new DOMRect(),
               });
             },
 
@@ -1248,7 +1248,7 @@ export const EditorFormatUnderline = ({
     <BubbleMenuButton
       name="Underline"
       isActive={() => editor.isActive('underline') ?? false}
-      // @ts-expect-error "Tiptap types suck"
+      // @ts-expect-error "TipTap extensions are not typed"
       command={() => editor.chain().focus().toggleUnderline().run()}
       icon={UnderlineIcon}
       hideName={hideName}
@@ -1307,7 +1307,7 @@ export const EditorLinkSelector = ({
     const href = getUrlFromString(url);
 
     if (href) {
-      // @ts-expect-error "Tiptap types suck"
+      // @ts-expect-error "TipTap extensions are not typed"
       editor.chain().focus().setLink({ href }).run();
       onOpenChange?.(false);
     }
@@ -1355,7 +1355,7 @@ export const EditorLinkSelector = ({
               type="button"
               className="flex h-8 items-center rounded-sm p-1 text-destructive transition-all hover:bg-destructive-foreground dark:hover:bg-destructive"
               onClick={() => {
-                // @ts-expect-error "Tiptap types suck"
+                // @ts-expect-error "TipTap extensions are not typed"
                 editor.chain().focus().unsetLink().run();
                 onOpenChange?.(false);
               }}
@@ -1370,71 +1370,6 @@ export const EditorLinkSelector = ({
         </form>
       </PopoverContent>
     </Popover>
-  );
-};
-
-export type EditorTextColorProps = Pick<EditorButtonProps, 'hideName'> & {
-  color: string;
-  name: string;
-};
-
-export const EditorTextColor = ({
-  color,
-  name,
-  hideName = false,
-}: EditorTextColorProps) => {
-  const { editor } = useCurrentEditor();
-
-  if (!editor) {
-    return null;
-  }
-
-  return (
-    <BubbleMenuButton
-      name={name}
-      command={() => editor.chain().focus().setColor(color).run()}
-      icon={() => (
-        <div
-          className="size-4 rounded-sm border"
-          style={{ backgroundColor: color }}
-        />
-      )}
-      isActive={() => editor.isActive('textStyle', { color }) ?? false}
-      hideName={hideName}
-    />
-  );
-};
-
-export type EditorBackgroundColorProps = Pick<EditorButtonProps, 'hideName'> & {
-  color: string;
-  name: string;
-};
-
-export const EditorBackgroundColor = ({
-  color,
-  name,
-  hideName = false,
-}: EditorBackgroundColorProps) => {
-  const { editor } = useCurrentEditor();
-
-  if (!editor) {
-    return null;
-  }
-
-  return (
-    <BubbleMenuButton
-      name={name}
-      // @ts-expect-error "Tiptap types suck"
-      command={() => editor.chain().focus().setHighlight({ color }).run()}
-      icon={() => (
-        <div
-          className="size-4 rounded-sm border"
-          style={{ backgroundColor: color }}
-        />
-      )}
-      isActive={() => editor.isActive('highlight', { color }) ?? false}
-      hideName={hideName}
-    />
   );
 };
 

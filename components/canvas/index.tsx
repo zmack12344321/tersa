@@ -1,8 +1,9 @@
 import { ReactFlowProvider } from '@xyflow/react';
-import { CanvasInner, type CanvasProps } from './inner';
+import type { CanvasProps } from './canvas';
+import { Canvas as CanvasComponent } from './canvas';
 
-export const Canvas = ({ projects, data, userId }: CanvasProps) => (
+export const Canvas = (props: CanvasProps) => (
   <ReactFlowProvider>
-    <CanvasInner projects={projects} data={data} userId={userId} />
+    <CanvasComponent {...props} />
   </ReactFlowProvider>
 );
