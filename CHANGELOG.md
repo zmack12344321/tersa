@@ -1,3 +1,16 @@
+# v1.0.12 (Thu May 15 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Increase hobby credits ([@haydenbleasel](https://github.com/haydenbleasel))
+- Fix edit image prompt ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.11 (Thu May 15 2025)
 
 #### ⚠️ Pushed to `main`
