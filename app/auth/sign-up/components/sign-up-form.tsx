@@ -30,6 +30,10 @@ export const SignUpForm = () => {
         email,
         password,
         options: {
+          emailRedirectTo: new URL(
+            '/auth/confirm',
+            window.location.origin
+          ).toString(),
           captchaToken,
         },
       });
