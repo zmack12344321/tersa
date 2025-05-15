@@ -68,13 +68,19 @@ export const AudioTransform = ({
       const textPrompts = getTextFromTextNodes(incomers);
       const imagePrompts = getDescriptionsFromImageNodes(incomers);
 
-      if (!textPrompts.length && !imagePrompts.length) {
+      if (!textPrompts.length && !imagePrompts.length && !data.instructions) {
         throw new Error('No prompts found');
       }
 
       setLoading(true);
 
-      const text = [...textPrompts, ...imagePrompts].join('\n');
+      let text = [...textPrompts, ...imagePrompts].join('\n');
+      let instructions = data.instructions;
+
+      if (data.instructions && !text.length) {
+        text = data.instructions;
+        instructions = undefined;
+      }
 
       analytics.track('canvas', 'node', 'generate', {
         type,
@@ -90,7 +96,7 @@ export const AudioTransform = ({
         modelId,
         projectId,
         voice: data.voice,
-        instructions: data.instructions,
+        instructions,
       });
 
       if ('error' in response) {
