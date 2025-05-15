@@ -5,7 +5,7 @@ import { env } from '@/lib/env';
 import { parseError } from '@/lib/error/parse';
 import { stripe } from '@/lib/stripe';
 
-const HOBBY_CREDITS = 100;
+const HOBBY_CREDITS = 200;
 
 export const getCredits = async (): Promise<
   | {

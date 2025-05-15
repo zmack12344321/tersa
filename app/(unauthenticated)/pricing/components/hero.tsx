@@ -60,7 +60,7 @@ export const Hero = ({ currentPlan, authenticated }: HeroProps) => {
       yearlyPrice: 0,
       features: [
         {
-          label: '100 credits / month',
+          label: '200 credits / month',
           icon: CoinsIcon,
         },
         {
