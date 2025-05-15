@@ -5,11 +5,7 @@ import { z } from 'zod';
 export const env = createEnv({
   extends: [vercel()],
   server: {
-    OPENAI_API_KEY: z.string().min(1),
     DATABASE_URL: z.string().url().min(1),
-
-    MINIMAX_GROUP_ID: z.string().min(1),
-    MINIMAX_API_KEY: z.string().min(1),
 
     UPSTASH_REDIS_REST_URL: z.string().url().min(1),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
@@ -28,8 +24,22 @@ export const env = createEnv({
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
     SUPABASE_AUTH_HOOK_SECRET: z.string().min(1),
 
-    RUNWAYML_API_SECRET: z.string().min(1),
+    // AI SDK
+    OPENAI_API_KEY: z.string().min(1),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+    GROQ_API_KEY: z.string().min(1),
+    DEEPSEEK_API_KEY: z.string().min(1),
+    ANTHROPIC_API_KEY: z.string().min(1),
+    XAI_API_KEY: z.string().min(1),
+    AWS_ACCESS_KEY_ID: z.string().min(1),
+    AWS_SECRET_ACCESS_KEY: z.string().min(1),
+    AWS_REGION: z.string().min(1),
+    FAL_API_KEY: z.string().min(1),
 
+    // Other Models
+    MINIMAX_GROUP_ID: z.string().min(1),
+    MINIMAX_API_KEY: z.string().min(1),
+    RUNWAYML_API_SECRET: z.string().min(1),
     LUMAAI_API_KEY: z.string().min(1),
   },
   client: {
@@ -42,6 +52,15 @@ export const env = createEnv({
   },
   runtimeEnv: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
+    DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+    XAI_API_KEY: process.env.XAI_API_KEY,
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+    AWS_REGION: process.env.AWS_REGION,
+    FAL_API_KEY: process.env.FAL_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
