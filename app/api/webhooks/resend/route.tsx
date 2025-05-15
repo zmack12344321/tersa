@@ -45,13 +45,20 @@ export const POST = async (req: Request) => {
 
     const {
       user,
-      email_data: { token, token_hash, redirect_to, email_action_type },
+      email_data: {
+        token,
+        token_hash,
+        redirect_to,
+        email_action_type,
+        site_url,
+      },
     } = wh.verify(payload, headers) as WebhookPayload;
 
-    const magicLink = new URL(redirect_to, env.NEXT_PUBLIC_SUPABASE_URL);
+    const magicLink = new URL(redirect_to, site_url);
 
     magicLink.searchParams.set('token', token);
     magicLink.searchParams.set('token_hash', token_hash);
+    magicLink.searchParams.set('type', email_action_type);
 
     let react: ReactElement | undefined;
     let subject: string | undefined;
