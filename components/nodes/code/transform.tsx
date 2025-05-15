@@ -6,6 +6,7 @@ import { handleError } from '@/lib/error/handle';
 import { textModels } from '@/lib/models/text';
 import {
   getCodeFromCodeNodes,
+  getDescriptionsFromImageNodes,
   getTextFromTextNodes,
   getTranscriptionFromAudioNodes,
 } from '@/lib/xyflow';
@@ -81,8 +82,14 @@ export const CodeTransform = ({
     const textPrompts = getTextFromTextNodes(incomers);
     const audioPrompts = getTranscriptionFromAudioNodes(incomers);
     const codePrompts = getCodeFromCodeNodes(incomers);
+    const imageDescriptions = getDescriptionsFromImageNodes(incomers);
 
-    if (!textPrompts.length && !audioPrompts.length && !codePrompts.length) {
+    if (
+      !textPrompts.length &&
+      !audioPrompts.length &&
+      !codePrompts.length &&
+      !imageDescriptions.length
+    ) {
       handleError('Error generating code', 'No prompts found');
       return;
     }
@@ -94,6 +101,8 @@ export const CodeTransform = ({
       ...textPrompts.join('\n'),
       '--- Audio Prompts ---',
       ...audioPrompts.join('\n'),
+      '--- Image Descriptions ---',
+      ...imageDescriptions.join('\n'),
       '--- Code Prompts ---',
       ...codePrompts.map(
         (code, index) =>
