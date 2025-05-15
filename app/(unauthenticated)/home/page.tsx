@@ -27,7 +27,7 @@ const Home = () => (
     <Hero
       announcement={{
         title: 'Tersa is now open source!',
-        link: 'https://x.com/haydenbleasel/status/1916267182541181133',
+        link: 'https://x.com/haydenbleasel/status/1923061663437291832',
       }}
       buttons={buttons}
     />
