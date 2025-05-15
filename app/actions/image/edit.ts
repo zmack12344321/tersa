@@ -69,10 +69,13 @@ export const editImageAction = async ({
         ? 'Create a variant of the image.'
         : 'Create a single variant of the images.';
 
+    const prompt =
+      !instructions || instructions === '' ? defaultPrompt : instructions;
+
     const response = await openai.images.edit({
       model: model.model.modelId,
       image: promptImages,
-      prompt: instructions ?? defaultPrompt,
+      prompt,
       user: user.id,
       size: '1024x1024',
       quality: 'high',
