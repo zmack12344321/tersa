@@ -115,6 +115,7 @@ export const TextTransform = ({
       experimental_attachments: [
         ...images.map((image) => ({
           url: image.url,
+          contentType: image.type,
         })),
         ...files.map((file) => ({
           url: file.url,

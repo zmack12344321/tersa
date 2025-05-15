@@ -85,8 +85,8 @@ export const Hero = ({ currentPlan, authenticated }: HeroProps) => {
       icon: FlowerIcon,
       name: 'Pro',
       description: 'For professional use or small teams.',
-      monthlyPrice: 8,
-      yearlyPrice: 6,
+      monthlyPrice: 10,
+      yearlyPrice: 8,
       features: [
         {
           label: '1600 credits / month',
