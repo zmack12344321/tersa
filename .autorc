@@ -7,5 +7,6 @@
   "owner": "haydenbleasel",
   "repo": "tersa",
   "name": "Hayden Bleasel",
-  "email": "hello@haydenbleasel.com"
+  "email": "hello@haydenbleasel.com",
+  "onlyPublishWithReleaseLabel": false
 }

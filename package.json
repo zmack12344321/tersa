@@ -136,6 +136,8 @@
     "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@auto-it/first-time-contributor": "^11.3.0",
+    "@auto-it/git-tag": "^11.3.0",
     "@biomejs/biome": "1.9.4",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.16",
