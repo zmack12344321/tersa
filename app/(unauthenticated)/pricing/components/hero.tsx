@@ -75,7 +75,7 @@ export const Hero = ({ currentPlan }: HeroProps) => {
           icon: UserIcon,
         },
       ],
-      ctaLink: `/api/checkout?product=hobby&frequency=${yearly ? 'year' : 'month'}`,
+      ctaLink: '/auth/sign-up',
       ctaText: 'Get Started',
       variant: 'outline',
     };
@@ -109,7 +109,7 @@ export const Hero = ({ currentPlan }: HeroProps) => {
         },
       ],
       variant: 'outline',
-      ctaLink: `/api/checkout?product=pro&frequency=${yearly ? 'year' : 'month'}`,
+      ctaLink: '/auth/sign-up',
       ctaText: 'Get Started',
     };
 
@@ -141,6 +141,11 @@ export const Hero = ({ currentPlan }: HeroProps) => {
       ctaText: 'Get in Touch',
       variant: 'outline',
     };
+
+    if (currentPlan) {
+      free.ctaLink = `/api/checkout?product=hobby&frequency=${yearly ? 'year' : 'month'}`;
+      pro.ctaLink = `/api/checkout?product=pro&frequency=${yearly ? 'year' : 'month'}`;
+    }
 
     if (currentPlan === 'hobby') {
       free.ctaText = 'Manage';
