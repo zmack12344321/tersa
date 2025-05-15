@@ -1,3 +1,15 @@
+# v1.0.0 (Thu May 15 2025)
+
+#### 💥 Breaking Change
+
+- v1 [#51](https://github.com/haydenbleasel/tersa/pull/51) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v0.0.1 (Thu May 15 2025)
 
 :tada: This release contains work from a new contributor! :tada:
