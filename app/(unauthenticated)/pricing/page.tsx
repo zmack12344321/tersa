@@ -1,4 +1,4 @@
-import { currentUserProfile } from '@/lib/auth';
+import { currentUser, currentUserProfile } from '@/lib/auth';
 import { env } from '@/lib/env';
 import type { Metadata } from 'next';
 import { Hero } from './components/hero';
@@ -9,9 +9,10 @@ export const metadata: Metadata = {
 };
 
 const PricingPage = async () => {
+  const user = await currentUser();
   let currentPlan: 'hobby' | 'pro' | undefined;
 
-  try {
+  if (user) {
     const profile = await currentUserProfile();
 
     if (profile) {
@@ -21,11 +22,9 @@ const PricingPage = async () => {
         currentPlan = 'pro';
       }
     }
-  } catch (error) {
-    // Not an error, just no profile
   }
 
-  return <Hero currentPlan={currentPlan} />;
+  return <Hero currentPlan={currentPlan} authenticated={Boolean(user)} />;
 };
 
 export default PricingPage;

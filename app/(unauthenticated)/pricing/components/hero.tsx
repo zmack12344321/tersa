@@ -47,7 +47,7 @@ type Plan = {
   variant: ComponentProps<typeof Button>['variant'];
 };
 
-export const Hero = ({ currentPlan }: HeroProps) => {
+export const Hero = ({ currentPlan, authenticated }: HeroProps) => {
   const [yearly, setYearly] = useState(false);
 
   const plans = useMemo(() => {
@@ -142,7 +142,7 @@ export const Hero = ({ currentPlan }: HeroProps) => {
       variant: 'outline',
     };
 
-    if (currentPlan) {
+    if (authenticated) {
       free.ctaLink = `/api/checkout?product=hobby&frequency=${yearly ? 'year' : 'month'}`;
       pro.ctaLink = `/api/checkout?product=pro&frequency=${yearly ? 'year' : 'month'}`;
     }
@@ -162,7 +162,7 @@ export const Hero = ({ currentPlan }: HeroProps) => {
     }
 
     return [free, pro, enterprise];
-  }, [currentPlan, yearly]);
+  }, [currentPlan, yearly, authenticated]);
 
   return (
     <div className="relative grid w-full grid-cols-[0.2fr_3fr_0.2fr] md:grid-cols-[0.5fr_3fr_0.5fr]">
