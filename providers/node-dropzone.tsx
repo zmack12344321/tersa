@@ -7,6 +7,7 @@ import { FileIcon, ImageIcon, VideoIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useNodeOperations } from './node-operations';
+import { useProject } from './project';
 
 type NodeDropzoneProviderProps = {
   children: ReactNode;
@@ -17,10 +18,12 @@ export const NodeDropzoneProvider = ({
 }: NodeDropzoneProviderProps) => {
   const { getViewport } = useReactFlow();
   const { addNode } = useNodeOperations();
+  const { project } = useProject();
   const dropzone = useDropzone({
     noClick: true,
     autoFocus: false,
     noKeyboard: true,
+    disabled: !project,
     onDrop: async (acceptedFiles) => {
       const uploads = await Promise.all(
         acceptedFiles.map(async (file) => ({

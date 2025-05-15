@@ -7,6 +7,7 @@ import { speechModels } from '@/lib/models/speech';
 import { trackCreditUsage } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
+import type { Edge, Node, Viewport } from '@xyflow/react';
 import { experimental_generateSpeech as generateSpeech } from 'ai';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
@@ -85,11 +86,9 @@ export const generateSpeechAction = async ({
     }
 
     const content = project.content as {
-      nodes: {
-        id: string;
-        type: string;
-        data: object;
-      }[];
+      nodes: Node[];
+      edges: Edge[];
+      viewport: Viewport;
     };
 
     const existingNode = content.nodes.find((n) => n.id === nodeId);
@@ -120,7 +119,7 @@ export const generateSpeechAction = async ({
 
     await database
       .update(projects)
-      .set({ content: { nodes: updatedNodes } })
+      .set({ content: { ...content, nodes: updatedNodes } })
       .where(eq(projects.id, projectId));
 
     return {

@@ -7,6 +7,7 @@ import { imageModels } from '@/lib/models/image';
 import { trackCreditUsage } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
+import type { Edge, Node, Viewport } from '@xyflow/react';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import OpenAI, { toFile } from 'openai';
@@ -128,11 +129,9 @@ export const editImageAction = async ({
     }
 
     const content = project.content as {
-      nodes: {
-        id: string;
-        type: string;
-        data: object;
-      }[];
+      nodes: Node[];
+      edges: Edge[];
+      viewport: Viewport;
     };
 
     const existingNode = content.nodes.find((n) => n.id === nodeId);
@@ -164,7 +163,7 @@ export const editImageAction = async ({
 
     await database
       .update(projects)
-      .set({ content: { nodes: updatedNodes } })
+      .set({ content: { ...content, nodes: updatedNodes } })
       .where(eq(projects.id, projectId));
 
     return {

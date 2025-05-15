@@ -101,8 +101,8 @@ export const Features = () => (
           </div>
         </div>
 
-        <div className="grid items-start gap-8 border-y border-dotted p-8 sm:col-span-2 sm:grid-cols-3">
-          <div className="aspect-video w-full overflow-hidden rounded-lg border sm:col-span-2">
+        <div className="grid items-start gap-8 border-y border-dotted p-8 sm:col-span-2 lg:grid-cols-3">
+          <div className="aspect-video w-full overflow-hidden rounded-lg border lg:col-span-2">
             <VideoDemo />
           </div>
           <div className="grid gap-2">
