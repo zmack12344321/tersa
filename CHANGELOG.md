@@ -1,3 +1,19 @@
+# v1.0.16 (Thu May 15 2025)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Karel Vuong ([@karelvuong](https://github.com/karelvuong)), for all your work!
+
+#### 🐛 Bug Fix
+
+- fix: kibo link in readme [#53](https://github.com/haydenbleasel/tersa/pull/53) ([@karelvuong](https://github.com/karelvuong))
+
+#### Authors: 1
+
+- Karel Vuong ([@karelvuong](https://github.com/karelvuong))
+
+---
+
 # v1.0.15 (Thu May 15 2025)
 
 #### ⚠️ Pushed to `main`
