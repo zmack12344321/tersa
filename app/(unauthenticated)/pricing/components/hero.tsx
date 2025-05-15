@@ -290,6 +290,7 @@ export const Hero = ({ currentPlan, authenticated }: HeroProps) => {
                           format={{
                             currency: 'USD',
                             style: 'currency',
+                            maximumFractionDigits: 0,
                           }}
                         />
                       </span>
