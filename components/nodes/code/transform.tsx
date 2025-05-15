@@ -88,7 +88,8 @@ export const CodeTransform = ({
       !textPrompts.length &&
       !audioPrompts.length &&
       !codePrompts.length &&
-      !imageDescriptions.length
+      !imageDescriptions.length &&
+      !data.instructions
     ) {
       handleError('Error generating code', 'No prompts found');
       return;
