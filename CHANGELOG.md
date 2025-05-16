@@ -1,3 +1,15 @@
+# v1.0.20 (Fri May 16 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Create model_request.md ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.19 (Fri May 16 2025)
 
 #### ⚠️ Pushed to `main`
