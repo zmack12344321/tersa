@@ -20,7 +20,6 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type MouseEventHandler, useState } from 'react';
-import { Feedback } from './feedback';
 import { Profile } from './profile';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
@@ -28,7 +27,6 @@ import { Button } from './ui/button';
 export const Menu = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const router = useRouter();
   const user = useUser();
   const { isSubscribed } = useSubscription();
@@ -46,16 +44,6 @@ export const Menu = () => {
     // shadcn/ui issue: dropdown animation causes profile modal to close immediately after opening
     setTimeout(() => {
       setProfileOpen(true);
-    }, 200);
-  };
-
-  const handleOpenFeedback: MouseEventHandler<HTMLDivElement> = (event) => {
-    event.preventDefault();
-    setDropdownOpen(false);
-
-    // shadcn/ui issue: dropdown animation causes profile modal to close immediately after opening
-    setTimeout(() => {
-      setFeedbackOpen(true);
     }, 200);
   };
 
@@ -120,14 +108,19 @@ export const Menu = () => {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleOpenFeedback}>
-            Send feedback
+          <DropdownMenuItem asChild>
+            <a
+              href="https://github.com/haydenbleasel/tersa"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Send feedback
+            </a>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <Profile open={profileOpen} setOpen={setProfileOpen} />
-      <Feedback open={feedbackOpen} setOpen={setFeedbackOpen} />
     </>
   );
 };
