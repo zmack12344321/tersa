@@ -35,6 +35,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     AWS_REGION: z.string().min(1),
     FAL_API_KEY: z.string().min(1),
+    TOGETHER_AI_API_KEY: z.string().min(1),
 
     // Other Models
     MINIMAX_GROUP_ID: z.string().min(1),
@@ -60,6 +61,7 @@ export const env = createEnv({
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_REGION: process.env.AWS_REGION,
     FAL_API_KEY: process.env.FAL_API_KEY,
+    TOGETHER_AI_API_KEY: process.env.TOGETHER_AI_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,

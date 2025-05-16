@@ -68,6 +68,7 @@ export const imageModels: {
         label: 'DALL-E 2',
         model: openai.image('dall-e-2'),
         size: '1024x1024',
+        priceIndicator: 'low',
         providerOptions: {
           openai: {
             quality: 'standard',
@@ -356,63 +357,211 @@ export const imageModels: {
   //   models: [
   //     {
   //       icon: TogetherIcon,
-  //       id: 'stabilityai/stable-diffusion-xl-base-1.0',
-  //       label: 'SDXL Base 1.0',
-  //       model: togetherai.image('stabilityai/stable-diffusion-xl-base-1.0'),
-  //     },
-  //     {
-  //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-dev',
+  //       id: 'together-black-forest-labs/FLUX.1-dev',
   //       label: 'FLUX.1 Dev',
   //       model: togetherai.image('black-forest-labs/FLUX.1-dev'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.025;
+
+  //         // Outcome: ~0.026
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-dev-lora',
+  //       id: 'together-black-forest-labs/FLUX.1-dev-lora',
   //       label: 'FLUX.1 Dev Lora',
   //       model: togetherai.image('black-forest-labs/FLUX.1-dev-lora'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.035;
+
+  //         // Outcome: ~0.036
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-schnell',
+  //       id: 'together-black-forest-labs/FLUX.1-schnell',
   //       label: 'FLUX.1 Schnell',
   //       model: togetherai.image('black-forest-labs/FLUX.1-schnell'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.0027;
+
+  //         // Outcome: ~0.0028
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-canny',
+  //       id: 'together-black-forest-labs/FLUX.1-canny',
   //       label: 'FLUX.1 Canny',
   //       model: togetherai.image('black-forest-labs/FLUX.1-canny'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.025;
+
+  //         // Outcome: ~0.026
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-depth',
+  //       id: 'together-black-forest-labs/FLUX.1-depth',
   //       label: 'FLUX.1 Depth',
   //       model: togetherai.image('black-forest-labs/FLUX.1-depth'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.025;
+
+  //         // Outcome: ~0.026
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-redux',
+  //       id: 'together-black-forest-labs/FLUX.1-redux',
   //       label: 'FLUX.1 Redux',
   //       model: togetherai.image('black-forest-labs/FLUX.1-redux'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.025;
+
+  //         // Outcome: ~0.026
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1.1-pro',
+  //       id: 'together-black-forest-labs/FLUX.1.1-pro',
   //       label: 'FLUX.1.1 Pro',
   //       model: togetherai.image('black-forest-labs/FLUX.1.1-pro'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.04;
+
+  //         // Outcome: ~0.04
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-pro',
+  //       id: 'together-black-forest-labs/FLUX.1-pro',
   //       label: 'FLUX.1 Pro',
   //       model: togetherai.image('black-forest-labs/FLUX.1-pro'),
+  //       size: '1024x1024',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0.05;
+
+  //         // Outcome: ~0.05
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //     {
   //       icon: TogetherIcon,
-  //       id: 'black-forest-labs/FLUX.1-schnell-Free',
+  //       id: 'together-black-forest-labs/FLUX.1-schnell-Free',
   //       label: 'FLUX.1 Schnell Free',
   //       model: togetherai.image('black-forest-labs/FLUX.1-schnell-Free'),
+  //       size: '1024x1024',
+  //       priceIndicator: 'lowest',
+
+  //       // https://www.together.ai/pricing
+  //       getCost: (props) => {
+  //         if (!props) {
+  //           throw new Error('Props are required');
+  //         }
+
+  //         const width = 1024;
+  //         const height = 1024;
+  //         const pixels = width * height;
+  //         const megapixels = pixels / million;
+  //         const pricePerMegapixel = 0;
+
+  //         // Outcome: 0
+  //         return megapixels * pricePerMegapixel;
+  //       },
   //     },
   //   ],
   // },
