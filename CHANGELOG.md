@@ -1,3 +1,15 @@
+# v1.0.21 (Fri May 16 2025)
+
+#### ⚠️ Pushed to `main`
+
+- 🤷 ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.20 (Fri May 16 2025)
 
 #### ⚠️ Pushed to `main`
