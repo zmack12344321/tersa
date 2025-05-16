@@ -45,6 +45,7 @@ const generateGptImage1Image = async ({
       prompt,
     ].join('\n'),
     size: '1024x1024',
+    moderation: 'low',
     quality: 'high',
     output_format: 'png',
   });
