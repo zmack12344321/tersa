@@ -13,6 +13,7 @@ export type ImageNodeProps = {
       url: string;
       type: string;
     };
+    size?: string;
     width?: number;
     height?: number;
     updatedAt?: string;

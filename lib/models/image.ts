@@ -6,6 +6,8 @@ import { AmazonIcon, OpenAiIcon, XaiIcon } from '../icons';
 
 const million = 1000000;
 
+export type ImageSize = `${number}x${number}`;
+
 export const imageModels: {
   label: string;
   models: {
@@ -13,11 +15,12 @@ export const imageModels: {
     id: string;
     label: string;
     model: ImageModel;
-    size?: string;
+    sizes?: ImageSize[];
     getCost: (props?: {
       textInput?: number;
       imageInput?: number;
-      output: number;
+      output?: number;
+      size?: string;
     }) => number;
     supportsEdit?: boolean;
     disabled?: boolean;
@@ -52,7 +55,7 @@ export const imageModels: {
         id: 'openai-dall-e-3',
         label: 'DALL-E 3',
         model: openai.image('dall-e-3'),
-        size: '1024x1024',
+        sizes: ['1024x1024', '1024x1792', '1792x1024'],
         providerOptions: {
           openai: {
             quality: 'hd',
@@ -60,14 +63,32 @@ export const imageModels: {
         },
 
         // https://platform.openai.com/docs/pricing#image-generation
-        getCost: () => 0.08,
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
+
+          if (!props.size) {
+            throw new Error('Size is required');
+          }
+
+          if (props.size === '1024x1024') {
+            return 0.08;
+          }
+
+          if (props.size === '1024x1792' || props.size === '1792x1024') {
+            return 0.12;
+          }
+
+          throw new Error('Size is not supported');
+        },
       },
       {
         icon: OpenAiIcon,
         id: 'openai-dall-e-2',
         label: 'DALL-E 2',
         model: openai.image('dall-e-2'),
-        size: '1024x1024',
+        sizes: ['1024x1024', '512x512', '256x256'],
         priceIndicator: 'low',
         providerOptions: {
           openai: {
@@ -76,7 +97,27 @@ export const imageModels: {
         },
 
         // https://platform.openai.com/docs/pricing#image-generation
-        getCost: () => 0.02,
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
+
+          const { size } = props;
+
+          if (size === '1024x1024') {
+            return 0.02;
+          }
+
+          if (size === '512x512') {
+            return 0.018;
+          }
+
+          if (size === '256x256') {
+            return 0.016;
+          }
+
+          throw new Error('Size is not supported');
+        },
       },
       {
         icon: OpenAiIcon,
@@ -84,7 +125,7 @@ export const imageModels: {
         label: 'GPT Image 1',
         model: openai.image('gpt-image-1'),
         supportsEdit: true,
-        size: '1024x1024',
+        sizes: ['1024x1024', '1024x1536', '1536x1024'],
         default: true,
         providerOptions: {
           openai: {
@@ -95,16 +136,37 @@ export const imageModels: {
         // Input (Text): https://platform.openai.com/docs/pricing#latest-models
         // Input (Image): https://platform.openai.com/docs/pricing#text-generation
         // Output: https://platform.openai.com/docs/pricing#image-generation
-
         getCost: (props) => {
+          const priceMap: Record<ImageSize, number> = {
+            '1024x1024': 0.167,
+            '1024x1536': 0.25,
+            '1536x1024': 0.25,
+          };
+
           if (!props) {
             throw new Error('Props are required');
           }
 
-          const { textInput, imageInput, output } = props;
+          if (typeof props.size !== 'string') {
+            throw new Error('Size is required');
+          }
+
+          if (typeof props.output !== 'number') {
+            throw new Error('Output is required');
+          }
+
+          if (typeof props.textInput !== 'number') {
+            throw new Error('Text input is required');
+          }
+
+          if (typeof props.imageInput !== 'number') {
+            throw new Error('Image input is required');
+          }
+
+          const { textInput, imageInput, output, size } = props;
           const textInputCost = textInput ? (textInput / million) * 5 : 0;
           const imageInputCost = imageInput ? (imageInput / million) * 10 : 0;
-          const outputCost = (output / million) * 0.167;
+          const outputCost = (output / million) * priceMap[size as ImageSize];
 
           return textInputCost + imageInputCost + outputCost;
         },
@@ -121,7 +183,7 @@ export const imageModels: {
         model: bedrock.image('amazon.nova-canvas-v1:0'),
 
         // Each side must be between 320-4096 pixels, inclusive.
-        size: '2048x2048',
+        sizes: ['1024x1024', '2048x2048'],
 
         providerOptions: {
           bedrock: {
@@ -130,7 +192,23 @@ export const imageModels: {
         },
 
         // https://aws.amazon.com/bedrock/pricing/
-        getCost: () => 0.08,
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
+
+          const { size } = props;
+
+          if (size === '1024x1024') {
+            return 0.06;
+          }
+
+          if (size === '2048x2048') {
+            return 0.08;
+          }
+
+          throw new Error('Size is not supported');
+        },
       },
     ],
   },

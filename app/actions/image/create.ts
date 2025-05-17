@@ -23,14 +23,17 @@ type GenerateImageActionProps = {
   projectId: string;
   modelId: string;
   instructions?: string;
+  size?: string;
 };
 
 const generateGptImage1Image = async ({
   instructions,
   prompt,
+  size,
 }: {
   instructions?: string;
   prompt: string;
+  size?: string;
 }) => {
   const openai = new OpenAI();
   const response = await openai.images.generate({
@@ -44,7 +47,7 @@ const generateGptImage1Image = async ({
       'Context:',
       prompt,
     ].join('\n'),
-    size: '1024x1024',
+    size: size as never | undefined,
     moderation: 'low',
     quality: 'high',
     output_format: 'png',
@@ -82,6 +85,7 @@ export const generateImageAction = async ({
   instructions,
   nodeId,
   projectId,
+  size,
 }: GenerateImageActionProps): Promise<
   | {
       nodeData: object;
@@ -107,11 +111,15 @@ export const generateImageAction = async ({
       const generatedImageResponse = await generateGptImage1Image({
         instructions,
         prompt,
+        size,
       });
 
       await trackCreditUsage({
         action: 'generate_image',
-        cost: model.getCost(generatedImageResponse.usage),
+        cost: model.getCost({
+          ...generatedImageResponse.usage,
+          size,
+        }),
       });
 
       image = generatedImageResponse.image;
@@ -127,11 +135,14 @@ export const generateImageAction = async ({
           'Context:',
           prompt,
         ].join('\n'),
+        size: size as never,
       });
 
       await trackCreditUsage({
         action: 'generate_image',
-        cost: model.getCost(),
+        cost: model.getCost({
+          size,
+        }),
       });
 
       image = generatedImageResponse.image;

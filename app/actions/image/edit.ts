@@ -21,6 +21,7 @@ type EditImageActionProps = {
   instructions?: string;
   nodeId: string;
   projectId: string;
+  size?: string;
 };
 
 export const editImageAction = async ({
@@ -29,6 +30,7 @@ export const editImageAction = async ({
   modelId,
   nodeId,
   projectId,
+  size,
 }: EditImageActionProps): Promise<
   | {
       nodeData: object;
@@ -78,7 +80,7 @@ export const editImageAction = async ({
       image: promptImages,
       prompt,
       user: user.id,
-      size: '1024x1024',
+      size: size as never | undefined,
       quality: 'high',
     });
 
@@ -92,6 +94,7 @@ export const editImageAction = async ({
         textInput: response.usage.input_tokens_details.text_tokens,
         imageInput: response.usage.input_tokens_details.image_tokens,
         output: response.usage.output_tokens,
+        size,
       }),
     });
 

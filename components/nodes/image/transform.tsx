@@ -19,11 +19,18 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { type ChangeEventHandler, type ComponentProps, useState } from 'react';
+import {
+  type ChangeEventHandler,
+  type ComponentProps,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 import { mutate } from 'swr';
 import type { ImageNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
+import { ImageSizeSelector } from './image-size-selector';
 
 type ImageTransformProps = ImageNodeProps & {
   title: string;
@@ -55,6 +62,10 @@ export const ImageTransform = ({
       .length > 0;
   const modelId = data.model ?? getDefaultModel(imageModels).id;
   const analytics = useAnalytics();
+  const selectedModel = imageModels
+    .flatMap((provider) => provider.models)
+    .find((model) => model.id === modelId);
+  const size = data.size ?? selectedModel?.sizes?.at(0);
 
   const availableModels = imageModels.map((provider) => ({
     ...provider,
@@ -66,7 +77,7 @@ export const ImageTransform = ({
       : provider.models,
   }));
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     if (loading || typeof projectId !== 'string') {
       return;
     }
@@ -76,6 +87,10 @@ export const ImageTransform = ({
     const imageNodes = getImagesFromImageNodes(incomers);
 
     try {
+      if (!textNodes.length && !imageNodes.length) {
+        throw new Error('No input provided');
+      }
+
       setLoading(true);
 
       analytics.track('canvas', 'node', 'generate', {
@@ -93,6 +108,7 @@ export const ImageTransform = ({
             nodeId: id,
             projectId,
             modelId,
+            size,
           })
         : await generateImageAction({
             prompt: textNodes.join('\n'),
@@ -100,6 +116,7 @@ export const ImageTransform = ({
             instructions: data.instructions,
             projectId,
             nodeId: id,
+            size,
           });
 
       if ('error' in response) {
@@ -116,89 +133,149 @@ export const ImageTransform = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    loading,
+    projectId,
+    size,
+    id,
+    analytics,
+    type,
+    data.instructions,
+    getEdges,
+    modelId,
+    getNodes,
+    updateNodeData,
+  ]);
 
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
 
-  const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [
-    {
-      children: (
-        <ModelSelector
-          value={modelId}
-          options={availableModels}
-          id={id}
-          className="w-[200px] rounded-full"
-          onChange={(value) => updateNodeData(id, { model: value })}
-        />
-      ),
-    },
-    loading
-      ? {
-          tooltip: 'Generating...',
-          children: (
-            <Button size="icon" className="rounded-full" disabled>
-              <Loader2Icon className="animate-spin" size={12} />
-            </Button>
-          ),
-        }
-      : {
-          tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
-          children: (
-            <Button
-              size="icon"
-              className="rounded-full"
-              onClick={handleGenerate}
-              disabled={loading || !projectId}
-            >
-              {data.generated?.url ? (
-                <RotateCcwIcon size={12} />
-              ) : (
-                <PlayIcon size={12} />
-              )}
-            </Button>
-          ),
-        },
-  ];
+  const toolbar = useMemo<ComponentProps<typeof NodeLayout>['toolbar']>(() => {
+    const items: ComponentProps<typeof NodeLayout>['toolbar'] = [
+      {
+        children: (
+          <ModelSelector
+            value={modelId}
+            options={availableModels}
+            id={id}
+            className="w-[200px] rounded-full"
+            onChange={(value) => updateNodeData(id, { model: value })}
+          />
+        ),
+      },
+    ];
 
-  if (data.generated) {
-    toolbar.push({
-      tooltip: 'Download',
-      children: (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={() => download(data.generated, id, 'png')}
-        >
-          <DownloadIcon size={12} />
-        </Button>
-      ),
-    });
-  }
+    if (selectedModel?.sizes?.length) {
+      items.push({
+        children: (
+          <ImageSizeSelector
+            value={size ?? ''}
+            options={selectedModel?.sizes ?? []}
+            id={id}
+            className="w-[200px] rounded-full"
+            onChange={(value) => updateNodeData(id, { size: value })}
+          />
+        ),
+      });
+    }
 
-  if (data.updatedAt) {
-    toolbar.push({
-      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-      }).format(new Date(data.updatedAt))}`,
-      children: (
-        <Button size="icon" variant="ghost" className="rounded-full">
-          <ClockIcon size={12} />
-        </Button>
-      ),
-    });
-  }
+    items.push(
+      loading
+        ? {
+            tooltip: 'Generating...',
+            children: (
+              <Button size="icon" className="rounded-full" disabled>
+                <Loader2Icon className="animate-spin" size={12} />
+              </Button>
+            ),
+          }
+        : {
+            tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
+            children: (
+              <Button
+                size="icon"
+                className="rounded-full"
+                onClick={handleGenerate}
+                disabled={loading || !projectId}
+              >
+                {data.generated?.url ? (
+                  <RotateCcwIcon size={12} />
+                ) : (
+                  <PlayIcon size={12} />
+                )}
+              </Button>
+            ),
+          }
+    );
+
+    if (data.generated) {
+      items.push({
+        tooltip: 'Download',
+        children: (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={() => download(data.generated, id, 'png')}
+          >
+            <DownloadIcon size={12} />
+          </Button>
+        ),
+      });
+    }
+
+    if (data.updatedAt) {
+      items.push({
+        tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }).format(new Date(data.updatedAt))}`,
+        children: (
+          <Button size="icon" variant="ghost" className="rounded-full">
+            <ClockIcon size={12} />
+          </Button>
+        ),
+      });
+    }
+
+    return items;
+  }, [
+    modelId,
+    availableModels,
+    id,
+    updateNodeData,
+    selectedModel?.sizes,
+    size,
+    loading,
+    data.generated,
+    data.updatedAt,
+    handleGenerate,
+    projectId,
+  ]);
+
+  const aspectRatio = useMemo(() => {
+    if (!data.size) {
+      return '1/1';
+    }
+
+    const [width, height] = data.size.split('x').map(Number);
+    return `${width}/${height}`;
+  }, [data.size]);
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       {loading && (
-        <Skeleton className="aspect-square w-full animate-pulse rounded-b-xl" />
+        <Skeleton
+          className="w-full animate-pulse rounded-b-xl"
+          style={{ aspectRatio }}
+        />
       )}
       {!loading && !data.generated?.url && (
-        <div className="flex aspect-square w-full items-center justify-center rounded-b-xl bg-secondary p-4">
+        <div
+          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4"
+          style={{ aspectRatio }}
+        >
           <p className="text-muted-foreground text-sm">
             Press <PlayIcon size={12} className="-translate-y-px inline" /> to
             create an image
