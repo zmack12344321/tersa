@@ -1,3 +1,15 @@
+# v1.0.23 (Sat May 17 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Add support for image sizes ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.22 (Fri May 16 2025)
 
 #### ⚠️ Pushed to `main`
