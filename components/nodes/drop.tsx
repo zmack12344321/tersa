@@ -6,14 +6,8 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { nodeButtons } from '@/lib/node-buttons';
 import { type XYPosition, useReactFlow } from '@xyflow/react';
-import {
-  AudioWaveformIcon,
-  CodeIcon,
-  ImageIcon,
-  TextIcon,
-  VideoIcon,
-} from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useEffect, useRef } from 'react';
 import { NodeLayout } from './layout';
@@ -25,37 +19,6 @@ type DropNodeProps = {
   };
   id: string;
 };
-
-const buttons = [
-  {
-    id: 'text',
-    label: 'Text',
-    icon: TextIcon,
-  },
-  {
-    id: 'image',
-    label: 'Image',
-    icon: ImageIcon,
-  },
-  {
-    id: 'audio',
-    label: 'Audio',
-    icon: AudioWaveformIcon,
-  },
-  {
-    id: 'video',
-    label: 'Video',
-    icon: VideoIcon,
-  },
-  {
-    id: 'code',
-    label: 'Code',
-    icon: CodeIcon,
-    options: {
-      data: { content: { language: 'javascript' } },
-    },
-  },
-];
 
 export const DropNode = ({ data, id }: DropNodeProps) => {
   const { addNodes, deleteElements, getNode, addEdges, getNodeConnections } =
@@ -143,10 +106,10 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Add node">
-              {buttons.map((button) => (
+              {nodeButtons.map((button) => (
                 <CommandItem
                   key={button.id}
-                  onSelect={() => handleSelect(button.id, button.options)}
+                  onSelect={() => handleSelect(button.id, button.data)}
                 >
                   <button.icon size={16} />
                   {button.label}
