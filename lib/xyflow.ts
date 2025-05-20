@@ -3,6 +3,7 @@ import type { CodeNodeProps } from '@/components/nodes/code';
 import type { FileNodeProps } from '@/components/nodes/file';
 import type { ImageNodeProps } from '@/components/nodes/image';
 import type { TextNodeProps } from '@/components/nodes/text';
+import type { TweetNodeProps } from '@/components/nodes/tweet';
 import type { Node } from '@xyflow/react';
 
 export const getTextFromTextNodes = (nodes: Node[]) => {
@@ -86,4 +87,17 @@ export const getFilesFromFileNodes = (nodes: Node[]) => {
     .filter(Boolean) as { url: string; type: string; name: string }[];
 
   return files;
+};
+
+export const getTweetContentFromTweetNodes = (nodes: Node[]) => {
+  const tweets = nodes
+    .filter((node) => node.type === 'tweet')
+    .map((node) => (node.data as TweetNodeProps['data']).content)
+    .filter(Boolean) as NonNullable<TweetNodeProps['data']['content']>[];
+
+  const tweetContent = tweets.map(
+    (tweet) => `On ${tweet.date}, ${tweet.author} tweeted: ${tweet.text}`
+  );
+
+  return tweetContent;
 };

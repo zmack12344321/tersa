@@ -11,6 +11,7 @@ import {
   getImagesFromImageNodes,
   getTextFromTextNodes,
   getTranscriptionFromAudioNodes,
+  getTweetContentFromTweetNodes,
 } from '@/lib/xyflow';
 import { useChat } from '@ai-sdk/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
@@ -74,6 +75,7 @@ export const TextTransform = ({
     const audioPrompts = getTranscriptionFromAudioNodes(incomers);
     const images = getImagesFromImageNodes(incomers);
     const imageDescriptions = getDescriptionsFromImageNodes(incomers);
+    const tweetContent = getTweetContentFromTweetNodes(incomers);
     const files = getFilesFromFileNodes(incomers);
 
     if (!textPrompts.length && !audioPrompts.length && !data.instructions) {
@@ -97,6 +99,10 @@ export const TextTransform = ({
 
     if (imageDescriptions.length) {
       content.push('--- Image Descriptions ---', ...imageDescriptions);
+    }
+
+    if (tweetContent.length) {
+      content.push('--- Tweet Content ---', ...tweetContent);
     }
 
     analytics.track('canvas', 'node', 'generate', {
