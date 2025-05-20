@@ -111,14 +111,16 @@ export const NodeLayout = ({
           {type !== 'drop' && toolbar?.length && (
             <NodeToolbar id={id} items={toolbar} />
           )}
-          {type !== 'file' && <Handle type="target" position={Position.Left} />}
+          {type !== 'file' && type !== 'tweet' && (
+            <Handle type="target" position={Position.Left} />
+          )}
           <div className="relative size-full h-auto w-sm">
             {type !== 'drop' && (
               <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
                 <p className="font-mono text-muted-foreground text-xs tracking-tighter">
                   {title}
                 </p>
-                {type !== 'file' && (
+                {type !== 'file' && type !== 'tweet' && (
                   <div className="flex items-center gap-2">
                     <UserIcon size={12} className="text-muted-foreground" />
                     <Switch
