@@ -1,3 +1,19 @@
+# v1.0.24 (Tue May 20 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Add Tweet node ([@haydenbleasel](https://github.com/haydenbleasel))
+- Fix debugging styles ([@haydenbleasel](https://github.com/haydenbleasel))
+- Improve chat prompts ([@haydenbleasel](https://github.com/haydenbleasel))
+- Disable posthog on local ([@haydenbleasel](https://github.com/haydenbleasel))
+- Combine node buttons ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.23 (Sat May 17 2025)
 
 #### ⚠️ Pushed to `main`
