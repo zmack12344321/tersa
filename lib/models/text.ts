@@ -283,6 +283,32 @@ export const textModels: {
     models: [
       {
         icon: AnthropicIcon,
+        id: 'anthropic-claude-4-opus-20250514',
+        label: 'Claude 4 Opus',
+        model: anthropic('claude-4-opus-20250514'),
+        priceIndicator: 'highest',
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 15;
+          const outputCost = (output / million) * 75;
+
+          return inputCost + outputCost;
+        },
+      },
+      {
+        icon: AnthropicIcon,
+        id: 'anthropic-claude-4-sonnet-20250514',
+        label: 'Claude 4 Sonnet',
+        model: anthropic('claude-4-sonnet-20250514'),
+        priceIndicator: 'low',
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 3;
+          const outputCost = (output / million) * 15;
+
+          return inputCost + outputCost;
+        },
+      },
+      {
+        icon: AnthropicIcon,
         id: 'anthropic-claude-3-5-haiku-latest',
         label: 'Claude 3.5 Haiku',
         model: anthropic('claude-3-5-haiku-latest'),
