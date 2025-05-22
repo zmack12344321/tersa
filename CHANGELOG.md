@@ -1,3 +1,15 @@
+# v1.0.27 (Thu May 22 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Forgot to commit the Claude 4 models lol ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.26 (Thu May 22 2025)
 
 #### ⚠️ Pushed to `main`
