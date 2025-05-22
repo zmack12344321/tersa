@@ -33,6 +33,7 @@ export const LoginForm = () => {
           captchaToken,
         },
       });
+
       if (error) {
         throw error;
       }

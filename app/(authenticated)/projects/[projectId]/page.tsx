@@ -59,9 +59,9 @@ const Project = async ({ params }: ProjectProps) => {
 
   let plan: SubscriptionContextType['plan'];
 
-  if (profile.subscriptionId === env.STRIPE_HOBBY_PRODUCT_ID) {
+  if (profile.productId === env.STRIPE_HOBBY_PRODUCT_ID) {
     plan = 'hobby';
-  } else if (profile.subscriptionId === env.STRIPE_PRO_PRODUCT_ID) {
+  } else if (profile.productId === env.STRIPE_PRO_PRODUCT_ID) {
     plan = 'pro';
   }
 
