@@ -1,3 +1,17 @@
+# v1.0.26 (Thu May 22 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Merge branch 'main' of https://github.com/haydenbleasel/tersa ([@haydenbleasel](https://github.com/haydenbleasel))
+- Add support for Claude 4 ([@haydenbleasel](https://github.com/haydenbleasel))
+- Misc fixes ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.25 (Tue May 20 2025)
 
 #### ⚠️ Pushed to `main`
