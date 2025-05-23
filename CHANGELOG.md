@@ -1,3 +1,15 @@
+# v1.0.28 (Fri May 23 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Fix auth buttons ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.27 (Thu May 22 2025)
 
 #### ⚠️ Pushed to `main`
