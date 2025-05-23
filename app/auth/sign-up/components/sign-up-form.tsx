@@ -17,6 +17,7 @@ export const SignUpForm = () => {
   const [captchaToken, setCaptchaToken] = useState<string | undefined>(
     undefined
   );
+  const disabled = isLoading || !email || !password || !captchaToken;
 
   const handleEmailSignUp: FormEventHandler<HTMLFormElement> = async (
     event
@@ -77,7 +78,7 @@ export const SignUpForm = () => {
               placeholder="••••••••"
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={disabled}>
             {isLoading ? 'Creating an account...' : 'Sign up'}
           </Button>
         </div>
