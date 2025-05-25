@@ -1,3 +1,19 @@
+# v1.0.29 (Sun May 25 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Cleanup env vars ([@haydenbleasel](https://github.com/haydenbleasel))
+- Bump deps ([@haydenbleasel](https://github.com/haydenbleasel))
+- Add bump-ui script ([@haydenbleasel](https://github.com/haydenbleasel))
+- Add bump deps script ([@haydenbleasel](https://github.com/haydenbleasel))
+- Enable captcha on development ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.28 (Fri May 23 2025)
 
 #### ⚠️ Pushed to `main`
