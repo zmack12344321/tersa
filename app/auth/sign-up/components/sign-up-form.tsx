@@ -84,16 +84,10 @@ export const SignUpForm = () => {
         </div>
       </form>
       <div className="mt-4">
-        {process.env.NODE_ENV === 'production' ? (
-          <Turnstile
-            siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-            onSuccess={setCaptchaToken}
-          />
-        ) : (
-          <p className="text-center text-muted-foreground text-xs">
-            Captcha disabled in development
-          </p>
-        )}
+        <Turnstile
+          siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+          onSuccess={setCaptchaToken}
+        />
       </div>
     </>
   );
