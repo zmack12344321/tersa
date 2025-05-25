@@ -5,8 +5,6 @@ import { z } from 'zod';
 export const env = createEnv({
   extends: [vercel()],
   server: {
-    DATABASE_URL: z.string().url().min(1),
-
     UPSTASH_REDIS_REST_URL: z.string().url().min(1),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
 
@@ -21,8 +19,11 @@ export const env = createEnv({
     STRIPE_CREDITS_METER_NAME: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
 
-    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
     SUPABASE_AUTH_HOOK_SECRET: z.string().min(1),
+
+    // Supabase Integration
+    POSTGRES_URL: z.string().url().min(1),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 
     // AI SDK
     OPENAI_API_KEY: z.string().min(1),
@@ -44,11 +45,13 @@ export const env = createEnv({
     LUMAAI_API_KEY: z.string().min(1),
   },
   client: {
-    NEXT_PUBLIC_SUPABASE_URL: z.string().url().min(1),
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
     NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().url().min(1),
+
+    // Supabase Integration
+    NEXT_PUBLIC_SUPABASE_URL: z.string().url().min(1),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   },
   runtimeEnv: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
@@ -62,7 +65,7 @@ export const env = createEnv({
     AWS_REGION: process.env.AWS_REGION,
     FAL_API_KEY: process.env.FAL_API_KEY,
     TOGETHER_AI_API_KEY: process.env.TOGETHER_AI_API_KEY,
-    DATABASE_URL: process.env.DATABASE_URL,
+    POSTGRES_URL: process.env.POSTGRES_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
