@@ -1,4 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic';
+import { cohere } from '@ai-sdk/cohere';
 import { deepseek } from '@ai-sdk/deepseek';
 import { google } from '@ai-sdk/google';
 import { groq } from '@ai-sdk/groq';
@@ -9,6 +10,7 @@ import { xai } from '@ai-sdk/xai';
 import type { LanguageModelV1 } from 'ai';
 import {
   AnthropicIcon,
+  CohereIcon,
   DeepSeekIcon,
   GoogleIcon,
   GroqIcon,
@@ -640,6 +642,61 @@ export const textModels: {
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.2;
           const outputCost = (output / million) * 0.2;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+  },
+  {
+    label: 'Cohere',
+    models: [
+      {
+        icon: CohereIcon,
+        id: 'cohere-command-a-03-2025',
+        label: 'Command A',
+        model: cohere('command-a-03-2025'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 2.5;
+          const outputCost = (output / million) * 10;
+
+          return inputCost + outputCost;
+        },
+      },
+      {
+        icon: CohereIcon,
+        id: 'cohere-command-r',
+        label: 'Command R',
+        model: cohere('command-r'),
+        priceIndicator: 'lowest',
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.15;
+          const outputCost = (output / million) * 0.6;
+
+          return inputCost + outputCost;
+        },
+      },
+      {
+        icon: CohereIcon,
+        id: 'cohere-command-r-plus',
+        label: 'Command R Plus',
+        model: cohere('command-r-plus'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 2.5;
+          const outputCost = (output / million) * 10;
+
+          return inputCost + outputCost;
+        },
+      },
+      {
+        icon: CohereIcon,
+        id: 'cohere-command-r7b-12-2024',
+        label: 'Command R7B',
+        model: cohere('command-r7b-12-2024'),
+        priceIndicator: 'lowest',
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.0375;
+          const outputCost = (output / million) * 0.15;
 
           return inputCost + outputCost;
         },
