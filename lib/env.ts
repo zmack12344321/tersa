@@ -8,41 +8,42 @@ export const env = createEnv({
     UPSTASH_REDIS_REST_URL: z.string().url().min(1),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
 
-    RESEND_TOKEN: z.string().min(1),
+    RESEND_TOKEN: z.string().min(1).startsWith('re_'),
     RESEND_EMAIL: z.string().email().min(1),
 
-    STRIPE_SECRET_KEY: z.string().min(1),
-    STRIPE_HOBBY_PRODUCT_ID: z.string().min(1),
-    STRIPE_PRO_PRODUCT_ID: z.string().min(1),
-    STRIPE_USAGE_PRODUCT_ID: z.string().min(1),
-    STRIPE_CREDITS_METER_ID: z.string().min(1),
-    STRIPE_CREDITS_METER_NAME: z.string().min(1),
-    STRIPE_WEBHOOK_SECRET: z.string().min(1),
+    STRIPE_SECRET_KEY: z.string().min(1).startsWith('sk_'),
+    STRIPE_HOBBY_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
+    STRIPE_PRO_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
+    STRIPE_USAGE_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
+    STRIPE_CREDITS_METER_ID: z.string().min(1).startsWith('meter_'),
+    STRIPE_CREDITS_METER_NAME: z.string().min(1).startsWith('mtr_'),
+    STRIPE_WEBHOOK_SECRET: z.string().min(1).startsWith('whsec_'),
 
-    SUPABASE_AUTH_HOOK_SECRET: z.string().min(1),
+    SUPABASE_AUTH_HOOK_SECRET: z.string().min(1).startsWith('v1,whsec_'),
 
     // Supabase Integration
-    POSTGRES_URL: z.string().url().min(1),
+    POSTGRES_URL: z.string().url().min(1).startsWith('postgres://'),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 
     // AI SDK
-    OPENAI_API_KEY: z.string().min(1),
+    OPENAI_API_KEY: z.string().min(1).startsWith('sk-'),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
-    GROQ_API_KEY: z.string().min(1),
-    DEEPSEEK_API_KEY: z.string().min(1),
-    ANTHROPIC_API_KEY: z.string().min(1),
-    XAI_API_KEY: z.string().min(1),
+    GROQ_API_KEY: z.string().min(1).startsWith('grq_'),
+    DEEPSEEK_API_KEY: z.string().min(1).startsWith('sk-'),
+    ANTHROPIC_API_KEY: z.string().min(1).startsWith('sk-'),
+    XAI_API_KEY: z.string().min(1).startsWith('xai-'),
     AWS_ACCESS_KEY_ID: z.string().min(1),
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     AWS_REGION: z.string().min(1),
     FAL_API_KEY: z.string().min(1),
-    TOGETHER_AI_API_KEY: z.string().min(1),
+    TOGETHER_AI_API_KEY: z.string().min(1).startsWith('tgp_v1_'),
+    VERCEL_API_KEY: z.string().min(1).startsWith('v1:'),
 
     // Other Models
     MINIMAX_GROUP_ID: z.string().min(1),
     MINIMAX_API_KEY: z.string().min(1),
-    RUNWAYML_API_SECRET: z.string().min(1),
-    LUMAAI_API_KEY: z.string().min(1),
+    RUNWAYML_API_SECRET: z.string().min(1).startsWith('key_'),
+    LUMAAI_API_KEY: z.string().min(1).startsWith('luma-'),
   },
   client: {
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
@@ -88,5 +89,6 @@ export const env = createEnv({
     LUMAAI_API_KEY: process.env.LUMAAI_API_KEY,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    VERCEL_API_KEY: process.env.VERCEL_API_KEY,
   },
 });
