@@ -483,7 +483,7 @@ export const textModels: {
       {
         icon: DeepSeekIcon,
         id: 'deepseek-deepseek-chat',
-        label: 'DeepSeek Chat',
+        label: 'DeepSeek V3 (Chat)',
         model: deepseek('deepseek-chat'),
         priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
@@ -496,7 +496,7 @@ export const textModels: {
       {
         icon: DeepSeekIcon,
         id: 'deepseek-deepseek-reasoner',
-        label: 'DeepSeek Reasoner',
+        label: 'DeepSeek R1 (Reasoner)',
         model: deepseek('deepseek-reasoner'),
         priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
