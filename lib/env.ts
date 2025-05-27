@@ -15,20 +15,20 @@ export const env = createEnv({
     STRIPE_HOBBY_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
     STRIPE_PRO_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
     STRIPE_USAGE_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
-    STRIPE_CREDITS_METER_ID: z.string().min(1).startsWith('meter_'),
-    STRIPE_CREDITS_METER_NAME: z.string().min(1).startsWith('mtr_'),
+    STRIPE_CREDITS_METER_ID: z.string().min(1).startsWith('mtr_'),
+    STRIPE_CREDITS_METER_NAME: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1).startsWith('whsec_'),
 
     SUPABASE_AUTH_HOOK_SECRET: z.string().min(1).startsWith('v1,whsec_'),
 
     // Supabase Integration
-    POSTGRES_URL: z.string().url().min(1).startsWith('postgres://'),
+    POSTGRES_URL: z.string().url().min(1).startsWith('postgresql://'),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 
     // AI SDK
     OPENAI_API_KEY: z.string().min(1).startsWith('sk-'),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
-    GROQ_API_KEY: z.string().min(1).startsWith('grq_'),
+    GROQ_API_KEY: z.string().min(1).startsWith('gsk_'),
     DEEPSEEK_API_KEY: z.string().min(1).startsWith('sk-'),
     ANTHROPIC_API_KEY: z.string().min(1).startsWith('sk-'),
     XAI_API_KEY: z.string().min(1).startsWith('xai-'),
