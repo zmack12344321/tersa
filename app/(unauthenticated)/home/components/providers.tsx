@@ -8,12 +8,13 @@ import {
 import {
   AmazonIcon,
   AnthropicIcon,
+  CohereIcon,
   // CerebrasIcon,
   DeepSeekIcon,
   // DeepinfraIcon,
   // FalIcon,
   // FireworksIcon,
-  // GoogleIcon,
+  GoogleIcon,
   GroqIcon,
   HumeIcon,
   LmntIcon,
@@ -21,6 +22,7 @@ import {
   MinimaxIcon,
   MistralIcon,
   OpenAiIcon,
+  RunwayIcon,
   // TogetherIcon,
   XaiIcon,
 } from '@/lib/icons';
@@ -31,15 +33,17 @@ import { textModels } from '@/lib/models/text';
 import { transcriptionModels } from '@/lib/models/transcription';
 import { videoModels } from '@/lib/models/video';
 import { visionModels } from '@/lib/models/vision';
+
 const icons = [
   AmazonIcon,
   AnthropicIcon,
   // CerebrasIcon,
+  CohereIcon,
   DeepSeekIcon,
   // DeepinfraIcon,
   // FalIcon,
   // FireworksIcon,
-  // GoogleIcon,
+  GoogleIcon,
   GroqIcon,
   HumeIcon,
   LmntIcon,
@@ -47,6 +51,7 @@ const icons = [
   MinimaxIcon,
   MistralIcon,
   OpenAiIcon,
+  RunwayIcon,
   // TogetherIcon,
   XaiIcon,
 ];
