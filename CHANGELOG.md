@@ -1,3 +1,15 @@
+# v1.0.36 (Tue May 27 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Revert "Improve model key detection" ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.35 (Tue May 27 2025)
 
 #### ⚠️ Pushed to `main`
