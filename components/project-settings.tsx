@@ -14,6 +14,7 @@ import {
 import { handleError } from '@/lib/error/handle';
 import { transcriptionModels } from '@/lib/models/transcription';
 import { visionModels } from '@/lib/models/vision';
+import { useSubscription } from '@/providers/subscription';
 import type { projects } from '@/schema';
 import { SettingsIcon, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -37,6 +38,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
   );
   const [visionModel, setVisionModel] = useState(data.visionModel);
   const router = useRouter();
+  const { isSubscribed, plan } = useSubscription();
 
   const handleUpdateProject: FormEventHandler<HTMLFormElement> = async (
     event
@@ -119,7 +121,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
               options={transcriptionModels}
               width={462}
               onChange={setTranscriptionModel}
-              disabled
+              disabled={!isSubscribed || plan === 'hobby'}
             />
           </div>
           <div className="grid gap-2">
@@ -130,7 +132,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
               options={visionModels}
               onChange={setVisionModel}
               width={462}
-              disabled
+              disabled={!isSubscribed || plan === 'hobby'}
             />
           </div>
           <Button type="submit" disabled={isUpdating || !name.trim()}>
