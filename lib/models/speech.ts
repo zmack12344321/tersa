@@ -1,6 +1,4 @@
-import { hume } from '@ai-sdk/hume';
-import { lmnt } from '@ai-sdk/lmnt';
-import { openai } from '@ai-sdk/openai';
+import { hume, lmnt, openai } from '@/lib/providers';
 import type { SpeechModel } from 'ai';
 import { HumeIcon, LmntIcon, OpenAiIcon } from '../icons';
 

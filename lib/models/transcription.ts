@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+import { openai } from '@/lib/providers';
 import { OpenAiIcon } from '../icons';
 
 export const transcriptionModels = [

@@ -37,7 +37,11 @@ export const env = createEnv({
     AWS_REGION: z.string().min(1),
     FAL_API_KEY: z.string().min(1),
     TOGETHER_AI_API_KEY: z.string().min(1).startsWith('tgp_v1_'),
+    COHERE_API_KEY: z.string().min(1),
     VERCEL_API_KEY: z.string().min(1).startsWith('v1:'),
+    MISTRAL_API_KEY: z.string().min(1),
+    HUME_API_KEY: z.string().min(1),
+    LMNT_API_KEY: z.string().min(1),
 
     // Other Models
     MINIMAX_GROUP_ID: z.string().min(1),
@@ -66,6 +70,8 @@ export const env = createEnv({
     AWS_REGION: process.env.AWS_REGION,
     FAL_API_KEY: process.env.FAL_API_KEY,
     TOGETHER_AI_API_KEY: process.env.TOGETHER_AI_API_KEY,
+    COHERE_API_KEY: process.env.COHERE_API_KEY,
+    MISTRAL_API_KEY: process.env.MISTRAL_API_KEY,
     POSTGRES_URL: process.env.POSTGRES_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -90,5 +96,7 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     VERCEL_API_KEY: process.env.VERCEL_API_KEY,
+    HUME_API_KEY: process.env.HUME_API_KEY,
+    LMNT_API_KEY: process.env.LMNT_API_KEY,
   },
 });

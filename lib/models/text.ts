@@ -1,11 +1,13 @@
-import { anthropic } from '@ai-sdk/anthropic';
-import { cohere } from '@ai-sdk/cohere';
-import { deepseek } from '@ai-sdk/deepseek';
-import { google } from '@ai-sdk/google';
-import { groq } from '@ai-sdk/groq';
-import { mistral } from '@ai-sdk/mistral';
-import { openai } from '@ai-sdk/openai';
-import { xai } from '@ai-sdk/xai';
+import {
+  anthropic,
+  cohere,
+  deepseek,
+  google,
+  groq,
+  mistral,
+  openai,
+  xai,
+} from '@/lib/providers';
 
 import type { LanguageModelV1 } from 'ai';
 import {
