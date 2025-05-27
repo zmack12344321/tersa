@@ -22,7 +22,7 @@ export const env = createEnv({
     SUPABASE_AUTH_HOOK_SECRET: z.string().min(1).startsWith('v1,whsec_'),
 
     // Supabase Integration
-    POSTGRES_URL: z.string().url().min(1).startsWith('postgresql://'),
+    POSTGRES_URL: z.string().url().min(1),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 
     // AI SDK
