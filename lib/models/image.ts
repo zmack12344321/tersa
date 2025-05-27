@@ -1,4 +1,6 @@
-import { bedrock, openai, xai } from '@/lib/providers';
+import { bedrock } from '@ai-sdk/amazon-bedrock';
+import { openai } from '@ai-sdk/openai';
+import { xai } from '@ai-sdk/xai';
 import type { ImageModel } from 'ai';
 import { AmazonIcon, OpenAiIcon, XaiIcon } from '../icons';
 

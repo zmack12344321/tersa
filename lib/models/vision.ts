@@ -1,4 +1,4 @@
-import { openai } from '@/lib/providers';
+import { openai } from '@ai-sdk/openai';
 import { OpenAiIcon } from '../icons';
 
 export const visionModels = [
