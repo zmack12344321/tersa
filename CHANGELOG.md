@@ -1,3 +1,15 @@
+# v1.0.34 (Tue May 27 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update deepseek labels ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.33 (Tue May 27 2025)
 
 #### ⚠️ Pushed to `main`
