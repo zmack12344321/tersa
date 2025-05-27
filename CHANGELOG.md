@@ -1,3 +1,17 @@
+# v1.0.30 (Tue May 27 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Allow Pro customers to change vision and transcription models ([@haydenbleasel](https://github.com/haydenbleasel))
+- Improve env var linting ([@haydenbleasel](https://github.com/haydenbleasel))
+- Skip CI builds ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.29 (Sun May 25 2025)
 
 #### ⚠️ Pushed to `main`
