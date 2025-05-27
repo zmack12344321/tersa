@@ -1,3 +1,15 @@
+# v1.0.33 (Tue May 27 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update env.ts ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.32 (Tue May 27 2025)
 
 #### ⚠️ Pushed to `main`
