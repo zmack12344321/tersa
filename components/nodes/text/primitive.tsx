@@ -1,9 +1,9 @@
 import { EditorProvider } from '@/components/ui/kibo-ui/editor';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/providers/project';
-import type { Editor, EditorEvents, JSONContent } from '@tiptap/core';
+import type { Editor, EditorEvents } from '@tiptap/core';
 import { useReactFlow } from '@xyflow/react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import type { TextNodeProps } from '.';
 import { NodeLayout } from '../layout';
 
@@ -18,24 +18,13 @@ export const TextPrimitive = ({
   title,
 }: TextPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
-  const [content, setContent] = useState<JSONContent | undefined>(
-    data.content ?? undefined
-  );
   const editor = useRef<Editor | null>(null);
   const { project } = useProject();
-
-  useEffect(() => {
-    if (data.content) {
-      setContent(data.content);
-      editor.current?.commands.setContent(data.content);
-    }
-  }, [data.content]);
 
   const handleUpdate = ({ editor }: { editor: Editor }) => {
     const json = editor.getJSON();
     const text = editor.getText();
 
-    setContent(json);
     updateNodeData(id, { content: json, text });
   };
 
@@ -59,7 +48,7 @@ export const TextPrimitive = ({
         <EditorProvider
           onCreate={handleCreate}
           immediatelyRender={false}
-          content={content}
+          content={data.content}
           placeholder="Start typing..."
           className={cn(
             'prose prose-sm dark:prose-invert size-full p-6',
