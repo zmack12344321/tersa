@@ -7,7 +7,11 @@ import { mistral } from '@ai-sdk/mistral';
 import { openai } from '@ai-sdk/openai';
 import { xai } from '@ai-sdk/xai';
 
-import type { LanguageModelV1 } from 'ai';
+import {
+  type LanguageModelV1,
+  extractReasoningMiddleware,
+  wrapLanguageModel,
+} from 'ai';
 import {
   AnthropicIcon,
   CohereIcon,
@@ -598,7 +602,10 @@ export const textModels: {
         icon: GroqIcon,
         id: 'groq-deepseek-r1-distill-llama-70b',
         label: 'DeepSeek R1 Distill Llama 70B',
-        model: groq('deepseek-r1-distill-llama-70b'),
+        model: wrapLanguageModel({
+          model: groq('deepseek-r1-distill-llama-70b'),
+          middleware: extractReasoningMiddleware({ tagName: 'think' }),
+        }),
         priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.75;
