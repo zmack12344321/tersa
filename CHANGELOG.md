@@ -1,3 +1,16 @@
+# v1.0.31 (Tue May 27 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Add Cohere models ([@haydenbleasel](https://github.com/haydenbleasel))
+- Fix typos ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.30 (Tue May 27 2025)
 
 #### ⚠️ Pushed to `main`
