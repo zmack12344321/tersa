@@ -1,3 +1,15 @@
+# v1.0.39 (Wed May 28 2025)
+
+#### 🐛 Bug Fix
+
+- Reasoning [#77](https://github.com/haydenbleasel/tersa/pull/77) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.38 (Tue May 27 2025)
 
 #### ⚠️ Pushed to `main`
