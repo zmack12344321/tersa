@@ -1,4 +1,5 @@
 import { Canvas } from '@/components/canvas';
+import { Reasoning } from '@/components/reasoning';
 import { TopLeft } from '@/components/top-left';
 import { TopRight } from '@/components/top-right';
 import { currentUser, currentUserProfile } from '@/lib/auth';
@@ -66,21 +67,24 @@ const Project = async ({ params }: ProjectProps) => {
   }
 
   return (
-    <div className="h-screen w-screen">
-      <ProjectProvider data={project}>
-        <SubscriptionProvider
-          isSubscribed={Boolean(profile.subscriptionId)}
-          plan={plan}
-        >
-          <Canvas data={project} />
-        </SubscriptionProvider>
-      </ProjectProvider>
-      <Suspense fallback={null}>
-        <TopLeft id={projectId} />
-      </Suspense>
-      <Suspense fallback={null}>
-        <TopRight id={projectId} />
-      </Suspense>
+    <div className="flex h-screen w-screen items-stretch overflow-hidden">
+      <div className="relative flex-1">
+        <ProjectProvider data={project}>
+          <SubscriptionProvider
+            isSubscribed={Boolean(profile.subscriptionId)}
+            plan={plan}
+          >
+            <Canvas data={project} />
+          </SubscriptionProvider>
+        </ProjectProvider>
+        <Suspense fallback={null}>
+          <TopLeft id={projectId} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <TopRight id={projectId} />
+        </Suspense>
+      </div>
+      <Reasoning />
     </div>
   );
 };
