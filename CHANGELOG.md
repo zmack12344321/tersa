@@ -1,3 +1,15 @@
+# v1.1.5 (Thu May 29 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Fix multiple project providers and redirect ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.1.4 (Thu May 29 2025)
 
 #### ⚠️ Pushed to `main`
