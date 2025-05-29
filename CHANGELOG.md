@@ -1,3 +1,15 @@
+# v1.1.0 (Thu May 29 2025)
+
+#### 🚀 Enhancement
+
+- Onboarding [#78](https://github.com/haydenbleasel/tersa/pull/78) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.0.39 (Wed May 28 2025)
 
 #### 🐛 Bug Fix
