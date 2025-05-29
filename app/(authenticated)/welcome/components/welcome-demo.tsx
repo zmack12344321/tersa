@@ -271,8 +271,11 @@ export const WelcomeDemo = ({ title, description, data }: WelcomeDemoProps) => {
   }, [getNodes, getEdges]);
 
   return (
-    <div className="grid h-screen w-screen grid-cols-3">
-      <div className="size-full overflow-auto p-16" ref={stepsContainerRef}>
+    <div className="grid h-screen w-screen grid-rows-3 lg:grid-cols-3 lg:grid-rows-1">
+      <div
+        className="size-full overflow-auto p-8 lg:p-16"
+        ref={stepsContainerRef}
+      >
         <div className="prose flex flex-col items-start gap-4">
           <h1 className="font-semibold! text-3xl!">{title}</h1>
           {previousSteps.map((step, index) => (
@@ -285,7 +288,7 @@ export const WelcomeDemo = ({ title, description, data }: WelcomeDemoProps) => {
           {activeStep?.action}
         </div>
       </div>
-      <div className="col-span-2 p-8">
+      <div className="row-span-3 p-8 lg:col-span-2 lg:row-span-1">
         <div className="relative size-full overflow-hidden rounded-3xl border">
           <ProjectProvider data={data}>
             <Canvas onNodesChange={handleNodesChange}>
