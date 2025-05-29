@@ -5,7 +5,7 @@ import { SaveIndicator } from '@/components/save-indicator';
 import { Toolbar } from '@/components/toolbar';
 import { TopLeft } from '@/components/top-left';
 import { TopRight } from '@/components/top-right';
-import { currentUser, currentUserProfile } from '@/lib/auth';
+import { currentUserProfile } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { ProjectProvider } from '@/providers/project';
 import { projects } from '@/schema';
@@ -28,13 +28,7 @@ type ProjectProps = {
 };
 
 const Project = async ({ params }: ProjectProps) => {
-  const user = await currentUser();
   const { projectId } = await params;
-
-  if (!user) {
-    return redirect('/sign-in');
-  }
-
   const profile = await currentUserProfile();
 
   if (!profile) {
@@ -48,7 +42,7 @@ const Project = async ({ params }: ProjectProps) => {
   const allProjects = await database
     .select()
     .from(projects)
-    .where(eq(projects.userId, user.id));
+    .where(eq(projects.userId, profile.id));
 
   if (!allProjects.length) {
     notFound();

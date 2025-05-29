@@ -1,6 +1,5 @@
-import { currentUserProfile } from '@/lib/auth';
+import { currentUser, currentUserProfile } from '@/lib/auth';
 import { env } from '@/lib/env';
-import { createClient } from '@/lib/supabase/server';
 import { PostHogIdentifyProvider } from '@/providers/posthog-provider';
 import {
   type SubscriptionContextType,
@@ -15,10 +14,9 @@ type AuthenticatedLayoutProps = {
 };
 
 const AuthenticatedLayout = async ({ children }: AuthenticatedLayoutProps) => {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getUser();
+  const user = await currentUser();
 
-  if (error || !data?.user) {
+  if (!user) {
     redirect('/auth/login');
   }
 
