@@ -1,12 +1,13 @@
 'use client';
 
+import { updateProjectAction } from '@/app/actions/project/update';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useSaveProject } from '@/hooks/use-save-project';
-import { useUser } from '@/hooks/use-user';
+import { handleError } from '@/lib/error/handle';
 import { isValidSourceTarget } from '@/lib/xyflow';
 import { NodeDropzoneProvider } from '@/providers/node-dropzone';
 import { NodeOperationsProvider } from '@/providers/node-operations';
-import type { projects } from '@/schema';
+import { useProject } from '@/providers/project';
 import {
   Background,
   type FinalConnectionState,
@@ -29,67 +30,97 @@ import { nanoid } from 'nanoid';
 import type { MouseEventHandler } from 'react';
 import { useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { ConnectionLine } from '../connection-line';
-import { Controls } from '../controls';
-import { edgeTypes } from '../edges';
-import { nodeTypes } from '../nodes';
-import { SaveIndicator } from '../save-indicator';
-import { Toolbar } from '../toolbar';
+import { useDebouncedCallback } from 'use-debounce';
+import { ConnectionLine } from './connection-line';
+import { edgeTypes } from './edges';
+import { nodeTypes } from './nodes';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from '../ui/context-menu';
+} from './ui/context-menu';
 
-type ProjectData = {
-  content?:
-    | {
-        nodes: Node[];
-        edges: Edge[];
-      }
-    | undefined;
-};
-
-export type CanvasProps = {
-  data: typeof projects.$inferSelect;
-  canvasProps?: ReactFlowProps;
-};
-
-export const Canvas = ({ data, canvasProps }: CanvasProps) => {
-  const content = data.content as ProjectData['content'];
-  const [nodes, setNodes] = useState<Node[]>(content?.nodes ?? []);
-  const [edges, setEdges] = useState<Edge[]>(content?.edges ?? []);
+export const Canvas = ({ children, ...props }: ReactFlowProps) => {
+  const project = useProject();
+  const {
+    onConnect,
+    onConnectStart,
+    onConnectEnd,
+    onEdgesChange,
+    onNodesChange,
+    nodes: initialNodes,
+    edges: initialEdges,
+    ...rest
+  } = props ?? {};
+  const content = project?.content as { nodes: Node[]; edges: Edge[] };
+  const [nodes, setNodes] = useState<Node[]>(
+    initialNodes ?? content?.nodes ?? []
+  );
+  const [edges, setEdges] = useState<Edge[]>(
+    initialEdges ?? content?.edges ?? []
+  );
   const [copiedNodes, setCopiedNodes] = useState<Node[]>([]);
-  const { getEdges, screenToFlowPosition, getNodes, getNode, updateNode } =
-    useReactFlow();
-  const { isSaving, lastSaved, save } = useSaveProject(data.id);
-  const user = useUser();
+  const {
+    getEdges,
+    toObject,
+    screenToFlowPosition,
+    getNodes,
+    getNode,
+    updateNode,
+  } = useReactFlow();
   const analytics = useAnalytics();
+  const [saveState, setSaveState] = useSaveProject();
 
-  const onNodesChange = useCallback(
+  const save = useDebouncedCallback(async () => {
+    if (saveState.isSaving || !project?.userId || !project?.id) {
+      return;
+    }
+
+    try {
+      setSaveState((prev) => ({ ...prev, isSaving: true }));
+
+      const response = await updateProjectAction(project.id, {
+        content: toObject(),
+      });
+
+      if ('error' in response) {
+        throw new Error(response.error);
+      }
+
+      setSaveState((prev) => ({ ...prev, lastSaved: new Date() }));
+    } catch (error) {
+      handleError('Error saving project', error);
+    } finally {
+      setSaveState((prev) => ({ ...prev, isSaving: false }));
+    }
+  }, 1000);
+
+  const handleNodesChange = useCallback(
     (changes: NodeChange<Node>[]) => {
       setNodes((current) => {
         const updated = applyNodeChanges(changes, current);
         save();
+        onNodesChange?.(changes);
         return updated;
       });
     },
-    [save]
+    [save, onNodesChange]
   );
 
-  const onEdgesChange = useCallback(
+  const handleEdgesChange = useCallback(
     (changes: EdgeChange<Edge>[]) => {
       setEdges((current) => {
         const updated = applyEdgeChanges(changes, current);
         save();
+        onEdgesChange?.(changes);
         return updated;
       });
     },
-    [save]
+    [save, onEdgesChange]
   );
 
-  const onConnect = useCallback(
+  const handleConnect = useCallback(
     (connection: Connection) => {
       const newEdge: Edge = {
         id: nanoid(),
@@ -98,8 +129,9 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
       };
       setEdges((eds: Edge[]) => eds.concat(newEdge));
       save();
+      onConnect?.(connection);
     },
-    [save]
+    [save, onConnect]
   );
 
   const addNode = useCallback(
@@ -156,7 +188,7 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
     [addNode, getNode, updateNode]
   );
 
-  const onConnectEnd = useCallback(
+  const handleConnectEnd = useCallback(
     (event: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
       // when a connection is dropped on the pane it's not valid
 
@@ -239,7 +271,7 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
     [getNodes, getEdges]
   );
 
-  const onConnectStart = useCallback(() => {
+  const handleConnectStart = useCallback(() => {
     // Delete any drop nodes when starting to drag a node
     setNodes((nds: Node[]) => nds.filter((n: Node) => n.type !== 'drop'));
     setEdges((eds: Edge[]) => eds.filter((e: Edge) => e.type !== 'temporary'));
@@ -343,12 +375,12 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
             <ReactFlow
               deleteKeyCode={['Backspace', 'Delete']}
               nodes={nodes}
-              onNodesChange={onNodesChange}
+              onNodesChange={handleNodesChange}
               edges={edges}
-              onEdgesChange={onEdgesChange}
-              onConnectStart={onConnectStart}
-              onConnect={onConnect}
-              onConnectEnd={onConnectEnd}
+              onEdgesChange={handleEdgesChange}
+              onConnectStart={handleConnectStart}
+              onConnect={handleConnect}
+              onConnectEnd={handleConnectEnd}
               nodeTypes={nodeTypes}
               edgeTypes={edgeTypes}
               isValidConnection={isValidConnection}
@@ -359,16 +391,10 @@ export const Canvas = ({ data, canvasProps }: CanvasProps) => {
               panOnDrag={false}
               selectionOnDrag={true}
               onDoubleClick={addDropNode}
-              {...canvasProps}
+              {...rest}
             >
               <Background />
-              {!data.id.includes('demo') && user && (
-                <>
-                  <Controls />
-                  <Toolbar />
-                  <SaveIndicator lastSaved={lastSaved} saving={isSaving} />
-                </>
-              )}
+              {children}
             </ReactFlow>
           </ContextMenuTrigger>
           <ContextMenuContent>

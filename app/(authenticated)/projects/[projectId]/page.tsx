@@ -1,15 +1,13 @@
 import { Canvas } from '@/components/canvas';
+import { Controls } from '@/components/controls';
 import { Reasoning } from '@/components/reasoning';
+import { SaveIndicator } from '@/components/save-indicator';
+import { Toolbar } from '@/components/toolbar';
 import { TopLeft } from '@/components/top-left';
 import { TopRight } from '@/components/top-right';
 import { currentUser, currentUserProfile } from '@/lib/auth';
 import { database } from '@/lib/database';
-import { env } from '@/lib/env';
 import { ProjectProvider } from '@/providers/project';
-import {
-  type SubscriptionContextType,
-  SubscriptionProvider,
-} from '@/providers/subscription';
 import { projects } from '@/schema';
 import { eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
@@ -43,6 +41,10 @@ const Project = async ({ params }: ProjectProps) => {
     return null;
   }
 
+  if (!profile.onboardedAt) {
+    return redirect('/welcome');
+  }
+
   const allProjects = await database
     .select()
     .from(projects)
@@ -58,24 +60,15 @@ const Project = async ({ params }: ProjectProps) => {
     notFound();
   }
 
-  let plan: SubscriptionContextType['plan'];
-
-  if (profile.productId === env.STRIPE_HOBBY_PRODUCT_ID) {
-    plan = 'hobby';
-  } else if (profile.productId === env.STRIPE_PRO_PRODUCT_ID) {
-    plan = 'pro';
-  }
-
   return (
     <div className="flex h-screen w-screen items-stretch overflow-hidden">
       <div className="relative flex-1">
         <ProjectProvider data={project}>
-          <SubscriptionProvider
-            isSubscribed={Boolean(profile.subscriptionId)}
-            plan={plan}
-          >
-            <Canvas data={project} />
-          </SubscriptionProvider>
+          <Canvas>
+            <Controls />
+            <Toolbar />
+            <SaveIndicator />
+          </Canvas>
         </ProjectProvider>
         <Suspense fallback={null}>
           <TopLeft id={projectId} />

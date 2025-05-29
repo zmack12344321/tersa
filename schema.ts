@@ -1,5 +1,12 @@
 import { sql } from 'drizzle-orm';
-import { json, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  json,
+  pgTable,
+  text,
+  timestamp,
+  varchar,
+} from 'drizzle-orm/pg-core';
 
 const uuid = sql`uuid_generate_v4()`;
 
@@ -14,6 +21,7 @@ export const projects = pgTable('project', {
   userId: varchar('user_id').notNull(),
   image: varchar('image'),
   members: text('members').array(),
+  welcomeProject: boolean('demo_project').notNull().default(false),
 });
 
 export const profile = pgTable('profile', {
@@ -21,4 +29,5 @@ export const profile = pgTable('profile', {
   customerId: text('customer_id'),
   subscriptionId: text('subscription_id'),
   productId: text('product_id'),
+  onboardedAt: timestamp('onboarded_at'),
 });

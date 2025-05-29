@@ -1,5 +1,5 @@
 import { Canvas } from '@/components/canvas';
-import type { Edge, Node } from '@xyflow/react';
+import { type Edge, type Node, ReactFlowProvider } from '@xyflow/react';
 
 const nodes: Node[] = [
   {
@@ -8,7 +8,7 @@ const nodes: Node[] = [
     position: { x: 0, y: 0 },
     data: {
       source: 'primitive',
-      text: 'A wild orchard of delphiniums',
+      text: 'A wild field of delphiniums',
       content: {
         type: 'doc',
         content: [
@@ -17,7 +17,7 @@ const nodes: Node[] = [
             content: [
               {
                 type: 'text',
-                text: 'A wild orchard of delphiniums',
+                text: 'A wild field of delphiniums',
               },
             ],
           },
@@ -51,29 +51,16 @@ const edges: Edge[] = [
 ];
 
 export const ImageDemo = () => (
-  <Canvas
-    data={{
-      createdAt: new Date(),
-      id: 'image-demo',
-      name: 'Demo Project',
-      userId: 'test',
-      transcriptionModel: 'gpt-4o-mini-transcribe',
-      visionModel: 'gpt-4.1-nano',
-      updatedAt: null,
-      image: null,
-      content: {
-        nodes,
-        edges,
-      },
-      members: [],
-    }}
-    canvasProps={{
-      panOnScroll: false,
-      zoomOnScroll: false,
-      preventScrolling: false,
-      fitViewOptions: {
+  <ReactFlowProvider>
+    <Canvas
+      nodes={nodes}
+      edges={edges}
+      panOnScroll={false}
+      zoomOnScroll={false}
+      preventScrolling={false}
+      fitViewOptions={{
         minZoom: 0,
-      },
-    }}
-  />
+      }}
+    />
+  </ReactFlowProvider>
 );
