@@ -183,7 +183,7 @@ export const WelcomeDemo = ({ title, description, data }: WelcomeDemoProps) => {
       action: (
         <div className="not-prose">
           <Button asChild onClick={handleFinishWelcome}>
-            <Link href="/projects">Continue</Link>
+            <Link href="/">Continue</Link>
           </Button>
         </div>
       ),
