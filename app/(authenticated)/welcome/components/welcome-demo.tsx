@@ -9,9 +9,8 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
 import { handleError } from '@/lib/error/handle';
 import { nodeButtons } from '@/lib/node-buttons';
-import { ProjectProvider } from '@/providers/project';
+import { useProject } from '@/providers/project';
 import { useSubscription } from '@/providers/subscription';
-import type { projects } from '@/schema';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { PlayIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -27,15 +26,14 @@ if (!TextNode) {
 type WelcomeDemoProps = {
   title: string;
   description: string;
-  data: typeof projects.$inferSelect;
 };
 
-export const WelcomeDemo = ({ title, description, data }: WelcomeDemoProps) => {
+export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
+  const project = useProject();
   const { getNodes, getEdges } = useReactFlow();
   const [started, setStarted] = useState(false);
   const { isSubscribed } = useSubscription();
   const stepsContainerRef = useRef<HTMLDivElement>(null);
-
   const [hasTextNode, setHasTextNode] = useState(false);
   const [hasFilledTextNode, setHasFilledTextNode] = useState(false);
   const [hasImageNode, setHasImageNode] = useState(false);
@@ -51,7 +49,7 @@ export const WelcomeDemo = ({ title, description, data }: WelcomeDemoProps) => {
   }, []);
 
   const handleFinishWelcome = async () => {
-    if (!user) {
+    if (!user || !project?.id) {
       return;
     }
 
@@ -64,7 +62,7 @@ export const WelcomeDemo = ({ title, description, data }: WelcomeDemoProps) => {
         throw new Error(response.error);
       }
 
-      router.push('/');
+      router.push(`/projects/${project.id}`);
     } catch (error) {
       handleError('Error finishing onboarding', error);
     }
@@ -290,11 +288,9 @@ export const WelcomeDemo = ({ title, description, data }: WelcomeDemoProps) => {
       </div>
       <div className="row-span-3 p-8 lg:col-span-2 lg:row-span-1">
         <div className="relative size-full overflow-hidden rounded-3xl border">
-          <ProjectProvider data={data}>
-            <Canvas onNodesChange={handleNodesChange}>
-              {steps[0].complete && <Toolbar />}
-            </Canvas>
-          </ProjectProvider>
+          <Canvas onNodesChange={handleNodesChange}>
+            {steps[0].complete && <Toolbar />}
+          </Canvas>
         </div>
       </div>
     </div>

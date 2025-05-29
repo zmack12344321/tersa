@@ -55,11 +55,7 @@ const Welcome = async () => {
   return (
     <div className="flex flex-col gap-4">
       <ProjectProvider data={welcomeProject}>
-        <WelcomeDemo
-          title={title}
-          description={description}
-          data={welcomeProject}
-        />
+        <WelcomeDemo title={title} description={description} />
       </ProjectProvider>
     </div>
   );
