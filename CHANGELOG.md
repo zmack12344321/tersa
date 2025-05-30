@@ -1,3 +1,15 @@
+# v1.1.6 (Fri May 30 2025)
+
+#### 🐛 Bug Fix
+
+- Add Black Forest Labs Flux models [#79](https://github.com/haydenbleasel/tersa/pull/79) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.1.5 (Thu May 29 2025)
 
 #### ⚠️ Pushed to `main`
