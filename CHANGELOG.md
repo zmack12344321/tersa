@@ -1,3 +1,15 @@
+# v1.1.7 (Fri May 30 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update index.ts ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.1.6 (Fri May 30 2025)
 
 #### 🐛 Bug Fix
