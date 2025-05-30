@@ -226,7 +226,7 @@ export const imageModels: {
         id: 'black-forest-labs/flux-pro-1.1',
         label: 'FLUX Pro 1.1',
         model: blackForestLabs.image('flux-pro-1.1'),
-        sizes: ['1024x1024', '822x1440', '1440x822'],
+        sizes: ['1024x1024', '832x1440', '1440x832'],
         supportsEdit: true,
 
         // https://bfl.ai/pricing/api
@@ -237,7 +237,7 @@ export const imageModels: {
         id: 'black-forest-labs/flux-pro',
         label: 'FLUX Pro',
         model: blackForestLabs.image('flux-pro'),
-        sizes: ['1024x1024', '822x1440', '1440x822'],
+        sizes: ['1024x1024', '832x1440', '1440x832'],
         supportsEdit: true,
 
         // https://bfl.ai/pricing/api
@@ -248,7 +248,7 @@ export const imageModels: {
         id: 'black-forest-labs/flux-dev',
         label: 'FLUX Dev',
         model: blackForestLabs.image('flux-dev'),
-        sizes: ['1024x1024', '822x1440', '1440x822'],
+        sizes: ['1024x1024', '832x1440', '1440x832'],
         supportsEdit: true,
         priceIndicator: 'low',
 
@@ -260,7 +260,7 @@ export const imageModels: {
         id: 'black-forest-labs/flux-pro-1.0-canny',
         label: 'FLUX Pro 1.0 Canny',
         model: blackForestLabs.image('flux-pro-1.0-canny'),
-        sizes: ['1024x1024', '822x1440', '1440x822'],
+        sizes: ['1024x1024', '832x1440', '1440x832'],
         supportsEdit: true,
 
         // https://bfl.ai/pricing/api
@@ -271,7 +271,7 @@ export const imageModels: {
         id: 'black-forest-labs/flux-pro-1.0-depth',
         label: 'FLUX Pro 1.0 Depth',
         model: blackForestLabs.image('flux-pro-1.0-depth'),
-        sizes: ['1024x1024', '822x1440', '1440x822'],
+        sizes: ['1024x1024', '832x1440', '1440x832'],
         supportsEdit: true,
 
         // https://bfl.ai/pricing/api
@@ -282,7 +282,7 @@ export const imageModels: {
         id: 'black-forest-labs/flux-kontext-pro',
         label: 'FLUX Kontext Pro',
         model: blackForestLabs.image('flux-kontext-pro'),
-        sizes: ['1024x1024', '822x1440', '1440x822'],
+        sizes: ['1024x1024', '832x1440', '1440x832'],
         supportsEdit: true,
 
         // https://bfl.ai/pricing/api
@@ -293,7 +293,7 @@ export const imageModels: {
         id: 'black-forest-labs/flux-kontext-max',
         label: 'FLUX Kontext Max',
         model: blackForestLabs.image('flux-kontext-max'),
-        sizes: ['1024x1024', '822x1440', '1440x822'],
+        sizes: ['1024x1024', '832x1440', '1440x832'],
         supportsEdit: true,
 
         // https://bfl.ai/pricing/api
