@@ -69,6 +69,7 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     getNodes,
     getNode,
     updateNode,
+    updateNodeData,
   } = useReactFlow();
   const analytics = useAnalytics();
   const [saveState, setSaveState] = useSaveProject();
@@ -117,12 +118,12 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
       const incomers = getIncomers(node, nodes, edges);
 
       if (incomers.length === 0) {
-        updateNode(node.id, { data: { source: 'primitive' } });
+        updateNodeData(node.id, { ...node.data, source: 'primitive' });
       } else {
-        updateNode(node.id, { data: { source: 'transform' } });
+        updateNodeData(node.id, { ...node.data, source: 'transform' });
       }
     }
-  }, [getNodes, getEdges, updateNode]);
+  }, [getNodes, getEdges, updateNodeData]);
 
   const handleEdgesChange = useCallback(
     (changes: EdgeChange<Edge>[]) => {
