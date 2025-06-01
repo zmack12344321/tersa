@@ -1,3 +1,15 @@
+# v1.2.0 (Sun Jun 01 2025)
+
+#### 🚀 Enhancement
+
+- Replicate [#81](https://github.com/haydenbleasel/tersa/pull/81) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.1.7 (Fri May 30 2025)
 
 #### ⚠️ Pushed to `main`
