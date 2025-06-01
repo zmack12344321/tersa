@@ -1,3 +1,15 @@
+# v1.2.6 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Switch to Drizzle query ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.5 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
