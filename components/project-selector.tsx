@@ -26,7 +26,13 @@ import type { projects } from '@/schema';
 import Fuse from 'fuse.js';
 import { CheckIcon, PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { type FormEventHandler, Fragment, useMemo, useState } from 'react';
+import {
+  type FormEventHandler,
+  Fragment,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 
@@ -47,44 +53,58 @@ export const ProjectSelector = ({
   const router = useRouter();
   const user = useUser();
 
-  const handleCreateProject: FormEventHandler<HTMLFormElement> = async (
-    event
-  ) => {
-    event.preventDefault();
+  const fuse = useMemo(
+    () =>
+      new Fuse(projects, {
+        keys: ['name'],
+        minMatchCharLength: 1,
+        threshold: 0.3,
+      }),
+    [projects]
+  );
 
-    if (isCreating) {
-      return;
-    }
+  const handleCreateProject = useCallback<FormEventHandler<HTMLFormElement>>(
+    async (event) => {
+      event.preventDefault();
 
-    setIsCreating(true);
-
-    try {
-      const response = await createProjectAction(name.trim());
-
-      if ('error' in response) {
-        throw new Error(response.error);
+      if (isCreating) {
+        return;
       }
 
+      setIsCreating(true);
+
+      try {
+        const response = await createProjectAction(name.trim());
+
+        if ('error' in response) {
+          throw new Error(response.error);
+        }
+
+        setOpen(false);
+        setName('');
+        router.push(`/projects/${response.id}`);
+      } catch (error) {
+        handleError('Error creating project', error);
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [isCreating, name, router]
+  );
+
+  const handleSelect = useCallback(
+    (projectId: string) => {
+      if (projectId === 'new') {
+        setCreateOpen(true);
+        return;
+      }
+
+      setValue(projectId);
       setOpen(false);
-      setName('');
-      router.push(`/projects/${response.id}`);
-    } catch (error) {
-      handleError('Error creating project', error);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleSelect = (projectId: string) => {
-    if (projectId === 'new') {
-      setCreateOpen(true);
-      return;
-    }
-
-    setValue(projectId);
-    setOpen(false);
-    router.push(`/projects/${projectId}`);
-  };
+      router.push(`/projects/${projectId}`);
+    },
+    [router]
+  );
 
   const projectGroups = useMemo(() => {
     if (!user) {
@@ -103,17 +123,16 @@ export const ProjectSelector = ({
     ];
   }, [projects, user]);
 
-  const fuse = new Fuse(projects, {
-    keys: ['name'],
-    minMatchCharLength: 1,
-    threshold: 0.3,
-  });
-
-  const filterByFuse = (currentValue: string, search: string) => {
-    return fuse.search(search).find((result) => result.item.id === currentValue)
-      ? 1
-      : 0;
-  };
+  const filterByFuse = useCallback(
+    (currentValue: string, search: string) => {
+      return fuse
+        .search(search)
+        .find((result) => result.item.id === currentValue)
+        ? 1
+        : 0;
+    },
+    [fuse]
+  );
 
   return (
     <>
