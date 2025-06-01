@@ -1,3 +1,15 @@
+# v1.2.12 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Use avatar for menu icon ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.11 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
