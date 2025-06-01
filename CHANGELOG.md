@@ -1,3 +1,18 @@
+# v1.2.1 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Resolves #76 ([@haydenbleasel](https://github.com/haydenbleasel))
+- Improve code editor loading state ([@haydenbleasel](https://github.com/haydenbleasel))
+- Rework code to use streamText ([@haydenbleasel](https://github.com/haydenbleasel))
+- Memoize toolbar ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.0 (Sun Jun 01 2025)
 
 #### 🚀 Enhancement
