@@ -87,7 +87,9 @@ export const NodeLayout = ({
       return;
     }
 
-    updateNode(id, { selected: true });
+    if (!node.selected) {
+      updateNode(id, { selected: true });
+    }
   };
 
   return (
