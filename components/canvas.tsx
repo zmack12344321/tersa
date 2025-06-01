@@ -13,6 +13,7 @@ import {
   type FinalConnectionState,
   ReactFlow,
   type ReactFlowProps,
+  getIncomers,
   getOutgoers,
   useReactFlow,
 } from '@xyflow/react';
@@ -108,6 +109,23 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     [save, onNodesChange]
   );
 
+  const updateNodeSources = useCallback(() => {
+    const nodes = getNodes();
+    const edges = getEdges();
+
+    for (const node of nodes) {
+      const incomers = getIncomers(node, nodes, edges);
+
+      console.log(incomers.length);
+
+      if (incomers.length === 0) {
+        updateNode(node.id, { data: { source: 'primitive' } });
+      } else {
+        updateNode(node.id, { data: { source: 'transform' } });
+      }
+    }
+  }, [getNodes, getEdges, updateNode]);
+
   const handleEdgesChange = useCallback(
     (changes: EdgeChange<Edge>[]) => {
       setEdges((current) => {
@@ -116,8 +134,10 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
         onEdgesChange?.(changes);
         return updated;
       });
+
+      setTimeout(updateNodeSources, 0);
     },
-    [save, onEdgesChange]
+    [save, onEdgesChange, updateNodeSources]
   );
 
   const handleConnect = useCallback(
@@ -130,8 +150,10 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
       setEdges((eds: Edge[]) => eds.concat(newEdge));
       save();
       onConnect?.(connection);
+
+      setTimeout(updateNodeSources, 0);
     },
-    [save, onConnect]
+    [save, onConnect, updateNodeSources]
   );
 
   const addNode = useCallback(

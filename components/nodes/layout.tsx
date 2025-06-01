@@ -15,16 +15,8 @@ import {
 import { cn } from '@/lib/utils';
 import { useNodeOperations } from '@/providers/node-operations';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
-import {
-  BrainIcon,
-  CodeIcon,
-  CopyIcon,
-  EyeIcon,
-  TrashIcon,
-  UserIcon,
-} from 'lucide-react';
+import { CodeIcon, CopyIcon, EyeIcon, TrashIcon } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
-import { Switch } from '../ui/switch';
 import { NodeToolbar } from './toolbar';
 
 type NodeLayoutProps = {
@@ -120,16 +112,6 @@ export const NodeLayout = ({
                 <p className="font-mono text-muted-foreground text-xs tracking-tighter">
                   {title}
                 </p>
-                {type !== 'file' && type !== 'tweet' && (
-                  <div className="flex items-center gap-2">
-                    <UserIcon size={12} className="text-muted-foreground" />
-                    <Switch
-                      checked={data?.source === 'transform'}
-                      onCheckedChange={handleSourceChange}
-                    />
-                    <BrainIcon size={12} className="text-muted-foreground" />
-                  </div>
-                )}
               </div>
             )}
             <div
