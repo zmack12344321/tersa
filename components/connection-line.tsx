@@ -9,8 +9,8 @@ export const ConnectionLine = ({
   <g>
     <path
       fill="none"
-      stroke="var(--primary)"
-      strokeWidth={1.5}
+      stroke="var(--color-ring)"
+      strokeWidth={1}
       className="animated"
       d={`M${fromX},${fromY} C ${fromX + (toX - fromX) * 0.5},${fromY} ${fromX + (toX - fromX) * 0.5},${toY} ${toX},${toY}`}
     />
@@ -19,8 +19,8 @@ export const ConnectionLine = ({
       cy={toY}
       fill="#fff"
       r={3}
-      stroke="var(--primary)"
-      strokeWidth={1.5}
+      stroke="var(--color-ring)"
+      strokeWidth={1}
     />
   </g>
 );
