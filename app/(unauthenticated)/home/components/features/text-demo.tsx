@@ -52,7 +52,9 @@ const nodes: Node[] = [
     position: { x: 600, y: 100 },
     data: {
       instructions: 'Add some flair to the text',
-      generated: ['Bonjour!'],
+      generated: {
+        text: 'Bonjour!',
+      },
     },
   },
 ];
