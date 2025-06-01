@@ -11,12 +11,7 @@ import {
 import { useUser } from '@/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
 import { useSubscription } from '@/providers/subscription';
-import {
-  ArrowUpRight,
-  ArrowUpRightIcon,
-  Loader2,
-  MenuIcon,
-} from 'lucide-react';
+import { ArrowUpRight, ArrowUpRightIcon, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type MouseEventHandler, useState } from 'react';
@@ -60,7 +55,15 @@ export const Menu = () => {
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
-            <MenuIcon size={16} />
+            <Avatar>
+              <AvatarImage src={user.user_metadata.avatar} />
+              <AvatarFallback className="bg-primary text-primary-foreground uppercase">
+                {(user.user_metadata.name ?? user.email ?? user.id)
+                  ?.split(' ')
+                  .map((name: string) => name.at(0))
+                  .join('')}
+              </AvatarFallback>
+            </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
