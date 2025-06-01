@@ -1,5 +1,6 @@
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { handleError } from '@/lib/error/handle';
@@ -266,6 +267,11 @@ export const CodeTransform = ({
         }
         onChange={handleCodeChange}
         theme="vs-dark"
+        loading={
+          <div className="dark aspect-square size-full">
+            <Skeleton className="size-full" />
+          </div>
+        }
         options={{
           readOnly: true,
           minimap: {
