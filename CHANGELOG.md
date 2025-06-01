@@ -1,3 +1,24 @@
+# v1.2.11 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Bump remaining deps ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### 🔩 Dependency Updates
+
+- Bump openai from 4.103.0 to 5.0.1 [#86](https://github.com/haydenbleasel/tersa/pull/86) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump drizzle-orm from 0.43.1 to 0.44.1 [#89](https://github.com/haydenbleasel/tersa/pull/89) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @icons-pack/react-simple-icons from 12.8.0 to 13.0.0 [#94](https://github.com/haydenbleasel/tersa/pull/94) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump next from 15.3.2 to 15.3.3 [#83](https://github.com/haydenbleasel/tersa/pull/83) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump lumaai from 1.9.0 to 1.11.0 [#90](https://github.com/haydenbleasel/tersa/pull/90) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.10 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
