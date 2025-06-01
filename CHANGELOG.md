@@ -1,3 +1,15 @@
+# v1.2.10 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update dependabot.yml ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.9 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
