@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { mono, sans, serif } from '@/lib/fonts';
@@ -6,7 +7,6 @@ import { PostHogProvider } from '@/providers/posthog-provider';
 import { ThemeProvider } from '@/providers/theme';
 import { Analytics } from '@vercel/analytics/next';
 import type { ReactNode } from 'react';
-import { Toaster } from 'sonner';
 
 type RootLayoutProps = {
   children: ReactNode;
