@@ -8,6 +8,7 @@ import {
 import {
   AmazonIcon,
   AnthropicIcon,
+  BlackForestLabsIcon,
   CohereIcon,
   // CerebrasIcon,
   DeepSeekIcon,
@@ -24,6 +25,7 @@ import {
   OpenAiIcon,
   ReplicateIcon,
   RunwayIcon,
+  VercelIcon,
   // TogetherIcon,
   XaiIcon,
 } from '@/lib/icons';
@@ -38,6 +40,7 @@ import { visionModels } from '@/lib/models/vision';
 const icons = [
   AmazonIcon,
   AnthropicIcon,
+  BlackForestLabsIcon,
   // CerebrasIcon,
   CohereIcon,
   DeepSeekIcon,
@@ -56,6 +59,7 @@ const icons = [
   RunwayIcon,
   // TogetherIcon,
   XaiIcon,
+  VercelIcon,
 ];
 
 const allModels = [
