@@ -3,7 +3,6 @@ import { FilePrimitive } from './primitive';
 export type FileNodeProps = {
   type: string;
   data: {
-    source: 'primitive';
     content?: {
       url: string;
       type: string;

@@ -1,10 +1,10 @@
+import { useNodeConnections } from '@xyflow/react';
 import { ImagePrimitive } from './primitive';
 import { ImageTransform } from './transform';
 
 export type ImageNodeProps = {
   type: string;
   data: {
-    source: 'primitive' | 'transform';
     content?: {
       url: string;
       type: string;
@@ -25,8 +25,11 @@ export type ImageNodeProps = {
 };
 
 export const ImageNode = (props: ImageNodeProps) => {
-  const Component =
-    props.data.source === 'primitive' ? ImagePrimitive : ImageTransform;
+  const connections = useNodeConnections({
+    id: props.id,
+    handleType: 'target',
+  });
+  const Component = connections.length ? ImageTransform : ImagePrimitive;
 
   return <Component {...props} title="Image" />;
 };

@@ -3,7 +3,6 @@ import { TweetPrimitive } from './primitive';
 export type TweetNodeProps = {
   type: string;
   data: {
-    source: 'primitive';
     content?: {
       id: string;
       text: string;

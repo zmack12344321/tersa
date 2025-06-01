@@ -28,7 +28,6 @@ export const ToolbarInner = () => {
       position,
       data: {
         ...(nodeData ? nodeData : {}),
-        source: 'primitive',
       },
       ...rest,
     });

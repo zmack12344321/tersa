@@ -7,7 +7,6 @@ const nodes: Node[] = [
     type: 'text',
     position: { x: 0, y: 0 },
     data: {
-      source: 'primitive',
       text: 'Say hello',
       content: {
         type: 'doc',
@@ -30,7 +29,6 @@ const nodes: Node[] = [
     type: 'text',
     position: { x: 0, y: 200 },
     data: {
-      source: 'primitive',
       text: 'In French',
       content: {
         type: 'doc',
@@ -53,7 +51,6 @@ const nodes: Node[] = [
     type: 'text',
     position: { x: 600, y: 100 },
     data: {
-      source: 'transform',
       instructions: 'Add some flair to the text',
       generated: ['Bonjour!'],
     },

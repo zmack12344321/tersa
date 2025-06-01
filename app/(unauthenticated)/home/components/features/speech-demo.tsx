@@ -7,7 +7,6 @@ const nodes: Node[] = [
     type: 'text',
     position: { x: 0, y: 0 },
     data: {
-      source: 'primitive',
       content: {
         type: 'doc',
         content: [
@@ -39,7 +38,6 @@ const nodes: Node[] = [
     id: 'transform-1',
     type: 'audio',
     data: {
-      source: 'transform',
       generated: {
         url: '/demo/delphiniums-transform.mp3',
         type: 'audio/mpeg',

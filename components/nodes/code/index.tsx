@@ -1,10 +1,10 @@
+import { useNodeConnections } from '@xyflow/react';
 import { CodePrimitive } from './primitive';
 import { CodeTransform } from './transform';
 
 export type CodeNodeProps = {
   type: string;
   data: {
-    source: 'primitive' | 'transform';
     generated?: {
       text?: string;
       language?: string;
@@ -21,8 +21,11 @@ export type CodeNodeProps = {
 };
 
 export const CodeNode = (props: CodeNodeProps) => {
-  const Component =
-    props.data.source === 'primitive' ? CodePrimitive : CodeTransform;
+  const connections = useNodeConnections({
+    id: props.id,
+    handleType: 'target',
+  });
+  const Component = connections.length ? CodeTransform : CodePrimitive;
 
   return <Component {...props} title="Code" />;
 };

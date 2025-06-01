@@ -13,7 +13,6 @@ import {
   type FinalConnectionState,
   ReactFlow,
   type ReactFlowProps,
-  getIncomers,
   getOutgoers,
   useReactFlow,
 } from '@xyflow/react';
@@ -69,7 +68,6 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     getNodes,
     getNode,
     updateNode,
-    updateNodeData,
   } = useReactFlow();
   const analytics = useAnalytics();
   const [saveState, setSaveState] = useSaveProject();
@@ -110,21 +108,6 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     [save, onNodesChange]
   );
 
-  const updateNodeSources = useCallback(() => {
-    const nodes = getNodes();
-    const edges = getEdges();
-
-    for (const node of nodes) {
-      const incomers = getIncomers(node, nodes, edges);
-
-      if (incomers.length === 0) {
-        updateNodeData(node.id, { ...node.data, source: 'primitive' });
-      } else {
-        updateNodeData(node.id, { ...node.data, source: 'transform' });
-      }
-    }
-  }, [getNodes, getEdges, updateNodeData]);
-
   const handleEdgesChange = useCallback(
     (changes: EdgeChange<Edge>[]) => {
       setEdges((current) => {
@@ -133,10 +116,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
         onEdgesChange?.(changes);
         return updated;
       });
-
-      setTimeout(updateNodeSources, 0);
     },
-    [save, onEdgesChange, updateNodeSources]
+    [save, onEdgesChange]
   );
 
   const handleConnect = useCallback(
@@ -149,10 +130,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
       setEdges((eds: Edge[]) => eds.concat(newEdge));
       save();
       onConnect?.(connection);
-
-      setTimeout(updateNodeSources, 0);
     },
-    [save, onConnect, updateNodeSources]
+    [save, onConnect]
   );
 
   const addNode = useCallback(
@@ -162,7 +141,6 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
         id: nanoid(),
         type,
         data: {
-          source: 'primitive',
           ...(nodeData ? nodeData : {}),
         },
         position: { x: 0, y: 0 },

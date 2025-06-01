@@ -5,7 +5,6 @@ export const sampleNodes: Node[] = [
     id: 'vgWgaLMHG6Y6MMwu_VF1D',
     type: 'text',
     data: {
-      source: 'primitive',
       content: {
         type: 'doc',
         content: [
@@ -39,7 +38,6 @@ export const sampleNodes: Node[] = [
     type: 'text',
     position: { x: 261, y: -240 },
     data: {
-      source: 'transform',
       generated: {
         text: 'To care for delphiniums, plant them in rich, well-draining soil with full sun exposure. Water regularly, keeping the soil moist but not waterlogged. Support tall stems with stakes, and remove faded blooms to encourage more flowers. Fertilize during the growing season and cut back after flowering to promote new growth.',
       },
@@ -52,7 +50,6 @@ export const sampleNodes: Node[] = [
     type: 'image',
     position: { x: 259, y: 115 },
     data: {
-      source: 'transform',
       generated: {
         url: '/demo/delphiniums-anime.jpg',
         type: 'image/jpeg',
@@ -65,7 +62,6 @@ export const sampleNodes: Node[] = [
     id: 'LChjpwMpTwx4CaEypTsAr',
     type: 'audio',
     data: {
-      source: 'primitive',
       content: {
         url: '/demo/delphiniums-primitive.mp3',
         type: 'audio/mpeg',

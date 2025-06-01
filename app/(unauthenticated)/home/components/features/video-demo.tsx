@@ -7,7 +7,6 @@ const nodes: Node[] = [
     type: 'text',
     position: { x: 0, y: 0 },
     data: {
-      source: 'primitive',
       text: 'A wild field of delphiniums',
       content: {
         type: 'doc',
@@ -30,7 +29,6 @@ const nodes: Node[] = [
     type: 'image',
     position: { x: 0, y: 300 },
     data: {
-      source: 'primitive',
       content: {
         url: '/demo/delphiniums-anime.jpg',
         type: 'image/jpeg',
@@ -43,7 +41,6 @@ const nodes: Node[] = [
     type: 'video',
     position: { x: 600, y: 200 },
     data: {
-      source: 'transform',
       generated: {
         url: '/demo/delphiniums.mp4',
         type: 'video/mp4',
