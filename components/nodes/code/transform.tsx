@@ -11,7 +11,7 @@ import {
   getTranscriptionFromAudioNodes,
 } from '@/lib/xyflow';
 import { useProject } from '@/providers/project';
-import { experimental_useObject as useObject } from '@ai-sdk/react';
+import { useChat } from '@ai-sdk/react';
 import Editor from '@monaco-editor/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { ClockIcon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
@@ -23,7 +23,6 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 import { mutate } from 'swr';
-import { z } from 'zod';
 import type { CodeNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
 import { LanguageSelector } from './language-selector';
@@ -53,21 +52,20 @@ export const CodeTransform = ({
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const project = useProject();
   const modelId = data.model ?? getDefaultModel(textModels).id;
+  const language = data.generated?.language ?? 'javascript';
   const analytics = useAnalytics();
-  const { isLoading, object, stop, submit } = useObject({
+  const { append, messages, setMessages, status, stop } = useChat({
     api: '/api/code',
-    schema: z.object({
-      text: z.string(),
-      language: z.string(),
-    }),
-    headers: {
-      'tersa-language': data.generated?.language ?? 'javascript',
-      'tersa-model': modelId,
+    body: {
+      modelId,
+      language,
     },
-    onError: (error) => handleError('Error generating code', error),
-    onFinish: (generated) => {
+    onError: (error) => handleError('Error generating text', error),
+    onFinish: (message) => {
       updateNodeData(id, {
-        generated: generated.object,
+        generated: {
+          text: message.content,
+        },
         updatedAt: new Date().toISOString(),
       });
 
@@ -95,7 +93,7 @@ export const CodeTransform = ({
       return;
     }
 
-    const prompt = [
+    const content = [
       '--- Instructions ---',
       data.instructions ?? 'None.',
       '--- Text Prompts ---',
@@ -112,22 +110,27 @@ export const CodeTransform = ({
             Code: ${code.text}
             `
       ),
-    ].join('\n');
-
-    submit(prompt);
+    ];
 
     analytics.track('canvas', 'node', 'generate', {
       type,
-      promptLength: prompt.length,
+      promptLength: content.join('\n').length,
       model: modelId,
       instructionsLength: data.instructions?.length ?? 0,
+    });
+
+    setMessages([]);
+    append({
+      role: 'user',
+      content: content.join('\n'),
     });
   }, [
     data.instructions,
     id,
     getNodes,
     getEdges,
-    submit,
+    append,
+    setMessages,
     analytics,
     modelId,
     type,
@@ -139,7 +142,7 @@ export const CodeTransform = ({
 
   const handleCodeChange = (value: string | undefined) => {
     updateNodeData(id, {
-      generated: { text: value, language: data.generated?.language },
+      generated: { text: value, language },
     });
   };
 
@@ -157,7 +160,7 @@ export const CodeTransform = ({
       {
         children: (
           <LanguageSelector
-            value={data.generated?.language ?? 'javascript'}
+            value={language}
             onChange={handleLanguageChange}
             className="w-[200px] rounded-full"
           />
@@ -176,7 +179,7 @@ export const CodeTransform = ({
       },
     ];
 
-    if (isLoading) {
+    if (status === 'submitted' || status === 'streaming') {
       items.push({
         tooltip: 'Stop',
         children: (
@@ -190,7 +193,7 @@ export const CodeTransform = ({
           </Button>
         ),
       });
-    } else if (object?.text || data.generated?.text) {
+    } else if (messages.length || data.generated?.text) {
       items.push({
         tooltip: 'Regenerate',
         children: (
@@ -206,7 +209,7 @@ export const CodeTransform = ({
       });
     } else {
       items.push({
-        tooltip: data.generated?.text ? 'Regenerate' : 'Generate',
+        tooltip: 'Generate',
         children: (
           <Button
             size="icon"
@@ -214,11 +217,7 @@ export const CodeTransform = ({
             onClick={handleGenerate}
             disabled={!project?.id}
           >
-            {data.generated?.text ? (
-              <RotateCcwIcon size={12} />
-            ) : (
-              <PlayIcon size={12} />
-            )}
+            <PlayIcon size={12} />
           </Button>
         ),
       });
@@ -246,18 +245,25 @@ export const CodeTransform = ({
     data,
     handleGenerate,
     handleLanguageChange,
-    isLoading,
-    object,
+    status,
+    messages,
     project?.id,
     modelId,
+    language,
   ]);
+
+  const nonUserMessages = messages.filter((message) => message.role !== 'user');
 
   return (
     <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
       <Editor
         className="aspect-square w-full overflow-hidden rounded-b-xl"
-        language={data.generated?.language}
-        value={object?.text ?? data.generated?.text}
+        language={language}
+        value={
+          nonUserMessages.length
+            ? nonUserMessages[0].content
+            : data.generated?.text
+        }
         onChange={handleCodeChange}
         theme="vs-dark"
         options={{

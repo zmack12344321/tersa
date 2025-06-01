@@ -3,8 +3,7 @@ import { parseError } from '@/lib/error/parse';
 import { textModels } from '@/lib/models/text';
 import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
 import { trackCreditUsage } from '@/lib/stripe';
-import { streamObject } from 'ai';
-import { z } from 'zod';
+import { streamText } from 'ai';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -24,8 +23,8 @@ export const POST = async (req: Request) => {
     return new Response(message, { status: 401 });
   }
 
+  // Apply rate limiting
   if (process.env.NODE_ENV === 'production') {
-    // Apply rate limiting
     const ip = req.headers.get('x-forwarded-for') || 'anonymous';
     const { success, limit, reset, remaining } = await rateLimiter.limit(ip);
 
@@ -41,39 +40,32 @@ export const POST = async (req: Request) => {
     }
   }
 
-  const context = await req.json();
-  const modelId = req.headers.get('tersa-model');
-  const language = req.headers.get('tersa-language');
+  const { messages, modelId, language } = await req.json();
 
-  if (!modelId) {
-    return new Response('Model not found', { status: 400 });
+  if (typeof modelId !== 'string') {
+    return new Response('Model must be a string', { status: 400 });
   }
 
   const model = textModels
-    .flatMap((model) => model.models)
-    .find(({ id }) => id === modelId);
+    .flatMap((m) => m.models)
+    .find((m) => m.id === modelId);
 
   if (!model) {
-    return new Response('Model not found', { status: 400 });
+    return new Response('Invalid model', { status: 400 });
   }
 
-  const result = streamObject({
+  const result = streamText({
     model: model.model,
-    schema: z.object({
-      text: z.string(),
-      language: z.string(),
-    }),
-    prompt: [
-      '------ System ------',
+    system: [
       `Output the code in the language specified: ${language ?? 'javascript'}`,
       'If the user specifies an output language in the context below, ignore it.',
       'Respond with the code only, no other text.',
-      '------ User ------',
-      context,
+      'Do not format the code as Markdown, just return the code as is.',
     ].join('\n'),
+    messages,
     onFinish: async ({ usage }) => {
       await trackCreditUsage({
-        action: 'chat',
+        action: 'code',
         cost: model.getCost({
           input: usage.promptTokens,
           output: usage.completionTokens,
@@ -82,5 +74,5 @@ export const POST = async (req: Request) => {
     },
   });
 
-  return result.toTextStreamResponse();
+  return result.toDataStreamResponse();
 };
