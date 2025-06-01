@@ -1347,3 +1347,15 @@ export const BlackForestLabsIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M8.069 16.724l2.073-3.115 2.074 3.115H8.069zM18.24 20.683l-5.668-8.707h2.177l5.686 8.707h-2.196zM19.74 11.676l2.13-3.19 2.13 3.19h-4.26z" />
   </svg>
 );
+
+export const VercelIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 76 65"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <title>Vercel</title>
+    <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
+  </svg>
+);

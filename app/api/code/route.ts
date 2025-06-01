@@ -63,6 +63,9 @@ export const POST = async (req: Request) => {
       'Do not format the code as Markdown, just return the code as is.',
     ].join('\n'),
     messages,
+    onError: (error) => {
+      console.error(error);
+    },
     onFinish: async ({ usage }) => {
       await trackCreditUsage({
         action: 'code',

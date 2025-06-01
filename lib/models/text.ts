@@ -5,6 +5,7 @@ import { google } from '@ai-sdk/google';
 import { groq } from '@ai-sdk/groq';
 import { mistral } from '@ai-sdk/mistral';
 import { openai } from '@ai-sdk/openai';
+import { vercel } from '@ai-sdk/vercel';
 import { xai } from '@ai-sdk/xai';
 
 import {
@@ -20,6 +21,7 @@ import {
   GroqIcon,
   MistralIcon,
   OpenAiIcon,
+  VercelIcon,
   XaiIcon,
 } from '../icons';
 
@@ -374,6 +376,24 @@ export const textModels: {
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 15;
           const outputCost = (output / million) * 75;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+  },
+
+  {
+    label: 'Vercel',
+    models: [
+      {
+        icon: VercelIcon,
+        id: 'vercel-v0-1.0-md',
+        label: 'v0-1.0-md',
+        model: vercel('v0-1.0-md'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 3;
+          const outputCost = (output / million) * 15;
 
           return inputCost + outputCost;
         },
