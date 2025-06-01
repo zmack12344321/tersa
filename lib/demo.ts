@@ -74,7 +74,6 @@ export const sampleNodes: Node[] = [
     id: 'lMrWEm_K9EbGledg2JzAY',
     type: 'video',
     data: {
-      source: 'transform',
       instructions: 'Make the flowers move softly in the wind.',
       generated: {
         url: '/demo/delphiniums.mp4',
@@ -88,7 +87,6 @@ export const sampleNodes: Node[] = [
     id: 'bKrEf7e5GPMu0-uphit6D',
     type: 'text',
     data: {
-      source: 'transform',
       generated: {
         text: 'The image is a 2D anime-style digital illustration showing a wide, panoramic (16:9 ratio) field of tall, blue delphinium flowers under a bright blue sky with scattered fluffy white clouds. The delphiniums are richly detailed, with layered petals and lush green leaves, creating a vibrant and cheerful atmosphere. The perspective feels open and expansive, emphasizing the endless stretch of flowers and the peacefulness of the clear day.',
       },
@@ -101,7 +99,6 @@ export const sampleNodes: Node[] = [
     id: 'bS3iDAT96T6tlUD549HI4',
     type: 'image',
     data: {
-      source: 'transform',
       generated: {
         url: '/demo/delphiniums-fantasy.jpg',
         type: 'image/jpeg',
@@ -115,7 +112,6 @@ export const sampleNodes: Node[] = [
     id: '-UWhefN0_XOKHo7XbN2pY',
     type: 'audio',
     data: {
-      source: 'transform',
       generated: {
         url: '/demo/delphiniums-transform.mp3',
         type: 'audio/mpeg',
