@@ -1,3 +1,4 @@
+import * as schema from '@/schema';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { env } from './env';
@@ -19,4 +20,4 @@ if (process.env.NODE_ENV !== 'production') {
   client = postgres(env.POSTGRES_URL, { prepare: false });
 }
 
-export const database = drizzle(client);
+export const database = drizzle({ client, schema });

@@ -179,11 +179,9 @@ export const generateImageAction = async ({
         ? downloadUrl.publicUrl
         : `data:${image.mimeType};base64,${Buffer.from(image.uint8Array).toString('base64')}`;
 
-    const allProjects = await database
-      .select()
-      .from(projects)
-      .where(eq(projects.id, projectId));
-    const project = allProjects.at(0);
+    const project = await database.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
 
     if (!project) {
       throw new Error('Project not found');

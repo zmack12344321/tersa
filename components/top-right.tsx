@@ -14,11 +14,9 @@ type TopRightProps = {
 
 export const TopRight = async ({ id }: TopRightProps) => {
   const profile = await currentUserProfile();
-  const allProjects = await database
-    .select()
-    .from(projects)
-    .where(eq(projects.id, id));
-  const project = allProjects.at(0);
+  const project = await database.query.projects.findFirst({
+    where: eq(projects.id, id),
+  });
 
   if (!profile || !project) {
     return null;

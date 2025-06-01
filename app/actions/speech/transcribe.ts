@@ -22,20 +22,17 @@ export const transcribeAction = async (
   try {
     await getSubscribedUser();
 
-    const project = await database
-      .select({
-        transcriptionModel: projects.transcriptionModel,
-      })
-      .from(projects)
-      .where(eq(projects.id, projectId));
+    const project = await database.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
 
-    if (!project?.length) {
+    if (!project) {
       throw new Error('Project not found');
     }
 
     const model = transcriptionModels
       .flatMap((model) => model.models)
-      .find((model) => model.id === project[0].transcriptionModel);
+      .find((model) => model.id === project.transcriptionModel);
 
     if (!model) {
       throw new Error('Model not found');

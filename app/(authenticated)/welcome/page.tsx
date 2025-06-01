@@ -24,13 +24,9 @@ const Welcome = async () => {
     return redirect('/sign-in');
   }
 
-  const welcomeProjects = await database
-    .select()
-    .from(projects)
-    .where(
-      and(eq(projects.userId, user.id), eq(projects.welcomeProject, true))
-    );
-  let welcomeProject = welcomeProjects.at(0);
+  let welcomeProject = await database.query.projects.findFirst({
+    where: and(eq(projects.userId, user.id), eq(projects.welcomeProject, true)),
+  });
 
   if (!welcomeProject) {
     const response = await createProjectAction('Welcome', true);
@@ -39,13 +35,11 @@ const Welcome = async () => {
       return <div>Error: {response.error}</div>;
     }
 
-    const project = await database
-      .select()
-      .from(projects)
-      .where(eq(projects.id, response.id))
-      .limit(1);
+    const project = await database.query.projects.findFirst({
+      where: eq(projects.id, response.id),
+    });
 
-    welcomeProject = project.at(0);
+    welcomeProject = project;
   }
 
   if (!welcomeProject) {

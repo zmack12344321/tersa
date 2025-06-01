@@ -16,10 +16,9 @@ export const TopLeft = async ({ id }: TopLeftProps) => {
     return null;
   }
 
-  const allProjects = await database
-    .select()
-    .from(projects)
-    .where(eq(projects.userId, user.id));
+  const allProjects = await database.query.projects.findMany({
+    where: eq(projects.userId, user.id),
+  });
 
   if (!allProjects.length) {
     return null;

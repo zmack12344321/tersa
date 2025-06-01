@@ -81,11 +81,9 @@ export async function POST(req: Request) {
           throw new Error('User ID not found');
         }
 
-        const allProfiles = await database
-          .select()
-          .from(profile)
-          .where(eq(profile.id, subscription.metadata.userId));
-        const userProfile = allProfiles.at(0);
+        const userProfile = await database.query.profile.findFirst({
+          where: eq(profile.id, subscription.metadata.userId),
+        });
 
         if (!userProfile) {
           throw new Error('Profile not found');

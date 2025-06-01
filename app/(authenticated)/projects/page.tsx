@@ -26,11 +26,9 @@ const Projects = async () => {
     return redirect('/welcome');
   }
 
-  const allProjects = await database
-    .select()
-    .from(projects)
-    .where(eq(projects.userId, profile.id));
-  let project = allProjects.at(0);
+  let project = await database.query.projects.findFirst({
+    where: eq(projects.userId, profile.id),
+  });
 
   if (!project) {
     const newProject = await createProjectAction('Untitled Project');
@@ -39,17 +37,15 @@ const Projects = async () => {
       throw new Error(newProject.error);
     }
 
-    const newFetchedProject = await database
-      .select()
-      .from(projects)
-      .where(eq(projects.id, newProject.id))
-      .limit(1);
+    const newFetchedProject = await database.query.projects.findFirst({
+      where: eq(projects.id, newProject.id),
+    });
 
-    if (!newFetchedProject.length) {
+    if (!newFetchedProject) {
       throw new Error('Failed to create project');
     }
 
-    project = newFetchedProject[0];
+    project = newFetchedProject;
   }
 
   redirect(`/projects/${project.id}`);

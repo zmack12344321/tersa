@@ -39,16 +39,9 @@ const Project = async ({ params }: ProjectProps) => {
     return redirect('/welcome');
   }
 
-  const allProjects = await database
-    .select()
-    .from(projects)
-    .where(eq(projects.userId, profile.id));
-
-  if (!allProjects.length) {
-    notFound();
-  }
-
-  const project = allProjects.find((project) => project.id === projectId);
+  const project = await database.query.projects.findFirst({
+    where: eq(projects.userId, profile.id),
+  });
 
   if (!project) {
     notFound();

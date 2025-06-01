@@ -75,11 +75,9 @@ export const generateSpeechAction = async ({
       .from('files')
       .getPublicUrl(blob.data.path);
 
-    const allProjects = await database
-      .select()
-      .from(projects)
-      .where(eq(projects.id, projectId));
-    const project = allProjects.at(0);
+    const project = await database.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
 
     if (!project) {
       throw new Error('Project not found');

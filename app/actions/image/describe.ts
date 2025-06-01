@@ -24,16 +24,17 @@ export const describeAction = async (
 
     const openai = new OpenAI();
 
-    const project = await database
-      .select({
-        visionModel: projects.visionModel,
-      })
-      .from(projects)
-      .where(eq(projects.id, projectId));
+    const project = await database.query.projects.findFirst({
+      where: eq(projects.id, projectId),
+    });
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
 
     const model = visionModels
       .flatMap((model) => model.models)
-      .find((model) => model.id === project[0].visionModel);
+      .find((model) => model.id === project.visionModel);
 
     if (!model) {
       throw new Error('Model not found');
