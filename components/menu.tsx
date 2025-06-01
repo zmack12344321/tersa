@@ -113,8 +113,10 @@ export const Menu = () => {
               href="https://github.com/haydenbleasel/tersa"
               target="_blank"
               rel="noopener noreferrer"
+              className="flex items-center justify-between"
             >
-              Send feedback
+              <span>Send feedback</span>
+              <ArrowUpRight size={16} className="text-muted-foreground" />
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
