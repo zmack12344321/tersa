@@ -3,9 +3,9 @@ import { LoginEmailTemplate } from '@/emails/sign-in';
 import { SignupEmailTemplate } from '@/emails/sign-up';
 import { env } from '@/lib/env';
 import { parseError } from '@/lib/error/parse';
-import { resend } from '@/lib/resend';
 import { NextResponse } from 'next/server';
 import type { ReactElement } from 'react';
+import { Resend } from 'resend';
 import { Webhook } from 'standardwebhooks';
 
 type WebhookPayload = {
@@ -33,6 +33,8 @@ type WebhookPayload = {
     token_hash_new: string;
   };
 };
+
+const resend = new Resend(env.RESEND_TOKEN);
 
 export const POST = async (req: Request) => {
   try {
