@@ -1,3 +1,18 @@
+# v1.2.7 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Fix typo ([@haydenbleasel](https://github.com/haydenbleasel))
+- Misc cleanup ([@haydenbleasel](https://github.com/haydenbleasel))
+- Move credits counter to client ([@haydenbleasel](https://github.com/haydenbleasel))
+- Fix Toaster ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.6 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
