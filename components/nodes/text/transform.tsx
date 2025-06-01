@@ -19,7 +19,13 @@ import { ReasoningTunnel } from '@/tunnels/reasoning';
 import { useChat } from '@ai-sdk/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
 import { ClockIcon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
-import { type ChangeEventHandler, type ComponentProps, useEffect } from 'react';
+import {
+  type ChangeEventHandler,
+  type ComponentProps,
+  useCallback,
+  useEffect,
+  useMemo,
+} from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { mutate } from 'swr';
@@ -77,7 +83,7 @@ export const TextTransform = ({
     },
   });
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     const incomers = getIncomers({ id }, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incomers);
     const audioPrompts = getTranscriptionFromAudioNodes(incomers);
@@ -138,16 +144,26 @@ export const TextTransform = ({
         })),
       ],
     });
-  };
+  }, [
+    append,
+    data.instructions,
+    getEdges,
+    getNodes,
+    id,
+    modelId,
+    type,
+    analytics.track,
+    setMessages,
+  ]);
 
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
 
-  const createToolbar = (): ComponentProps<typeof NodeLayout>['toolbar'] => {
-    const toolbar: ComponentProps<typeof NodeLayout>['toolbar'] = [];
+  const toolbar = useMemo(() => {
+    const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];
 
-    toolbar.push({
+    items.push({
       children: (
         <ModelSelector
           value={modelId}
@@ -160,7 +176,7 @@ export const TextTransform = ({
     });
 
     if (status === 'submitted' || status === 'streaming') {
-      toolbar.push({
+      items.push({
         tooltip: 'Stop',
         children: (
           <Button
@@ -174,7 +190,7 @@ export const TextTransform = ({
         ),
       });
     } else if (messages.length || data.generated?.text) {
-      toolbar.push({
+      items.push({
         tooltip: 'Regenerate',
         children: (
           <Button
@@ -188,7 +204,7 @@ export const TextTransform = ({
         ),
       });
     } else {
-      toolbar.push({
+      items.push({
         tooltip: 'Generate',
         children: (
           <Button
@@ -204,7 +220,7 @@ export const TextTransform = ({
     }
 
     if (data.updatedAt) {
-      toolbar.push({
+      items.push({
         tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
           dateStyle: 'short',
           timeStyle: 'short',
@@ -217,8 +233,19 @@ export const TextTransform = ({
       });
     }
 
-    return toolbar;
-  };
+    return items;
+  }, [
+    data.generated?.text,
+    data.updatedAt,
+    handleGenerate,
+    updateNodeData,
+    modelId,
+    id,
+    messages,
+    project?.id,
+    status,
+    stop,
+  ]);
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
 
@@ -233,13 +260,7 @@ export const TextTransform = ({
   }, [messages, reasoning, status, setReasoning]);
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      title={title}
-      type={type}
-      toolbar={createToolbar()}
-    >
+    <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
       <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-4">
         {status === 'submitted' && (
           <div className="flex flex-col gap-2">
