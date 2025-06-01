@@ -1,3 +1,16 @@
+# v1.2.3 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Automatically switch between primitive and transform ([@haydenbleasel](https://github.com/haydenbleasel))
+- Resolves #80 ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.2 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
