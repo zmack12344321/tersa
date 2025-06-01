@@ -8,6 +8,7 @@ import { handleError } from '@/lib/error/handle';
 import { uploadFile } from '@/lib/upload';
 import { useProject } from '@/providers/project';
 import { useReactFlow } from '@xyflow/react';
+import { Loader2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import type { ImageNodeProps } from '.';
@@ -68,7 +69,12 @@ export const ImagePrimitive = ({
   return (
     <NodeLayout id={id} data={data} type={type} title={title}>
       {isUploading && (
-        <Skeleton className="aspect-video w-full animate-pulse" />
+        <Skeleton className="flex aspect-video w-full animate-pulse items-center justify-center">
+          <Loader2Icon
+            size={16}
+            className="size-4 animate-spin text-muted-foreground"
+          />
+        </Skeleton>
       )}
       {!isUploading && data.content && (
         <Image
