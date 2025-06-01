@@ -45,15 +45,9 @@ export const NodeLayout = ({
   title,
   className,
 }: NodeLayoutProps) => {
-  const { deleteElements, setCenter, getNode, updateNodeData, updateNode } =
-    useReactFlow();
+  const { deleteElements, setCenter, getNode, updateNode } = useReactFlow();
   const { duplicateNode } = useNodeOperations();
   const [showData, setShowData] = useState(false);
-
-  const handleSourceChange = (value: boolean) =>
-    updateNodeData(id, {
-      source: value ? 'transform' : 'primitive',
-    });
 
   const handleFocus = () => {
     const node = getNode(id);

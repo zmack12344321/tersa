@@ -116,8 +116,6 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     for (const node of nodes) {
       const incomers = getIncomers(node, nodes, edges);
 
-      console.log(incomers.length);
-
       if (incomers.length === 0) {
         updateNode(node.id, { data: { source: 'primitive' } });
       } else {
@@ -302,10 +300,7 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
 
   const addDropNode = useCallback<MouseEventHandler<HTMLDivElement>>(
     (event) => {
-      if (
-        !(event.target instanceof HTMLDivElement) ||
-        !event.target.classList.contains('react-flow__pane')
-      ) {
+      if (!(event.target instanceof HTMLElement)) {
         return;
       }
 
