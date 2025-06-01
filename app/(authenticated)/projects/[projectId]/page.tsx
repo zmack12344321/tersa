@@ -40,7 +40,7 @@ const Project = async ({ params }: ProjectProps) => {
   }
 
   const project = await database.query.projects.findFirst({
-    where: eq(projects.userId, profile.id),
+    where: eq(projects.id, projectId),
   });
 
   if (!project) {
