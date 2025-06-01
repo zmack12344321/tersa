@@ -47,7 +47,7 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
       type,
       position,
       data: {
-        source: 'transform',
+        source: 'primitive',
         ...(nodeData ? nodeData : {}),
       },
       origin: [0, 0.5],
