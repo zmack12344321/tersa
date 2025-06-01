@@ -1,3 +1,15 @@
+# v1.2.2 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update providers.tsx ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.1 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
