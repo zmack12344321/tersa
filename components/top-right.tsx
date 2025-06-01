@@ -4,7 +4,7 @@ import { projects } from '@/schema';
 import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { CreditsCounter } from './credits-counter';
+import { CreditCounter } from './credits-counter';
 import { Menu } from './menu';
 import { Button } from './ui/button';
 
@@ -31,7 +31,7 @@ export const TopRight = async ({ id }: TopRightProps) => {
               <p className="text-muted-foreground text-sm">Loading...</p>
             }
           >
-            <CreditsCounter />
+            <CreditCounter />
           </Suspense>
         </div>
       ) : (

@@ -2,15 +2,11 @@
 
 import { getCredits } from '@/app/actions/credits/get';
 import { Button } from '@/components/ui/button';
+import { useSubscription } from '@/providers/subscription';
 import NumberFlow from '@number-flow/react';
-import { CoinsIcon } from 'lucide-react';
+import { CoinsIcon, Loader2Icon } from 'lucide-react';
 import Link from 'next/link';
 import useSWR from 'swr';
-
-type CreditsClientProps = {
-  defaultCredits: number;
-  canUpgrade: boolean;
-};
 
 const creditsFetcher = async () => {
   const response = await getCredits();
@@ -24,16 +20,18 @@ const creditsFetcher = async () => {
 
 const pluralize = (count: number) => (count === 1 ? 'credit' : 'credits');
 
-export const CreditsClient = ({
-  defaultCredits,
-  canUpgrade,
-}: CreditsClientProps) => {
+export const CreditCounter = () => {
+  const subscription = useSubscription();
   const { data, error } = useSWR('credits', creditsFetcher, {
-    fallbackData: { credits: defaultCredits },
+    revalidateOnMount: true,
   });
 
   if (error) {
     return null;
+  }
+
+  if (!data) {
+    return <Loader2Icon size={16} className="size-4 animate-spin" />;
   }
 
   const label = pluralize(Math.abs(data.credits));
@@ -48,7 +46,7 @@ export const CreditsClient = ({
           data.credits < 0 ? ` ${label} in overage` : ` ${label} remaining`
         }
       />
-      {data.credits <= 0 && canUpgrade && (
+      {data.credits <= 0 && subscription.plan === 'hobby' && (
         <Button size="sm" className="-my-2 -mr-3 ml-1 rounded-full" asChild>
           <Link href="/pricing">Upgrade</Link>
         </Button>
