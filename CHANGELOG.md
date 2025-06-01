@@ -1,3 +1,15 @@
+# v1.2.9 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update Stripe ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.8 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
