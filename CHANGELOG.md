@@ -1,3 +1,21 @@
+# v1.2.8 (Sun Jun 01 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update demo.ts ([@haydenbleasel](https://github.com/haydenbleasel))
+- Update text-demo.tsx ([@haydenbleasel](https://github.com/haydenbleasel))
+- Use connections instead of node sources ([@haydenbleasel](https://github.com/haydenbleasel))
+- Update layout.tsx ([@haydenbleasel](https://github.com/haydenbleasel))
+- Fix feedback link ([@haydenbleasel](https://github.com/haydenbleasel))
+- Fix line consistency ([@haydenbleasel](https://github.com/haydenbleasel))
+- Memoize project selector components ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.7 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
