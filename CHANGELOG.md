@@ -1,3 +1,15 @@
+# v1.2.13 (Fri Jun 06 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update welcome-demo.tsx ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.12 (Sun Jun 01 2025)
 
 #### ⚠️ Pushed to `main`
