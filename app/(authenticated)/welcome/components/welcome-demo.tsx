@@ -111,10 +111,9 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          Fantastic! That's the first node. Notice the little switch up the top
-          right of the node is off? We can this a "human" node because you
-          control the content. Try writing a few words or sentences in the node.
-          Our favourite is "a wild field of delphiniums".
+          Fantastic! That's the first node. Because there's no incoming nodes,
+          you control the content. Try writing a few words or sentences in the
+          node. Our favourite is "a wild field of delphiniums".
         </>
       ),
       complete: hasTextNode && hasFilledTextNode,
@@ -136,9 +135,9 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          You're getting the hang of it! This Image node is an AI node. You can
-          tell because the switch is on. AI nodes generate content based on the
-          nodes they're connected to.
+          You're getting the hang of it! Because this node has incoming nodes
+          connected to it, it will generate content with AI based on the
+          incoming nodes.
           <br />
           <br />
           You can also add instructions to the Image node. This will be used to
