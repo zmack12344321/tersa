@@ -1,3 +1,17 @@
+# v1.2.14 (Sat Jun 07 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update package.json ([@haydenbleasel](https://github.com/haydenbleasel))
+- Update shadcn/ui ([@haydenbleasel](https://github.com/haydenbleasel))
+- Bump deps ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.13 (Fri Jun 06 2025)
 
 #### ⚠️ Pushed to `main`
