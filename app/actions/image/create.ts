@@ -97,9 +97,7 @@ export const generateImageAction = async ({
   try {
     const client = await createClient();
     const user = await getSubscribedUser();
-    const model = imageModels
-      .flatMap((m) => m.models)
-      .find((m) => m.id === modelId);
+    const model = imageModels[modelId];
 
     if (!model) {
       throw new Error('Model not found');
@@ -107,7 +105,9 @@ export const generateImageAction = async ({
 
     let image: Experimental_GenerateImageResult['image'] | undefined;
 
-    if (model.model.modelId === 'gpt-image-1') {
+    const provider = model.providers[0];
+
+    if (provider.model.modelId === 'gpt-image-1') {
       const generatedImageResponse = await generateGptImage1Image({
         instructions,
         prompt,
@@ -116,7 +116,7 @@ export const generateImageAction = async ({
 
       await trackCreditUsage({
         action: 'generate_image',
-        cost: model.getCost({
+        cost: provider.getCost({
           ...generatedImageResponse.usage,
           size,
         }),
@@ -125,7 +125,7 @@ export const generateImageAction = async ({
       image = generatedImageResponse.image;
     } else {
       const generatedImageResponse = await generateImage({
-        model: model.model,
+        model: provider.model,
         prompt: [
           'Generate an image based on the following instructions and context.',
           '---',
@@ -140,7 +140,7 @@ export const generateImageAction = async ({
 
       await trackCreditUsage({
         action: 'generate_image',
-        cost: model.getCost({
+        cost: provider.getCost({
           size,
         }),
       });
@@ -187,9 +187,7 @@ export const generateImageAction = async ({
       throw new Error('Project not found');
     }
 
-    const visionModel = visionModels
-      .flatMap((model) => model.models)
-      .find((model) => model.id === project.visionModel);
+    const visionModel = visionModels[project.visionModel];
 
     if (!visionModel) {
       throw new Error('Vision model not found');
@@ -197,7 +195,7 @@ export const generateImageAction = async ({
 
     const openai = new OpenAI();
     const response = await openai.chat.completions.create({
-      model: visionModel.model.modelId,
+      model: visionModel.providers[0].model.modelId,
       messages: [
         {
           role: 'user',

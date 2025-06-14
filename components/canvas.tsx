@@ -10,24 +10,26 @@ import { NodeOperationsProvider } from '@/providers/node-operations';
 import { useProject } from '@/providers/project';
 import {
   Background,
-  type FinalConnectionState,
+  type IsValidConnection,
+  type OnConnect,
+  type OnConnectEnd,
+  type OnConnectStart,
+  type OnEdgesChange,
+  type OnNodesChange,
   ReactFlow,
   type ReactFlowProps,
   getOutgoers,
   useReactFlow,
 } from '@xyflow/react';
 import {
-  type Connection,
   type Edge,
-  type EdgeChange,
   type Node,
-  type NodeChange,
   applyEdgeChanges,
   applyNodeChanges,
 } from '@xyflow/react';
 import { BoxSelectIcon, PlusIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import type { MouseEventHandler } from 'react';
+import type { MouseEvent, MouseEventHandler } from 'react';
 import { useCallback, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDebouncedCallback } from 'use-debounce';
@@ -96,8 +98,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     }
   }, 1000);
 
-  const handleNodesChange = useCallback(
-    (changes: NodeChange<Node>[]) => {
+  const handleNodesChange = useCallback<OnNodesChange>(
+    (changes) => {
       setNodes((current) => {
         const updated = applyNodeChanges(changes, current);
         save();
@@ -108,8 +110,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     [save, onNodesChange]
   );
 
-  const handleEdgesChange = useCallback(
-    (changes: EdgeChange<Edge>[]) => {
+  const handleEdgesChange = useCallback<OnEdgesChange>(
+    (changes) => {
       setEdges((current) => {
         const updated = applyEdgeChanges(changes, current);
         save();
@@ -120,8 +122,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     [save, onEdgesChange]
   );
 
-  const handleConnect = useCallback(
-    (connection: Connection) => {
+  const handleConnect = useCallback<OnConnect>(
+    (connection) => {
       const newEdge: Edge = {
         id: nanoid(),
         type: 'animated',
@@ -187,8 +189,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     [addNode, getNode, updateNode]
   );
 
-  const handleConnectEnd = useCallback(
-    (event: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
+  const handleConnectEnd = useCallback<OnConnectEnd>(
+    (event, connectionState) => {
       // when a connection is dropped on the pane it's not valid
 
       if (!connectionState.isValid) {
@@ -223,8 +225,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     [addNode, screenToFlowPosition]
   );
 
-  const isValidConnection = useCallback(
-    (connection: Edge | Connection) => {
+  const isValidConnection = useCallback<IsValidConnection>(
+    (connection) => {
       // we are using getNodes and getEdges helpers here
       // to make sure we create isValidConnection function only once
       const nodes = getNodes();
@@ -270,7 +272,7 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     [getNodes, getEdges]
   );
 
-  const handleConnectStart = useCallback(() => {
+  const handleConnectStart = useCallback<OnConnectStart>(() => {
     // Delete any drop nodes when starting to drag a node
     setNodes((nds: Node[]) => nds.filter((n: Node) => n.type !== 'drop'));
     setEdges((eds: Edge[]) => eds.filter((e: Edge) => e.type !== 'temporary'));
@@ -343,6 +345,15 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     }
   }, [getNodes, duplicateNode]);
 
+  const handleContextMenu = useCallback((event: MouseEvent) => {
+    if (
+      !(event.target instanceof HTMLElement) ||
+      !event.target.classList.contains('react-flow__pane')
+    ) {
+      event.preventDefault();
+    }
+  }, []);
+
   useHotkeys('meta+a', handleSelectAll, {
     enableOnContentEditable: false,
     preventDefault: true,
@@ -367,7 +378,7 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     <NodeOperationsProvider addNode={addNode} duplicateNode={duplicateNode}>
       <NodeDropzoneProvider>
         <ContextMenu>
-          <ContextMenuTrigger>
+          <ContextMenuTrigger onContextMenu={handleContextMenu}>
             <ReactFlow
               deleteKeyCode={['Backspace', 'Delete']}
               nodes={nodes}

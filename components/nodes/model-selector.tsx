@@ -1,14 +1,16 @@
 import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxGroup,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxTrigger,
-} from '@/components/ui/kibo-ui/combobox';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import type { PriceBracket } from '@/lib/models/text';
+import {
+  type TersaModel,
+  type TersaProvider,
+  providers,
+} from '@/lib/providers';
 import { cn } from '@/lib/utils';
 import {
   type SubscriptionContextType,
@@ -20,26 +22,26 @@ import {
   ChevronsDownIcon,
   ChevronsUpIcon,
 } from 'lucide-react';
-import { type ComponentType, type SVGProps, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from '../ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '../ui/command';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 type ModelSelectorProps = {
   id?: string;
+  options: Record<string, TersaModel>;
   value: string;
   width?: number | string;
   className?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
-  options: {
-    label: string;
-    models: {
-      icon?: ComponentType<SVGProps<SVGSVGElement>>;
-      id: string;
-      label: string;
-      disabled?: boolean;
-      priceIndicator?: PriceBracket;
-    }[];
-  }[];
 };
 
 const getCostBracketIcon = (bracket: PriceBracket, className?: string) => {
@@ -93,7 +95,7 @@ const getCostBracketLabel = (bracket: PriceBracket) => {
 };
 
 const getModelDisabled = (
-  model: ModelSelectorProps['options'][number]['models'][number],
+  model: TersaModel,
   plan: SubscriptionContextType['plan']
 ) => {
   if (model.disabled) {
@@ -110,6 +112,29 @@ const getModelDisabled = (
   return false;
 };
 
+const CommandGroupHeading = ({ data }: { data: TersaProvider }) => (
+  <div className="flex items-center gap-2">
+    <data.icon className="size-4 shrink-0" />
+    <span className="block truncate">{data.name}</span>
+  </div>
+);
+
+const ModelIcon = ({
+  data,
+  chef,
+  className,
+}: {
+  data: TersaModel;
+  chef: TersaProvider;
+  className?: string;
+}) => {
+  if (data.icon) {
+    return <data.icon className={cn('size-4 shrink-0', className)} />;
+  }
+
+  return <chef.icon className={cn('size-4 shrink-0', className)} />;
+};
+
 export const ModelSelector = ({
   id,
   value,
@@ -121,85 +146,129 @@ export const ModelSelector = ({
 }: ModelSelectorProps) => {
   const [open, setOpen] = useState(false);
   const { plan } = useSubscription();
-  const activeModel = options
-    .flatMap((option) => option.models)
-    .find((model) => model.id === value);
+  const activeModel = options[value];
+
+  useEffect(() => {
+    if (value && !options[value]) {
+      onChange?.(Object.keys(options)[0]);
+    }
+  }, [value, options, onChange]);
+
+  const groupedOptions = Object.entries(options).reduce(
+    (acc, [id, model]) => {
+      const chef = model.chef.id;
+
+      if (!acc[chef]) {
+        acc[chef] = {};
+      }
+
+      acc[chef][id] = model;
+      return acc;
+    },
+    {} as Record<string, Record<string, TersaModel>>
+  );
+
+  const sortedChefs = Object.keys(groupedOptions).sort((a, b) => {
+    const aName = Object.values(providers)
+      .find((provider) => provider.id === a)
+      ?.name.toLowerCase();
+    const bName = Object.values(providers)
+      .find((provider) => provider.id === b)
+      ?.name.toLowerCase();
+
+    return aName?.localeCompare(bName ?? '') ?? 0;
+  });
 
   return (
-    <Combobox
-      open={open}
-      onOpenChange={setOpen}
-      value={value}
-      onValueChange={onChange}
-      data={options
-        .flatMap((option) => option.models)
-        .map((model) => ({
-          label: model.label,
-          value: model.id,
-        }))}
-      type="model"
-    >
-      <ComboboxTrigger
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
         className={className}
         id={id}
         style={{ width }}
         disabled={disabled}
+        asChild
       >
-        {activeModel && (
-          <div className="flex w-full items-center gap-2 overflow-hidden">
-            {activeModel.icon && (
-              <activeModel.icon className="size-4 shrink-0" />
-            )}
-            <span className="block truncate">{activeModel.label}</span>
+        <Button variant="outline" className="w-full">
+          {activeModel && (
+            <div className="flex w-full items-center gap-2 overflow-hidden">
+              <ModelIcon data={activeModel} chef={activeModel.chef} />
+              <span className="block truncate">{activeModel.label}</span>
+            </div>
+          )}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="p-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Select a model</DialogTitle>
+        </DialogHeader>
+        <Command>
+          <div className="[&>div]:h-12">
+            <CommandInput placeholder="Search for a model..." />
           </div>
-        )}
-      </ComboboxTrigger>
-      <ComboboxContent
-        popoverOptions={{
-          sideOffset: 8,
-        }}
-      >
-        <ComboboxInput />
-        <ComboboxList>
-          <ComboboxEmpty />
-          {options
-            .filter((option) => option.models.length)
-            .map((option) => (
-              <ComboboxGroup key={option.label} heading={option.label}>
-                {option.models.map((model) => (
-                  <ComboboxItem
-                    key={model.id}
-                    value={model.id}
+          <CommandList>
+            <CommandEmpty />
+            {sortedChefs.map((chef) => (
+              <CommandGroup
+                key={chef}
+                heading={
+                  <CommandGroupHeading
+                    data={providers[chef as keyof typeof providers]}
+                  />
+                }
+              >
+                {Object.entries(groupedOptions[chef]).map(([id, model]) => (
+                  <CommandItem
+                    key={id}
+                    value={id}
                     onSelect={() => {
-                      onChange?.(model.id);
+                      onChange?.(id);
                       setOpen(false);
                     }}
                     disabled={getModelDisabled(model, plan)}
                     className={cn(
-                      value === model.id &&
+                      value === id &&
                         'bg-primary text-primary-foreground data-[selected=true]:bg-primary/80 data-[selected=true]:text-primary-foreground'
                     )}
                   >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      {model.icon && (
-                        <model.icon
-                          className={cn(
-                            'size-4 shrink-0',
-                            value === model.id && 'text-primary-foreground'
-                          )}
-                        />
-                      )}
+                    <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                      <ModelIcon
+                        data={model}
+                        chef={providers[chef as keyof typeof providers]}
+                        className={
+                          value === id ? 'text-primary-foreground' : ''
+                        }
+                      />
                       <span className="block truncate">{model.label}</span>
                     </div>
-                    {model.priceIndicator && (
+                    {model.providers.map((provider, index) => (
+                      <div
+                        key={provider.id}
+                        className={cn(index && 'opacity-50')}
+                      >
+                        <div
+                          className={cn(
+                            'flex size-4 items-center justify-center rounded-full bg-secondary',
+                            value === id && 'bg-primary-foreground/10'
+                          )}
+                        >
+                          <provider.icon
+                            className={cn(
+                              'size-3 shrink-0',
+                              value === id
+                                ? 'text-primary-foreground'
+                                : 'text-muted-foreground'
+                            )}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    {model.priceIndicator ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div className="ml-auto">
+                          <div>
                             {getCostBracketIcon(
                               model.priceIndicator,
-                              value === model.id
-                                ? 'text-primary-foreground'
-                                : ''
+                              value === id ? 'text-primary-foreground' : ''
                             )}
                           </div>
                         </TooltipTrigger>
@@ -207,13 +276,16 @@ export const ModelSelector = ({
                           <p>{getCostBracketLabel(model.priceIndicator)}</p>
                         </TooltipContent>
                       </Tooltip>
+                    ) : (
+                      <div className="size-4" />
                     )}
-                  </ComboboxItem>
+                  </CommandItem>
                 ))}
-              </ComboboxGroup>
+              </CommandGroup>
             ))}
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
+          </CommandList>
+        </Command>
+      </DialogContent>
+    </Dialog>
   );
 };

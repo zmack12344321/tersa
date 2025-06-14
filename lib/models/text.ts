@@ -7,52 +7,34 @@ import { mistral } from '@ai-sdk/mistral';
 import { openai } from '@ai-sdk/openai';
 import { vercel } from '@ai-sdk/vercel';
 import { xai } from '@ai-sdk/xai';
-
 import {
   type LanguageModelV1,
   extractReasoningMiddleware,
   wrapLanguageModel,
 } from 'ai';
-import {
-  AnthropicIcon,
-  CohereIcon,
-  DeepSeekIcon,
-  GoogleIcon,
-  GroqIcon,
-  MistralIcon,
-  OpenAiIcon,
-  VercelIcon,
-  XaiIcon,
-} from '../icons';
+import { ClaudeIcon, GeminiIcon, GemmaIcon, GrokIcon } from '../icons';
+import { type TersaModel, type TersaProvider, providers } from '../providers';
 
 export type PriceBracket = 'lowest' | 'low' | 'high' | 'highest';
 
 const million = 1000000;
 
-// Median input cost: 2.7
-export const textModels: {
-  label: string;
-  models: {
-    icon: typeof OpenAiIcon;
-    id: string;
-    label: string;
+type TersaTextModel = TersaModel & {
+  providers: (TersaProvider & {
     model: LanguageModelV1;
     getCost: ({ input, output }: { input: number; output: number }) => number;
-    legacy?: boolean;
-    priceIndicator?: PriceBracket;
-    disabled?: boolean;
-    default?: boolean;
-  }[];
-}[] = [
-  {
-    label: 'OpenAI',
-    models: [
+  })[];
+};
+
+// Median input cost: 2.7
+export const textModels: Record<string, TersaTextModel> = {
+  'gpt-3.5-turbo': {
+    label: 'GPT-3.5 Turbo',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-3.5-turbo',
-        label: 'GPT-3.5 Turbo',
+        ...providers.openai,
         model: openai('gpt-3.5-turbo'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.5;
           const outputCost = (output / million) * 1.5;
@@ -60,12 +42,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'gpt-4': {
+    label: 'GPT-4',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-4',
-        label: 'GPT-4',
+        ...providers.openai,
         model: openai('gpt-4'),
-        priceIndicator: 'highest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 30;
           const outputCost = (output / million) * 60;
@@ -73,10 +59,15 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'highest',
+  },
+  'gpt-4.1': {
+    label: 'GPT-4.1',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-4.1',
-        label: 'GPT-4.1',
+        ...providers.openai,
         model: openai('gpt-4.1'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2;
@@ -85,12 +76,15 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+  },
+  'gpt-4.1-mini': {
+    label: 'GPT-4.1 Mini',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-4.1-mini',
-        label: 'GPT-4.1 Mini',
+        ...providers.openai,
         model: openai('gpt-4.1-mini'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.4;
           const outputCost = (output / million) * 1.6;
@@ -98,12 +92,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'gpt-4.1-nano': {
+    label: 'GPT-4.1 Nano',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-4.1-nano',
-        label: 'GPT-4.1 Nano',
+        ...providers.openai,
         model: openai('gpt-4.1-nano'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.1;
           const outputCost = (output / million) * 0.4;
@@ -111,12 +109,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'gpt-4o': {
+    label: 'GPT-4o',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-4o',
-        label: 'GPT-4o',
+        ...providers.openai,
         model: openai('gpt-4o'),
-        default: true,
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2.5;
           const outputCost = (output / million) * 10;
@@ -124,12 +126,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    default: true,
+  },
+  'gpt-4o-mini': {
+    label: 'GPT-4o Mini',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-gpt-4o-mini',
-        label: 'GPT-4o Mini',
+        ...providers.openai,
         model: openai('gpt-4o-mini'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.15;
           const outputCost = (output / million) * 0.6;
@@ -137,12 +143,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  o1: {
+    label: 'O1',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-o1',
-        label: 'O1',
+        ...providers.openai,
         model: openai('o1'),
-        priceIndicator: 'highest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 15;
           const outputCost = (output / million) * 60;
@@ -150,51 +160,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'highest',
+  },
+  'o1-mini': {
+    label: 'O1 Mini',
+    chef: providers.openai,
+    providers: [
       {
-        icon: OpenAiIcon,
-        id: 'openai-o1-mini',
-        label: 'O1 Mini',
+        ...providers.openai,
         model: openai('o1-mini'),
-        priceIndicator: 'low',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 1.1;
-          const outputCost = (output / million) * 4.4;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: OpenAiIcon,
-        id: 'openai-o3',
-        label: 'O3',
-        model: openai('o3'),
-        priceIndicator: 'high',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 10;
-          const outputCost = (output / million) * 40;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: OpenAiIcon,
-        id: 'openai-o3-mini',
-        label: 'O3 Mini',
-        model: openai('o3-mini'),
-        priceIndicator: 'low',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 1.1;
-          const outputCost = (output / million) * 4.4;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: OpenAiIcon,
-        id: 'openai-o4-mini',
-        label: 'O4 Mini',
-        model: openai('o4-mini'),
-        priceIndicator: 'low',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 1.1;
           const outputCost = (output / million) * 4.4;
@@ -203,14 +178,66 @@ export const textModels: {
         },
       },
     ],
+    priceIndicator: 'low',
   },
-  {
-    label: 'xAI',
-    models: [
+  o3: {
+    label: 'O3',
+    chef: providers.openai,
+    providers: [
       {
-        icon: XaiIcon,
-        id: 'xai-grok-3',
-        label: 'Grok-3',
+        ...providers.openai,
+        model: openai('o3'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 2;
+          const outputCost = (output / million) * 8;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'high',
+  },
+  'o3-mini': {
+    label: 'O3 Mini',
+    chef: providers.openai,
+    providers: [
+      {
+        ...providers.openai,
+        model: openai('o3-mini'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 1.1;
+          const outputCost = (output / million) * 4.4;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'low',
+  },
+  'o4-mini': {
+    label: 'O4 Mini',
+    chef: providers.openai,
+    providers: [
+      {
+        ...providers.openai,
+        model: openai('o4-mini'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 1.1;
+          const outputCost = (output / million) * 4.4;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'low',
+  },
+  'grok-3': {
+    icon: GrokIcon,
+    label: 'Grok-3',
+    chef: providers.xai,
+    providers: [
+      {
+        ...providers.xai,
         model: xai('grok-3'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 3;
@@ -219,12 +246,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+  },
+  'grok-3-fast': {
+    icon: GrokIcon,
+    label: 'Grok-3 Fast',
+    chef: providers.xai,
+    providers: [
       {
-        icon: XaiIcon,
-        id: 'xai-grok-3-fast',
-        label: 'Grok-3 Fast',
+        ...providers.xai,
         model: xai('grok-3-fast'),
-        priceIndicator: 'high',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 5;
           const outputCost = (output / million) * 25;
@@ -232,12 +263,17 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'high',
+  },
+  'grok-3-mini': {
+    icon: GrokIcon,
+    label: 'Grok-3 Mini',
+    chef: providers.xai,
+    providers: [
       {
-        icon: XaiIcon,
-        id: 'xai-grok-3-mini',
-        label: 'Grok-3 Mini',
+        ...providers.xai,
         model: xai('grok-3-mini'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.3;
           const outputCost = (output / million) * 0.5;
@@ -245,12 +281,17 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'grok-3-mini-fast': {
+    icon: GrokIcon,
+    label: 'Grok-3 Mini Fast',
+    chef: providers.xai,
+    providers: [
       {
-        icon: XaiIcon,
-        id: 'xai-grok-3-mini-fast',
-        label: 'Grok-3 Mini Fast',
+        ...providers.xai,
         model: xai('grok-3-mini-fast'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.6;
           const outputCost = (output / million) * 4;
@@ -258,10 +299,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'grok-2': {
+    icon: GrokIcon,
+    label: 'Grok 2',
+    chef: providers.xai,
+    providers: [
       {
-        icon: XaiIcon,
-        id: 'xai-grok-2',
-        label: 'Grok 2',
+        ...providers.xai,
         model: xai('grok-2'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2;
@@ -270,12 +317,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+  },
+  'grok-beta': {
+    icon: GrokIcon,
+    label: 'Grok Beta',
+    chef: providers.xai,
+    providers: [
       {
-        icon: XaiIcon,
-        id: 'xai-grok-beta',
-        label: 'Grok Beta',
+        ...providers.xai,
         model: xai('grok-beta'),
-        priceIndicator: 'high',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 5;
           const outputCost = (output / million) * 15;
@@ -284,95 +335,17 @@ export const textModels: {
         },
       },
     ],
+    priceIndicator: 'high',
   },
 
-  {
-    label: 'Anthropic',
-    models: [
+  'claude-4-opus-20250514': {
+    icon: ClaudeIcon,
+    label: 'Claude 4 Opus',
+    chef: providers.anthropic,
+    providers: [
       {
-        icon: AnthropicIcon,
-        id: 'anthropic-claude-4-opus-20250514',
-        label: 'Claude 4 Opus',
+        ...providers.anthropic,
         model: anthropic('claude-4-opus-20250514'),
-        priceIndicator: 'highest',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 15;
-          const outputCost = (output / million) * 75;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: AnthropicIcon,
-        id: 'anthropic-claude-4-sonnet-20250514',
-        label: 'Claude 4 Sonnet',
-        model: anthropic('claude-4-sonnet-20250514'),
-        priceIndicator: 'low',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 3;
-          const outputCost = (output / million) * 15;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: AnthropicIcon,
-        id: 'anthropic-claude-3-5-haiku-latest',
-        label: 'Claude 3.5 Haiku',
-        model: anthropic('claude-3-5-haiku-latest'),
-        priceIndicator: 'low',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.8;
-          const outputCost = (output / million) * 4;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: AnthropicIcon,
-        id: 'anthropic-claude-3-5-sonnet-latest',
-        label: 'Claude 3.5 Sonnet',
-        model: anthropic('claude-3-5-sonnet-latest'),
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 3;
-          const outputCost = (output / million) * 15;
-
-          return inputCost + outputCost;
-        },
-        legacy: true,
-      },
-      {
-        icon: AnthropicIcon,
-        id: 'anthropic-claude-3-haiku-20240307',
-        label: 'Claude 3 Haiku',
-        model: anthropic('claude-3-haiku-20240307'),
-        priceIndicator: 'lowest',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.25;
-          const outputCost = (output / million) * 1.25;
-
-          return inputCost + outputCost;
-        },
-        legacy: true,
-      },
-      {
-        icon: AnthropicIcon,
-        id: 'anthropic-claude-3-7-sonnet-20250219',
-        label: 'Claude 3.7 Sonnet',
-        model: anthropic('claude-3-7-sonnet-20250219'),
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 3;
-          const outputCost = (output / million) * 15;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: AnthropicIcon,
-        id: 'anthropic-claude-3-opus-latest',
-        label: 'Claude 3 Opus',
-        model: anthropic('claude-3-opus-latest'),
-        priceIndicator: 'highest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 15;
           const outputCost = (output / million) * 75;
@@ -381,15 +354,123 @@ export const textModels: {
         },
       },
     ],
+    priceIndicator: 'highest',
+  },
+  'claude-4-sonnet-20250514': {
+    icon: ClaudeIcon,
+    label: 'Claude 4 Sonnet',
+    chef: providers.anthropic,
+    providers: [
+      {
+        ...providers.anthropic,
+        model: anthropic('claude-4-sonnet-20250514'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 3;
+          const outputCost = (output / million) * 15;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'low',
+  },
+  'claude-3-5-haiku-latest': {
+    icon: ClaudeIcon,
+    label: 'Claude 3.5 Haiku',
+    chef: providers.anthropic,
+    providers: [
+      {
+        ...providers.anthropic,
+        model: anthropic('claude-3-5-haiku-latest'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.8;
+          const outputCost = (output / million) * 4;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'low',
+  },
+  'claude-3-5-sonnet-latest': {
+    icon: ClaudeIcon,
+    label: 'Claude 3.5 Sonnet',
+    chef: providers.anthropic,
+    providers: [
+      {
+        ...providers.anthropic,
+        model: anthropic('claude-3-5-sonnet-latest'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 3;
+          const outputCost = (output / million) * 15;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    legacy: true,
+  },
+  'claude-3-haiku-20240307': {
+    icon: ClaudeIcon,
+    label: 'Claude 3 Haiku',
+    chef: providers.anthropic,
+    providers: [
+      {
+        ...providers.anthropic,
+        model: anthropic('claude-3-haiku-20240307'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.25;
+          const outputCost = (output / million) * 1.25;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'lowest',
+    legacy: true,
+  },
+  'claude-3-7-sonnet-20250219': {
+    icon: ClaudeIcon,
+    label: 'Claude 3.7 Sonnet',
+    chef: providers.anthropic,
+    providers: [
+      {
+        ...providers.anthropic,
+        model: anthropic('claude-3-7-sonnet-20250219'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 3;
+          const outputCost = (output / million) * 15;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+  },
+  'claude-3-opus-latest': {
+    icon: ClaudeIcon,
+    label: 'Claude 3 Opus',
+    chef: providers.anthropic,
+    providers: [
+      {
+        ...providers.anthropic,
+        model: anthropic('claude-3-opus-latest'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 15;
+          const outputCost = (output / million) * 75;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'highest',
   },
 
-  {
-    label: 'Vercel',
-    models: [
+  'vercel-v0-1.0-md': {
+    label: 'v0-1.0-md',
+    chef: providers.vercel,
+    providers: [
       {
-        icon: VercelIcon,
-        id: 'vercel-v0-1.0-md',
-        label: 'v0-1.0-md',
+        ...providers.vercel,
         model: vercel('v0-1.0-md'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 3;
@@ -401,13 +482,12 @@ export const textModels: {
     ],
   },
 
-  {
-    label: 'Mistral',
-    models: [
+  'pixtral-large-latest': {
+    label: 'Pixtral Large',
+    chef: providers.mistral,
+    providers: [
       {
-        icon: MistralIcon,
-        id: 'mistral-pixtral-large-latest',
-        label: 'Pixtral Large',
+        ...providers.mistral,
         model: mistral('pixtral-large-latest'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2;
@@ -416,10 +496,14 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+  },
+  'mistral-large-latest': {
+    label: 'Mistral Large',
+    chef: providers.mistral,
+    providers: [
       {
-        icon: MistralIcon,
-        id: 'mistral-mistral-large-latest',
-        label: 'Mistral Large',
+        ...providers.mistral,
         model: mistral('mistral-large-latest'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2;
@@ -428,12 +512,15 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+  },
+  'ministral-8b-latest': {
+    label: 'Ministral 8B',
+    chef: providers.mistral,
+    providers: [
       {
-        icon: MistralIcon,
-        id: 'mistral-ministral-8b-latest',
-        label: 'Ministral 8B',
+        ...providers.mistral,
         model: mistral('ministral-8b-latest'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.1;
           const outputCost = (output / million) * 0.1;
@@ -441,12 +528,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'ministral-3b-latest': {
+    label: 'Ministral 3B',
+    chef: providers.mistral,
+    providers: [
       {
-        icon: MistralIcon,
-        id: 'mistral-ministral-3b-latest',
-        label: 'Ministral 3B',
+        ...providers.mistral,
         model: mistral('ministral-3b-latest'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.04;
           const outputCost = (output / million) * 0.04;
@@ -455,17 +546,34 @@ export const textModels: {
         },
       },
     ],
+    priceIndicator: 'lowest',
+  },
+  'mistral-saba-24b': {
+    label: 'Mistral Saba 24B',
+    chef: providers.mistral,
+    providers: [
+      {
+        ...providers.groq,
+        model: groq('mistral-saba-24b'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.79;
+          const outputCost = (output / million) * 0.79;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'lowest',
   },
 
-  {
-    label: 'Google',
-    models: [
+  'gemini-2.0-flash': {
+    icon: GeminiIcon,
+    label: 'Gemini 2.0 Flash',
+    chef: providers.google,
+    providers: [
       {
-        icon: GoogleIcon,
-        id: 'google-gemini-2.0-flash',
-        label: 'Gemini 2.0 Flash',
+        ...providers.google,
         model: google('gemini-2.0-flash-001'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.1;
           const outputCost = (output / million) * 0.4;
@@ -473,12 +581,17 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'gemini-1.5-flash': {
+    icon: GeminiIcon,
+    label: 'Gemini 1.5 Flash',
+    chef: providers.google,
+    providers: [
       {
-        icon: GoogleIcon,
-        id: 'google-gemini-1.5-flash',
-        label: 'Gemini 1.5 Flash',
+        ...providers.google,
         model: google('gemini-1.5-flash'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.15;
           const outputCost = (output / million) * 0.6;
@@ -486,10 +599,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'gemini-1.5-pro': {
+    icon: GeminiIcon,
+    label: 'Gemini 1.5 Pro',
+    chef: providers.google,
+    providers: [
       {
-        icon: GoogleIcon,
-        id: 'google-gemini-1.5-pro',
-        label: 'Gemini 1.5 Pro',
+        ...providers.google,
         model: google('gemini-1.5-pro'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2.5;
@@ -500,16 +619,32 @@ export const textModels: {
       },
     ],
   },
-
-  {
-    label: 'DeepSeek',
-    models: [
+  'gemma2-9b-it': {
+    icon: GemmaIcon,
+    label: 'Gemma 2 9B',
+    chef: providers.google,
+    providers: [
       {
-        icon: DeepSeekIcon,
-        id: 'deepseek-deepseek-chat',
-        label: 'DeepSeek V3 (Chat)',
+        ...providers.groq,
+        model: groq('gemma2-9b-it'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.2;
+          const outputCost = (output / million) * 0.2;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'lowest',
+  },
+
+  'deepseek-v3': {
+    label: 'DeepSeek V3 (Chat)',
+    chef: providers.deepseek,
+    providers: [
+      {
+        ...providers.deepseek,
         model: deepseek('deepseek-chat'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.27;
           const outputCost = (output / million) * 1.1;
@@ -517,12 +652,16 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'deepseek-r1': {
+    label: 'DeepSeek R1 (Reasoner)',
+    chef: providers.deepseek,
+    providers: [
       {
-        icon: DeepSeekIcon,
-        id: 'deepseek-deepseek-reasoner',
-        label: 'DeepSeek R1 (Reasoner)',
+        ...providers.deepseek,
         model: deepseek('deepseek-reasoner'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.55;
           const outputCost = (output / million) * 2.19;
@@ -531,102 +670,18 @@ export const textModels: {
         },
       },
     ],
+    priceIndicator: 'lowest',
   },
-
-  // {
-  //   label: 'Cerebras',
-  //   models: [
-  //     {
-  //       icon: CerebrasIcon,
-  //       id: 'cerebras-llama3.1-8b',
-  //       label: 'Llama 3.1 8B',
-  //       model: cerebras('llama3.1-8b'),
-  //       getCost: ({ input, output }: { input: number; output: number }) => {
-  //         const inputCost = (input / million) * 0.1;
-  //         const outputCost = (output / million) * 0.1;
-
-  //         return inputCost + outputCost;
-  //       },
-  //     },
-  //     {
-  //       icon: CerebrasIcon,
-  //       id: 'cerebras-llama3.3-70b',
-  //       label: 'Llama 3.3 70B',
-  //       model: cerebras('llama3.3-70b'),
-  //       getCost: ({ input, output }: { input: number; output: number }) => {
-  //         const inputCost = (input / million) * 0.85;
-  //         const outputCost = (output / million) * 1.2;
-
-  //         return inputCost + outputCost;
-  //       },
-  //     },
-  //   ],
-  // },
-
-  {
-    label: 'Groq',
-    models: [
+  'deepseek-r1-distill-llama-70b': {
+    label: 'DeepSeek R1 Distill Llama 70B',
+    chef: providers.deepseek,
+    providers: [
       {
-        icon: GroqIcon,
-        id: 'groq-meta-llama/llama-4-scout-17b-16e-instruct',
-        label: 'Llama 4 Scout 17B',
-        model: groq('meta-llama/llama-4-scout-17b-16e-instruct'),
-        priceIndicator: 'lowest',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.11;
-          const outputCost = (output / million) * 0.34;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: GroqIcon,
-        id: 'groq-llama-3.3-70b-versatile',
-        label: 'Llama 3.3 70B Versatile',
-        model: groq('llama-3.3-70b-versatile'),
-        priceIndicator: 'lowest',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.59;
-          const outputCost = (output / million) * 0.79;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: GroqIcon,
-        id: 'groq-llama-3.1-8b-instant',
-        label: 'Llama 3.1 8B Instant',
-        model: groq('llama-3.1-8b-instant'),
-        priceIndicator: 'lowest',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.05;
-          const outputCost = (output / million) * 0.08;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: GroqIcon,
-        id: 'groq-gemma2-9b-it',
-        label: 'Gemma 2 9B',
-        model: groq('gemma2-9b-it'),
-        priceIndicator: 'lowest',
-        getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.2;
-          const outputCost = (output / million) * 0.2;
-
-          return inputCost + outputCost;
-        },
-      },
-      {
-        icon: GroqIcon,
-        id: 'groq-deepseek-r1-distill-llama-70b',
-        label: 'DeepSeek R1 Distill Llama 70B',
+        ...providers.groq,
         model: wrapLanguageModel({
           model: groq('deepseek-r1-distill-llama-70b'),
           middleware: extractReasoningMiddleware({ tagName: 'think' }),
         }),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.75;
           const outputCost = (output / million) * 0.99;
@@ -634,38 +689,68 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+
+  'llama-4-scout-17b-16e-instruct': {
+    label: 'Llama 4 Scout 17B',
+    chef: providers.meta,
+    providers: [
       {
-        icon: GroqIcon,
-        id: 'groq-qwen-2.5-32b',
-        label: 'Qwen 2.5 32B',
-        model: groq('qwen-2.5-32b'),
-        priceIndicator: 'lowest',
+        ...providers.groq,
+        model: groq('meta-llama/llama-4-scout-17b-16e-instruct'),
         getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.29;
-          const outputCost = (output / million) * 0.39;
+          const inputCost = (input / million) * 0.11;
+          const outputCost = (output / million) * 0.34;
 
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'llama-3.3-70b-versatile': {
+    label: 'Llama 3.3 70B Versatile',
+    chef: providers.meta,
+    providers: [
       {
-        icon: GroqIcon,
-        id: 'groq-mistral-saba-24b',
-        label: 'Mistral Saba 24B',
-        model: groq('mistral-saba-24b'),
-        priceIndicator: 'lowest',
+        ...providers.groq,
+        model: groq('llama-3.3-70b-versatile'),
         getCost: ({ input, output }: { input: number; output: number }) => {
-          const inputCost = (input / million) * 0.79;
+          const inputCost = (input / million) * 0.59;
           const outputCost = (output / million) * 0.79;
 
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'llama-3.1-8b-instant': {
+    label: 'Llama 3.1 8B Instant',
+    chef: providers.meta,
+    providers: [
       {
-        icon: GroqIcon,
-        id: 'groq-llama-guard-3-8b',
-        label: 'Llama Guard 3 8B',
+        ...providers.groq,
+        model: groq('llama-3.1-8b-instant'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.05;
+          const outputCost = (output / million) * 0.08;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'llama-guard-3-8b': {
+    label: 'Llama Guard 3 8B',
+    chef: providers.meta,
+    providers: [
+      {
+        ...providers.groq,
         model: groq('llama-guard-3-8b'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.2;
           const outputCost = (output / million) * 0.2;
@@ -674,14 +759,33 @@ export const textModels: {
         },
       },
     ],
+    priceIndicator: 'lowest',
   },
-  {
-    label: 'Cohere',
-    models: [
+
+  'qwen-2.5-32b': {
+    label: 'Qwen 2.5 32B',
+    chef: providers['alibaba-cloud'],
+    providers: [
       {
-        icon: CohereIcon,
-        id: 'cohere-command-a-03-2025',
-        label: 'Command A',
+        ...providers.groq,
+        model: groq('qwen-2.5-32b'),
+        getCost: ({ input, output }: { input: number; output: number }) => {
+          const inputCost = (input / million) * 0.29;
+          const outputCost = (output / million) * 0.39;
+
+          return inputCost + outputCost;
+        },
+      },
+    ],
+    priceIndicator: 'lowest',
+  },
+
+  'command-a-03-2025': {
+    label: 'Command A',
+    chef: providers.cohere,
+    providers: [
+      {
+        ...providers.cohere,
         model: cohere('command-a-03-2025'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2.5;
@@ -690,12 +794,15 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+  },
+  'command-r': {
+    label: 'Command R',
+    chef: providers.cohere,
+    providers: [
       {
-        icon: CohereIcon,
-        id: 'cohere-command-r',
-        label: 'Command R',
+        ...providers.cohere,
         model: cohere('command-r'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.15;
           const outputCost = (output / million) * 0.6;
@@ -703,10 +810,15 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+    priceIndicator: 'lowest',
+  },
+  'command-r-plus': {
+    label: 'Command R Plus',
+    chef: providers.cohere,
+    providers: [
       {
-        icon: CohereIcon,
-        id: 'cohere-command-r-plus',
-        label: 'Command R Plus',
+        ...providers.cohere,
         model: cohere('command-r-plus'),
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 2.5;
@@ -715,12 +827,15 @@ export const textModels: {
           return inputCost + outputCost;
         },
       },
+    ],
+  },
+  'command-r7b-12-2024': {
+    label: 'Command R7B',
+    chef: providers.cohere,
+    providers: [
       {
-        icon: CohereIcon,
-        id: 'cohere-command-r7b-12-2024',
-        label: 'Command R7B',
+        ...providers.cohere,
         model: cohere('command-r7b-12-2024'),
-        priceIndicator: 'lowest',
         getCost: ({ input, output }: { input: number; output: number }) => {
           const inputCost = (input / million) * 0.0375;
           const outputCost = (output / million) * 0.15;
@@ -729,5 +844,6 @@ export const textModels: {
         },
       },
     ],
+    priceIndicator: 'lowest',
   },
-];
+};

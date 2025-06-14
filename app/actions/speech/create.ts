@@ -40,16 +40,16 @@ export const generateSpeechAction = async ({
     const client = await createClient();
     const user = await getSubscribedUser();
 
-    const model = speechModels
-      .flatMap((m) => m.models)
-      .find((m) => m.id === modelId);
+    const model = speechModels[modelId];
 
     if (!model) {
       throw new Error('Model not found');
     }
 
+    const provider = model.providers[0];
+
     const { audio } = await generateSpeech({
-      model: model.model,
+      model: provider.model,
       text,
       outputFormat: 'mp3',
       instructions,
@@ -58,7 +58,7 @@ export const generateSpeechAction = async ({
 
     await trackCreditUsage({
       action: 'generate_speech',
-      cost: model.getCost(text.length),
+      cost: provider.getCost(text.length),
     });
 
     const blob = await client.storage
