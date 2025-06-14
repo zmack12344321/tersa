@@ -1,3 +1,15 @@
+# v1.3.1 (Sat Jun 14 2025)
+
+#### 🐛 Bug Fix
+
+- Bump brace-expansion from 2.0.1 to 2.0.2 in the npm_and_yarn group [#96](https://github.com/haydenbleasel/tersa/pull/96) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
 # v1.3.0 (Sat Jun 14 2025)
 
 #### 🚀 Enhancement
