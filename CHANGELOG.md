@@ -1,3 +1,15 @@
+# v1.3.0 (Sat Jun 14 2025)
+
+#### 🚀 Enhancement
+
+- Chef-model [#95](https://github.com/haydenbleasel/tersa/pull/95) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.2.14 (Sat Jun 07 2025)
 
 #### ⚠️ Pushed to `main`
