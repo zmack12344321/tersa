@@ -48,7 +48,7 @@ export const env = createEnv({
     MINIMAX_GROUP_ID: z.string().min(1),
     MINIMAX_API_KEY: z.string().min(1),
     RUNWAYML_API_SECRET: z.string().min(1).startsWith('key_'),
-    LUMAAI_API_KEY: z.string().min(1).startsWith('luma-'),
+    LUMA_API_KEY: z.string().min(1).startsWith('luma-'),
     BF_API_KEY: z.string().min(1),
   },
   client: {
@@ -94,7 +94,7 @@ export const env = createEnv({
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_AUTH_HOOK_SECRET: process.env.SUPABASE_AUTH_HOOK_SECRET,
     RUNWAYML_API_SECRET: process.env.RUNWAYML_API_SECRET,
-    LUMAAI_API_KEY: process.env.LUMAAI_API_KEY,
+    LUMA_API_KEY: process.env.LUMA_API_KEY,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     VERCEL_API_KEY: process.env.VERCEL_API_KEY,

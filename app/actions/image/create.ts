@@ -79,6 +79,8 @@ const generateGptImage1Image = async ({
   };
 };
 
+const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+
 export const generateImageAction = async ({
   prompt,
   modelId,
@@ -124,6 +126,13 @@ export const generateImageAction = async ({
 
       image = generatedImageResponse.image;
     } else {
+      let aspectRatio: `${number}:${number}` | undefined;
+      if (size) {
+        const [width, height] = size.split('x').map(Number);
+        const divisor = gcd(width, height);
+        aspectRatio = `${width / divisor}:${height / divisor}`;
+      }
+
       const generatedImageResponse = await generateImage({
         model: provider.model,
         prompt: [
@@ -136,6 +145,7 @@ export const generateImageAction = async ({
           prompt,
         ].join('\n'),
         size: size as never,
+        aspectRatio,
       });
 
       await trackCreditUsage({

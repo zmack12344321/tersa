@@ -4,6 +4,7 @@ import {
   providers,
 } from '@/lib/providers';
 import { bedrock } from '@ai-sdk/amazon-bedrock';
+import { luma } from '@ai-sdk/luma';
 import { openai } from '@ai-sdk/openai';
 import { xai } from '@ai-sdk/xai';
 import type { ImageModel } from 'ai';
@@ -325,6 +326,66 @@ export const imageModels: Record<string, TersaImageModel> = {
       },
     ],
     sizes: ['1024x1024', '832x1440', '1440x832'],
+    supportsEdit: true,
+  },
+  'photon-1': {
+    label: 'Photon 1',
+    chef: providers.luma,
+    providers: [
+      {
+        ...providers.luma,
+        model: luma.image('photon-1'),
+
+        // https://lumalabs.ai/api/pricing
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
+
+          const { size } = props;
+
+          if (!size) {
+            throw new Error('Size is required');
+          }
+
+          const [width, height] = size.split('x').map(Number);
+          const pixels = width * height;
+
+          return (pixels * 0.0073) / million;
+        },
+      },
+    ],
+    sizes: ['1024x1024', '1820x1024', '1024x1820'],
+    supportsEdit: true,
+  },
+  'photon-flash-1': {
+    label: 'Photon Flash 1',
+    chef: providers.luma,
+    providers: [
+      {
+        ...providers.luma,
+        model: luma.image('photon-flash-1'),
+
+        // https://lumalabs.ai/api/pricing
+        getCost: (props) => {
+          if (!props) {
+            throw new Error('Props are required');
+          }
+
+          const { size } = props;
+
+          if (!size) {
+            throw new Error('Size is required');
+          }
+
+          const [width, height] = size.split('x').map(Number);
+          const pixels = width * height;
+
+          return (pixels * 0.0019) / million;
+        },
+      },
+    ],
+    sizes: ['1024x1024', '1820x1024', '1024x1820'],
     supportsEdit: true,
   },
 };
