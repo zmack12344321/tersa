@@ -80,5 +80,6 @@ export const POST = async (req: Request) => {
 
   return result.toDataStreamResponse({
     sendReasoning: true,
+    sendSources: true,
   });
 };
