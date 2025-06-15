@@ -1,3 +1,15 @@
+# v1.3.3 (Sun Jun 15 2025)
+
+#### 🐛 Bug Fix
+
+- Perplexity [#97](https://github.com/haydenbleasel/tersa/pull/97) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.3.2 (Sun Jun 15 2025)
 
 #### ⚠️ Pushed to `main`
