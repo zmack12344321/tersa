@@ -29,7 +29,13 @@ import { useProject } from '@/providers/project';
 import { ReasoningTunnel } from '@/tunnels/reasoning';
 import { useChat } from '@ai-sdk/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { ClockIcon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
+import {
+  ClockIcon,
+  CopyIcon,
+  PlayIcon,
+  RotateCcwIcon,
+  SquareIcon,
+} from 'lucide-react';
 import {
   type ChangeEventHandler,
   type ComponentProps,
@@ -79,7 +85,8 @@ export const TextTransform = ({
       updateNodeData(id, {
         generated: {
           text: message.content,
-          sources: message.parts?.filter((part) => part.type === 'source') ?? [],
+          sources:
+            message.parts?.filter((part) => part.type === 'source') ?? [],
         },
         updatedAt: new Date().toISOString(),
       });
@@ -172,6 +179,11 @@ export const TextTransform = ({
     event
   ) => updateNodeData(id, { instructions: event.target.value });
 
+  const handleCopy = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  }, []);
+
   const toolbar = useMemo(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];
 
@@ -202,6 +214,13 @@ export const TextTransform = ({
         ),
       });
     } else if (messages.length || data.generated?.text) {
+      const text = messages.length
+        ? messages
+            .filter((message) => message.role === 'assistant')
+            .map((message) => message.content)
+            .join('\n')
+        : data.generated?.text;
+
       items.push({
         tooltip: 'Regenerate',
         children: (
@@ -212,6 +231,20 @@ export const TextTransform = ({
             disabled={!project?.id}
           >
             <RotateCcwIcon size={12} />
+          </Button>
+        ),
+      });
+      items.push({
+        tooltip: 'Copy',
+        children: (
+          <Button
+            size="icon"
+            className="rounded-full"
+            disabled={!text}
+            onClick={() => handleCopy(text ?? '')}
+            variant="ghost"
+          >
+            <CopyIcon size={12} />
           </Button>
         ),
       });
@@ -257,6 +290,7 @@ export const TextTransform = ({
     project?.id,
     status,
     stop,
+    handleCopy,
   ]);
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
