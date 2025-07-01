@@ -1,3 +1,21 @@
+# v1.3.6 (Tue Jul 01 2025)
+
+#### 🐛 Bug Fix
+
+- Bump @types/node from 24.0.1 to 24.0.8 [#102](https://github.com/haydenbleasel/tersa/pull/102) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/react-dom from 19.1.5 to 19.1.6 [#106](https://github.com/haydenbleasel/tersa/pull/106) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump tailwindcss from 4.1.8 to 4.1.11 [#108](https://github.com/haydenbleasel/tersa/pull/108) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### 🔩 Dependency Updates
+
+- Bump concurrently from 9.1.2 to 9.2.0 [#104](https://github.com/haydenbleasel/tersa/pull/104) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
 # v1.3.5 (Sun Jun 22 2025)
 
 #### ⚠️ Pushed to `main`
