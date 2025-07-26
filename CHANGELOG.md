@@ -1,3 +1,15 @@
+# v1.3.7 (Sat Jul 26 2025)
+
+#### 🐛 Bug Fix
+
+- Bump form-data from 4.0.2 to 4.0.4 in the npm_and_yarn group [#112](https://github.com/haydenbleasel/tersa/pull/112) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
 # v1.3.6 (Tue Jul 01 2025)
 
 #### 🐛 Bug Fix
