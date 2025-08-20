@@ -16,7 +16,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useReasoning } from '@/hooks/use-reasoning';
 import { handleError } from '@/lib/error/handle';
-import { textModels } from '@/lib/models/text';
 import {
   getDescriptionsFromImageNodes,
   getFilesFromFileNodes,
@@ -25,10 +24,12 @@ import {
   getTranscriptionFromAudioNodes,
   getTweetContentFromTweetNodes,
 } from '@/lib/xyflow';
+import { useGateway } from '@/providers/gateway/client';
 import { useProject } from '@/providers/project';
 import { ReasoningTunnel } from '@/tunnels/reasoning';
 import { useChat } from '@ai-sdk/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
+import { DefaultChatTransport, type FileUIPart } from 'ai';
 import {
   ClockIcon,
   CopyIcon,
@@ -53,13 +54,13 @@ type TextTransformProps = TextNodeProps & {
   title: string;
 };
 
-const getDefaultModel = (models: typeof textModels) => {
+const getDefaultModel = (models: ReturnType<typeof useGateway>['models']) => {
   const defaultModel = Object.entries(models).find(
     ([_, model]) => model.default
   );
 
   if (!defaultModel) {
-    throw new Error('No default model found');
+    return 'o3';
   }
 
   return defaultModel[0];
@@ -73,20 +74,21 @@ export const TextTransform = ({
 }: TextTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const project = useProject();
-  const modelId = data.model ?? getDefaultModel(textModels);
+  const { models } = useGateway();
+  const modelId = data.model ?? getDefaultModel(models);
   const analytics = useAnalytics();
   const [reasoning, setReasoning] = useReasoning();
-  const { append, messages, setMessages, status, stop } = useChat({
-    body: {
-      modelId,
-    },
+  const { sendMessage, messages, setMessages, status, stop } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+    }),
     onError: (error) => handleError('Error generating text', error),
-    onFinish: (message) => {
+    onFinish: ({ message }) => {
       updateNodeData(id, {
         generated: {
-          text: message.content,
+          text: message.parts.find((part) => part.type === 'text')?.text ?? '',
           sources:
-            message.parts?.filter((part) => part.type === 'source') ?? [],
+            message.parts?.filter((part) => part.type === 'source-url') ?? [],
         },
         updatedAt: new Date().toISOString(),
       });
@@ -147,24 +149,38 @@ export const TextTransform = ({
       fileCount: files.length,
     });
 
+    const attachments: FileUIPart[] = [];
+
+    for (const image of images) {
+      attachments.push({
+        mediaType: image.type,
+        url: image.url,
+        type: 'file',
+      });
+    }
+
+    for (const file of files) {
+      attachments.push({
+        mediaType: file.type,
+        url: file.url,
+        type: 'file',
+      });
+    }
+
     setMessages([]);
-    append({
-      role: 'user',
-      content: content.join('\n'),
-      experimental_attachments: [
-        ...images.map((image) => ({
-          url: image.url,
-          contentType: image.type,
-        })),
-        ...files.map((file) => ({
-          url: file.url,
-          contentType: file.type,
-          name: file.name,
-        })),
-      ],
-    });
+    await sendMessage(
+      {
+        text: content.join('\n'),
+        files: attachments,
+      },
+      {
+        body: {
+          modelId,
+        },
+      }
+    );
   }, [
-    append,
+    sendMessage,
     data.instructions,
     getEdges,
     getNodes,
@@ -191,7 +207,7 @@ export const TextTransform = ({
       children: (
         <ModelSelector
           value={modelId}
-          options={textModels}
+          options={models}
           key={id}
           className="w-[200px] rounded-full"
           onChange={(value) => updateNodeData(id, { model: value })}
@@ -217,7 +233,10 @@ export const TextTransform = ({
       const text = messages.length
         ? messages
             .filter((message) => message.role === 'assistant')
-            .map((message) => message.content)
+            .map(
+              (message) =>
+                message.parts.find((part) => part.type === 'text')?.text ?? ''
+            )
             .join('\n')
         : data.generated?.text;
 
@@ -291,6 +310,7 @@ export const TextTransform = ({
     status,
     stop,
     handleCopy,
+    models,
   ]);
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
@@ -339,30 +359,36 @@ export const TextTransform = ({
               className="p-0 [&>div]:max-w-none"
             >
               <div>
-                {message.parts.filter((part) => part.type === 'source')
-                  ?.length && (
+                {Boolean(
+                  message.parts.filter((part) => part.type === 'source-url')
+                    ?.length
+                ) && (
                   <AISources>
                     <AISourcesTrigger
                       count={
-                        message.parts.filter((part) => part.type === 'source')
-                          .length
+                        message.parts.filter(
+                          (part) => part.type === 'source-url'
+                        ).length
                       }
                     />
                     <AISourcesContent>
                       {message.parts
-                        .filter((part) => part.type === 'source')
-                        .map(({ source }) => (
+                        .filter((part) => part.type === 'source-url')
+                        .map(({ url, title }) => (
                           <AISource
-                            key={source.url}
-                            href={source.url}
-                            title={source.title ?? new URL(source.url).hostname}
+                            key={url ?? ''}
+                            href={url}
+                            title={title ?? new URL(url).hostname}
                           />
                         ))}
                     </AISourcesContent>
                   </AISources>
                 )}
                 <AIMessageContent className="bg-transparent p-0">
-                  <AIResponse>{message.content}</AIResponse>
+                  <AIResponse>
+                    {message.parts.find((part) => part.type === 'text')?.text ??
+                      ''}
+                  </AIResponse>
                 </AIMessageContent>
               </div>
             </AIMessage>
@@ -378,11 +404,7 @@ export const TextTransform = ({
         {messages.flatMap((message) =>
           message.parts
             .filter((part) => part.type === 'reasoning')
-            .flatMap((part) =>
-              part.details
-                .filter((detail) => detail.type === 'text')
-                .map((detail) => detail.text)
-            )
+            .flatMap((part) => part.text ?? '')
         )}
       </ReasoningTunnel.In>
     </NodeLayout>

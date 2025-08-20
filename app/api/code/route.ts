@@ -1,9 +1,14 @@
 import { getSubscribedUser } from '@/lib/auth';
 import { parseError } from '@/lib/error/parse';
-import { textModels } from '@/lib/models/text';
+import { gateway } from '@/lib/gateway';
 import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
 import { trackCreditUsage } from '@/lib/stripe';
-import { streamText } from 'ai';
+import {
+  convertToModelMessages,
+  extractReasoningMiddleware,
+  streamText,
+  wrapLanguageModel,
+} from 'ai';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -46,36 +51,47 @@ export const POST = async (req: Request) => {
     return new Response('Model must be a string', { status: 400 });
   }
 
-  const model = textModels[modelId];
+  const { models } = await gateway.getAvailableModels();
+
+  const model = models.find((model) => model.id === modelId);
 
   if (!model) {
     return new Response('Invalid model', { status: 400 });
   }
 
-  const provider = model.providers[0];
+  const enhancedModel = wrapLanguageModel({
+    model: gateway(model.id),
+    middleware: extractReasoningMiddleware({ tagName: 'think' }),
+  });
 
   const result = streamText({
-    model: provider.model,
+    model: enhancedModel,
     system: [
       `Output the code in the language specified: ${language ?? 'javascript'}`,
       'If the user specifies an output language in the context below, ignore it.',
       'Respond with the code only, no other text.',
       'Do not format the code as Markdown, just return the code as is.',
     ].join('\n'),
-    messages,
+    messages: convertToModelMessages(messages),
     onError: (error) => {
       console.error(error);
     },
     onFinish: async ({ usage }) => {
+      const inputCost = model.pricing?.input
+        ? Number.parseFloat(model.pricing.input)
+        : 0;
+      const outputCost = model.pricing?.output
+        ? Number.parseFloat(model.pricing.output)
+        : 0;
+      const inputTokens = usage.inputTokens ?? 0;
+      const outputTokens = usage.outputTokens ?? 0;
+
       await trackCreditUsage({
         action: 'code',
-        cost: provider.getCost({
-          input: usage.promptTokens,
-          output: usage.completionTokens,
-        }),
+        cost: inputCost * inputTokens + outputCost * outputTokens,
       });
     },
   });
 
-  return result.toDataStreamResponse();
+  return result.toUIMessageStreamResponse();
 };

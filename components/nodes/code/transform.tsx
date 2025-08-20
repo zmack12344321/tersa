@@ -4,17 +4,18 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { handleError } from '@/lib/error/handle';
-import { textModels } from '@/lib/models/text';
 import {
   getCodeFromCodeNodes,
   getDescriptionsFromImageNodes,
   getTextFromTextNodes,
   getTranscriptionFromAudioNodes,
 } from '@/lib/xyflow';
+import { useGateway } from '@/providers/gateway/client';
 import { useProject } from '@/providers/project';
 import { useChat } from '@ai-sdk/react';
 import Editor from '@monaco-editor/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
+import { DefaultChatTransport } from 'ai';
 import { ClockIcon, PlayIcon, RotateCcwIcon, SquareIcon } from 'lucide-react';
 import {
   type ChangeEventHandler,
@@ -32,13 +33,13 @@ type CodeTransformProps = CodeNodeProps & {
   title: string;
 };
 
-const getDefaultModel = (models: typeof textModels) => {
+const getDefaultModel = (models: ReturnType<typeof useGateway>['models']) => {
   const defaultModel = Object.entries(models).find(
     ([_, model]) => model.default
   );
 
   if (!defaultModel) {
-    throw new Error('No default model found');
+    return 'claude-3-5-sonnet';
   }
 
   return defaultModel[0];
@@ -52,20 +53,19 @@ export const CodeTransform = ({
 }: CodeTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const project = useProject();
+  const { models: textModels } = useGateway();
   const modelId = data.model ?? getDefaultModel(textModels);
   const language = data.generated?.language ?? 'javascript';
   const analytics = useAnalytics();
-  const { append, messages, setMessages, status, stop } = useChat({
-    api: '/api/code',
-    body: {
-      modelId,
-      language,
-    },
+  const { messages, sendMessage, setMessages, status, stop } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/code',
+    }),
     onError: (error) => handleError('Error generating text', error),
-    onFinish: (message) => {
+    onFinish: ({ message }) => {
       updateNodeData(id, {
         generated: {
-          text: message.content,
+          text: message.parts.find((part) => part.type === 'text')?.text ?? '',
         },
         updatedAt: new Date().toISOString(),
       });
@@ -121,16 +121,21 @@ export const CodeTransform = ({
     });
 
     setMessages([]);
-    append({
-      role: 'user',
-      content: content.join('\n'),
-    });
+    sendMessage(
+      { text: content.join('\n') },
+      {
+        body: {
+          modelId,
+          language,
+        },
+      }
+    );
   }, [
     data.instructions,
     id,
     getNodes,
     getEdges,
-    append,
+    sendMessage,
     setMessages,
     analytics,
     modelId,
@@ -251,6 +256,7 @@ export const CodeTransform = ({
     project?.id,
     modelId,
     language,
+    textModels,
   ]);
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
@@ -262,7 +268,8 @@ export const CodeTransform = ({
         language={language}
         value={
           nonUserMessages.length
-            ? nonUserMessages[0].content
+            ? (nonUserMessages[0].parts.find((part) => part.type === 'text')
+                ?.text ?? '')
             : data.generated?.text
         }
         onChange={handleCodeChange}
