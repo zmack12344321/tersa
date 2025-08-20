@@ -1,3 +1,15 @@
+# v1.3.8 (Wed Aug 20 2025)
+
+#### 🐛 Bug Fix
+
+- Gateway [#124](https://github.com/haydenbleasel/tersa/pull/124) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.3.7 (Sat Jul 26 2025)
 
 #### 🐛 Bug Fix
