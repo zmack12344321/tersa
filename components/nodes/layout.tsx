@@ -1,25 +1,31 @@
+import { useReactFlow } from "@xyflow/react";
+import { CodeIcon, CopyIcon, EyeIcon, TrashIcon } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import {
+  Node,
+  NodeContent,
+  NodeHeader,
+  NodeTitle,
+} from "@/components/ai-elements/node";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+} from "@/components/ui/context-menu";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
-import { useNodeOperations } from '@/providers/node-operations';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
-import { CodeIcon, CopyIcon, EyeIcon, TrashIcon } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
-import { NodeToolbar } from './toolbar';
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { useNodeOperations } from "@/providers/node-operations";
+import { NodeToolbar } from "./toolbar";
 
-type NodeLayoutProps = {
+interface NodeLayoutProps {
   children: ReactNode;
   id: string;
   data?: Record<string, unknown> & {
@@ -34,7 +40,7 @@ type NodeLayoutProps = {
     children: ReactNode;
   }[];
   className?: string;
-};
+}
 
 export const NodeLayout = ({
   children,
@@ -94,33 +100,34 @@ export const NodeLayout = ({
 
   return (
     <>
-      {type !== 'drop' && Boolean(toolbar?.length) && (
+      {type !== "drop" && Boolean(toolbar?.length) && (
         <NodeToolbar id={id} items={toolbar} />
-      )}
-      {type !== 'file' && type !== 'tweet' && (
-        <Handle type="target" position={Position.Left} />
       )}
       <ContextMenu onOpenChange={handleSelect}>
         <ContextMenuTrigger>
-          <div className="relative size-full h-auto w-sm">
-            {type !== 'drop' && (
-              <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
-                <p className="font-mono text-muted-foreground text-xs tracking-tighter">
-                  {title}
-                </p>
-              </div>
+          <Node
+            className={cn(
+              className,
+              "rounded-[28px] bg-transparent shadow-none"
             )}
-            <div
-              className={cn(
-                'node-container flex size-full flex-col divide-y rounded-[28px] bg-card p-2 ring-1 ring-border transition-all',
-                className
-              )}
-            >
+            handles={{
+              target: true,
+              source: type !== "video",
+            }}
+          >
+            {type !== "drop" && (
+              <NodeHeader className="absolute -top-6 mb-3 border-none bg-transparent p-0!">
+                <NodeTitle className="font-mono font-normal text-muted-foreground text-xs">
+                  {title}
+                </NodeTitle>
+              </NodeHeader>
+            )}
+            <NodeContent className="rounded-[28px] bg-card p-2 ring-1 ring-border">
               <div className="overflow-hidden rounded-3xl bg-card">
                 {children}
               </div>
-            </div>
-          </div>
+            </NodeContent>
+          </Node>
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => duplicateNode(id)}>
@@ -136,7 +143,7 @@ export const NodeLayout = ({
             <TrashIcon size={12} />
             <span>Delete</span>
           </ContextMenuItem>
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === "development" && (
             <>
               <ContextMenuSeparator />
               <ContextMenuItem onClick={handleShowData}>
@@ -147,13 +154,12 @@ export const NodeLayout = ({
           )}
         </ContextMenuContent>
       </ContextMenu>
-      {type !== 'video' && <Handle type="source" position={Position.Right} />}
-      <Dialog open={showData} onOpenChange={setShowData}>
+      <Dialog onOpenChange={setShowData} open={showData}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Node data</DialogTitle>
             <DialogDescription>
-              Data for node{' '}
+              Data for node{" "}
               <code className="rounded-sm bg-secondary px-2 py-1 font-mono">
                 {id}
               </code>

@@ -1,11 +1,10 @@
-import { EditorProvider } from '@/components/ui/kibo-ui/editor';
-import { cn } from '@/lib/utils';
-import { useProject } from '@/providers/project';
-import type { Editor, EditorEvents } from '@tiptap/core';
-import { useReactFlow } from '@xyflow/react';
-import { useRef } from 'react';
-import type { TextNodeProps } from '.';
-import { NodeLayout } from '../layout';
+import type { Editor, EditorEvents } from "@tiptap/core";
+import { useReactFlow } from "@xyflow/react";
+import { useRef } from "react";
+import { EditorProvider } from "@/components/kibo-ui/editor";
+import { cn } from "@/lib/utils";
+import { NodeLayout } from "../layout";
+import type { TextNodeProps } from ".";
 
 type TextPrimitiveProps = TextNodeProps & {
   title: string;
@@ -19,43 +18,33 @@ export const TextPrimitive = ({
 }: TextPrimitiveProps) => {
   const { updateNodeData } = useReactFlow();
   const editor = useRef<Editor | null>(null);
-  const project = useProject();
 
-  const handleUpdate = ({ editor }: { editor: Editor }) => {
-    const json = editor.getJSON();
-    const text = editor.getText();
+  const handleUpdate = ({ editor: editorInstance }: { editor: Editor }) => {
+    const json = editorInstance.getJSON();
+    const text = editorInstance.getText();
 
     updateNodeData(id, { content: json, text });
   };
 
-  const handleCreate = (props: EditorEvents['create']) => {
+  const handleCreate = (props: EditorEvents["create"]) => {
     editor.current = props.editor;
-
-    if (project) {
-      props.editor.chain().focus().run();
-    }
+    props.editor.chain().focus().run();
   };
 
   return (
-    <NodeLayout
-      id={id}
-      data={data}
-      title={title}
-      type={type}
-      className="overflow-hidden p-0"
-    >
-      <div className="nowheel h-full max-h-[30rem] overflow-auto">
+    <NodeLayout className="p-0" data={data} id={id} title={title} type={type}>
+      <div className="nowheel h-full max-h-[30rem] overflow-auto rounded-3xl">
         <EditorProvider
-          onCreate={handleCreate}
-          immediatelyRender={false}
-          content={data.content}
-          placeholder="Start typing..."
           className={cn(
-            'prose prose-sm dark:prose-invert size-full p-6',
-            '[&_p:first-child]:mt-0',
-            '[&_p:last-child]:mb-0'
+            "prose prose-sm dark:prose-invert size-full p-6",
+            "[&_p:first-child]:mt-0",
+            "[&_p:last-child]:mb-0"
           )}
+          content={data.content}
+          immediatelyRender={false}
+          onCreate={handleCreate}
           onUpdate={handleUpdate}
+          placeholder="Start typing..."
         />
       </div>
     </NodeLayout>

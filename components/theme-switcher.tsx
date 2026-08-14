@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
-import { useTheme } from 'next-themes';
+} from "@/components/ui/dropdown-menu";
 
 const themes = [
   {
-    label: 'Light',
+    label: "Light",
     icon: SunIcon,
-    value: 'light',
+    value: "light",
   },
   {
-    label: 'Dark',
+    label: "Dark",
     icon: MoonIcon,
-    value: 'dark',
+    value: "dark",
   },
   {
-    label: 'System',
+    label: "System",
     icon: MonitorIcon,
-    value: 'system',
+    value: "system",
   },
 ];
 
@@ -36,29 +36,29 @@ export const ThemeSwitcher = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            size="icon"
-            variant="ghost"
             aria-label="Select theme"
             className="rounded-full"
+            size="icon"
+            variant="ghost"
           >
-            {theme === 'light' && <SunIcon size={16} />}
-            {theme === 'dark' && <MoonIcon size={16} />}
-            {theme === 'system' && <MonitorIcon size={16} />}
+            {theme === "light" && <SunIcon size={16} />}
+            {theme === "dark" && <MoonIcon size={16} />}
+            {theme === "system" && <MonitorIcon size={16} />}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-32">
-          {themes.map((theme) => (
+          {themes.map((themeOption) => (
             <DropdownMenuItem
-              key={theme.value}
-              onClick={() => setTheme(theme.value)}
+              key={themeOption.value}
+              onClick={() => setTheme(themeOption.value)}
             >
-              <theme.icon
+              <themeOption.icon
+                aria-hidden="true"
+                className="opacity-60"
                 size={16}
                 strokeWidth={2}
-                className="opacity-60"
-                aria-hidden="true"
               />
-              <span>{theme.label}</span>
+              <span>{themeOption.label}</span>
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

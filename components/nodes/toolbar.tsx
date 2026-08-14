@@ -1,9 +1,9 @@
-import { NodeToolbar as NodeToolbarRaw, useReactFlow } from '@xyflow/react';
-import { Position } from '@xyflow/react';
-import { Fragment, type ReactNode } from 'react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { useReactFlow } from "@xyflow/react";
+import { Fragment, type ReactNode } from "react";
+import { Toolbar } from "../ai-elements/toolbar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-type NodeToolbarProps = {
+interface NodeToolbarProps {
   id: string;
   items:
     | {
@@ -11,18 +11,14 @@ type NodeToolbarProps = {
         children: ReactNode;
       }[]
     | undefined;
-};
+}
 
 export const NodeToolbar = ({ id, items }: NodeToolbarProps) => {
   const { getNode } = useReactFlow();
   const node = getNode(id);
 
   return (
-    <NodeToolbarRaw
-      isVisible={node?.selected}
-      position={Position.Bottom}
-      className="flex items-center gap-1 rounded-full bg-background/40 p-1.5 backdrop-blur-sm"
-    >
+    <Toolbar className="rounded-full" isVisible={node?.selected}>
       {items?.map((button, index) =>
         button.tooltip ? (
           <Tooltip key={button.tooltip}>
@@ -30,9 +26,10 @@ export const NodeToolbar = ({ id, items }: NodeToolbarProps) => {
             <TooltipContent>{button.tooltip}</TooltipContent>
           </Tooltip>
         ) : (
+          // biome-ignore lint/suspicious/noArrayIndexKey: No unique identifier available for buttons without tooltip
           <Fragment key={index}>{button.children}</Fragment>
         )
       )}
-    </NodeToolbarRaw>
+    </Toolbar>
   );
 };

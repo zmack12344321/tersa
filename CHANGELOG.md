@@ -1,3 +1,105 @@
+# v1.3.16 (Tue Jan 20 2026)
+
+#### ⚠️ Pushed to `main`
+
+- Use OIDC Gateway Key ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
+# v1.3.15 (Wed Dec 31 2025)
+
+#### 🐛 Bug Fix
+
+- Auto-generated fix using Ultracite Cloud [#142](https://github.com/haydenbleasel/tersa/pull/142) (ultracite@users.noreply.github.com [@ultracite[bot]](https://github.com/ultracite[bot]))
+
+#### Authors: 2
+
+- [@ultracite[bot]](https://github.com/ultracite[bot])
+- Ultracite (ultracite@users.noreply.github.com)
+
+---
+
+# v1.3.14 (Mon Dec 29 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Remove rate limiting ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
+# v1.3.13 (Sun Dec 14 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Address CVEs ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
+# v1.3.12 (Sun Dec 14 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Update auth.ts ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
+# v1.3.11 (Sun Dec 14 2025)
+
+#### 🐛 Bug Fix
+
+- Update pricing [#140](https://github.com/haydenbleasel/tersa/pull/140) ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
+# v1.3.10 (Thu Dec 04 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Run Ultracite ([@haydenbleasel](https://github.com/haydenbleasel))
+- Update package.json ([@haydenbleasel](https://github.com/haydenbleasel))
+- Update index.tsx ([@haydenbleasel](https://github.com/haydenbleasel))
+- Update Biome config ([@haydenbleasel](https://github.com/haydenbleasel))
+- Bump deps ([@haydenbleasel](https://github.com/haydenbleasel))
+- Update shadcn/ui, migrate to radix monopackage ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
+# v1.3.9 (Sat Nov 29 2025)
+
+#### ⚠️ Pushed to `main`
+
+- Resolves #113 ([@haydenbleasel](https://github.com/haydenbleasel))
+
+#### Authors: 1
+
+- Hayden Bleasel ([@haydenbleasel](https://github.com/haydenbleasel))
+
+---
+
 # v1.3.8 (Wed Aug 20 2025)
 
 #### 🐛 Bug Fix

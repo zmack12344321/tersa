@@ -6,6 +6,10 @@ on:
   push:
     branches: [main]
 
+# permissions needed for auto shipit
+permissions:
+  contents: write
+
 # what the action will do
 jobs:
   release:
@@ -16,13 +20,13 @@ jobs:
     # The list of steps that the action will go through
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Prepare repository
         run: git fetch --unshallow --tags
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -34,7 +38,7 @@ jobs:
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         name: Setup pnpm cache
         with:
           path: ${{ env.STORE_PATH }}
@@ -44,6 +48,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Set git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Create Release
         env:

@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
+import type { GatewayLanguageModelEntry } from "@ai-sdk/gateway";
+import type { ReactNode } from "react";
+import { createContext, useContext } from "react";
 import {
+  providers,
   type TersaModel,
   type TersaProvider,
-  providers,
-} from '@/lib/providers';
-import type { GatewayLanguageModelEntry } from '@ai-sdk/gateway';
-import type { ReactNode } from 'react';
-import { createContext, useContext } from 'react';
+} from "@/lib/providers";
 
-export type PriceBracket = 'lowest' | 'low' | 'high' | 'highest';
+export type PriceBracket = "lowest" | "low" | "high" | "highest";
 
 type TersaTextModel = TersaModel & {
   providers: (TersaProvider & {
@@ -18,14 +18,32 @@ type TersaTextModel = TersaModel & {
   })[];
 };
 
-type GatewayProviderClientProps = {
-  children: ReactNode;
-  models: GatewayLanguageModelEntry[];
+export type TersaImageModel = TersaModel & {
+  providers: (TersaProvider & {
+    model: string;
+    getCost: () => number;
+  })[];
 };
 
-type GatewayContextType = {
-  models: Record<string, TersaTextModel>;
+export type TersaVideoModel = TersaModel & {
+  providers: (TersaProvider & {
+    model: string;
+    getCost: () => number;
+  })[];
 };
+
+interface GatewayProviderClientProps {
+  children: ReactNode;
+  models: GatewayLanguageModelEntry[];
+  imageModels: GatewayLanguageModelEntry[];
+  videoModels: GatewayLanguageModelEntry[];
+}
+
+interface GatewayContextType {
+  models: Record<string, TersaTextModel>;
+  imageModels: Record<string, TersaImageModel>;
+  videoModels: Record<string, TersaVideoModel>;
+}
 
 const GatewayContext = createContext<GatewayContextType | undefined>(undefined);
 
@@ -33,7 +51,7 @@ export const useGateway = () => {
   const context = useContext(GatewayContext);
 
   if (!context) {
-    throw new Error('useGateway must be used within a GatewayProviderClient');
+    throw new Error("useGateway must be used within a GatewayProviderClient");
   }
 
   return context;
@@ -48,9 +66,9 @@ export const useGateway = () => {
 const getPriceIndicator = (
   totalCost: number,
   allCosts: number[]
-): 'lowest' | 'low' | 'high' | 'highest' | undefined => {
+): "lowest" | "low" | "high" | "highest" | undefined => {
   if (allCosts.length < 2) {
-    return undefined;
+    return;
   }
 
   // Sort costs to calculate percentiles
@@ -65,29 +83,25 @@ const getPriceIndicator = (
 
   // Determine price bracket based on percentiles
   if (totalCost <= p20) {
-    return 'lowest';
+    return "lowest";
   }
   if (totalCost <= p40) {
-    return 'low';
+    return "low";
   }
   if (totalCost >= p80) {
-    return 'highest';
+    return "highest";
   }
   if (totalCost >= p60) {
-    return 'high';
+    return "high";
   }
 
   // If between p40 and p60 (middle 20%), it's relatively on par
-  return undefined;
+  return;
 };
 
-export const GatewayProviderClient = ({
-  children,
-  models,
-}: GatewayProviderClientProps) => {
+const buildTextModels = (models: GatewayLanguageModelEntry[]) => {
   const textModels: Record<string, TersaTextModel> = {};
 
-  // Calculate all model costs for statistical analysis
   const allCosts = models.map((model) => {
     const inputPrice = model.pricing?.input
       ? Number.parseFloat(model.pricing.input)
@@ -99,7 +113,7 @@ export const GatewayProviderClient = ({
   });
 
   for (const model of models) {
-    const [chef] = model.id.split('/');
+    const [chef] = model.id.split("/");
     const inputPrice = model.pricing?.input
       ? Number.parseFloat(model.pricing.input)
       : 0;
@@ -128,17 +142,145 @@ export const GatewayProviderClient = ({
         {
           ...realProvider,
           model: model.id,
-          getCost: ({ input, output }: { input: number; output: number }) => {
-            return inputPrice * input + outputPrice * output;
-          },
+          getCost: ({ input, output }: { input: number; output: number }) =>
+            inputPrice * input + outputPrice * output,
         },
       ],
       priceIndicator: getPriceIndicator(totalCost, allCosts),
     };
   }
 
+  return textModels;
+};
+
+const buildImageModels = (models: GatewayLanguageModelEntry[]) => {
+  const imageModels: Record<string, TersaImageModel> = {};
+
+  const allCosts = models.map((model) => {
+    const inputPrice = model.pricing?.input
+      ? Number.parseFloat(model.pricing.input)
+      : 0;
+    const outputPrice = model.pricing?.output
+      ? Number.parseFloat(model.pricing.output)
+      : 0;
+    return inputPrice + outputPrice;
+  });
+
+  for (const model of models) {
+    const [chef] = model.id.split("/");
+
+    const inputPrice = model.pricing?.input
+      ? Number.parseFloat(model.pricing.input)
+      : 0;
+    const outputPrice = model.pricing?.output
+      ? Number.parseFloat(model.pricing.output)
+      : 0;
+
+    let realChef = providers.unknown;
+    let realProvider = providers.unknown;
+
+    if (chef in providers) {
+      realChef = providers[chef as keyof typeof providers];
+    }
+
+    if (model.specification.provider in providers) {
+      realProvider =
+        providers[model.specification.provider as keyof typeof providers];
+    }
+
+    const totalCost = inputPrice + outputPrice;
+    const flatCost = totalCost || 0.04; // fallback estimate per image
+
+    imageModels[model.id] = {
+      label: model.name,
+      chef: realChef,
+      providers: [
+        {
+          ...realProvider,
+          model: model.id,
+          getCost: () => flatCost,
+        },
+      ],
+      priceIndicator: getPriceIndicator(totalCost, allCosts),
+    };
+  }
+
+  return imageModels;
+};
+
+const buildVideoModels = (models: GatewayLanguageModelEntry[]) => {
+  const videoModels: Record<string, TersaVideoModel> = {};
+
+  const allCosts = models.map((model) => {
+    const inputPrice = model.pricing?.input
+      ? Number.parseFloat(model.pricing.input)
+      : 0;
+    const outputPrice = model.pricing?.output
+      ? Number.parseFloat(model.pricing.output)
+      : 0;
+    return inputPrice + outputPrice;
+  });
+
+  for (const model of models) {
+    const [chef] = model.id.split("/");
+
+    const inputPrice = model.pricing?.input
+      ? Number.parseFloat(model.pricing.input)
+      : 0;
+    const outputPrice = model.pricing?.output
+      ? Number.parseFloat(model.pricing.output)
+      : 0;
+
+    let realChef = providers.unknown;
+    let realProvider = providers.unknown;
+
+    if (chef in providers) {
+      realChef = providers[chef as keyof typeof providers];
+    }
+
+    if (model.specification.provider in providers) {
+      realProvider =
+        providers[model.specification.provider as keyof typeof providers];
+    }
+
+    const totalCost = inputPrice + outputPrice;
+    const flatCost = totalCost || 0.5; // fallback estimate per video
+
+    videoModels[model.id] = {
+      label: model.name,
+      chef: realChef,
+      providers: [
+        {
+          ...realProvider,
+          model: model.id,
+          getCost: () => flatCost,
+        },
+      ],
+      priceIndicator: getPriceIndicator(totalCost, allCosts),
+    };
+  }
+
+  return videoModels;
+};
+
+export const GatewayProviderClient = ({
+  children,
+  models,
+  imageModels,
+  videoModels,
+}: GatewayProviderClientProps) => {
+  const textModels = buildTextModels(models);
+  const imageModelMap = buildImageModels(imageModels);
+  const videoModelMap = buildVideoModels(videoModels);
+
   return (
-    <GatewayContext.Provider value={{ models: textModels }}>
+    <GatewayContext.Provider
+      value={{
+        models: textModels,
+        imageModels: imageModelMap,
+        videoModels: videoModelMap,
+      }}
+    >
       {children}
     </GatewayContext.Provider>
   );

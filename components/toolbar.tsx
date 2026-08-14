@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { nodeButtons } from '@/lib/node-buttons';
-import { useNodeOperations } from '@/providers/node-operations';
-import { Panel, useReactFlow } from '@xyflow/react';
-import { memo } from 'react';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { useReactFlow } from "@xyflow/react";
+import { memo } from "react";
+import { nodeButtons } from "@/lib/node-buttons";
+import { useNodeOperations } from "@/providers/node-operations";
+import { Panel } from "./ai-elements/panel";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export const ToolbarInner = () => {
   const { getViewport } = useReactFlow();
@@ -35,17 +36,18 @@ export const ToolbarInner = () => {
 
   return (
     <Panel
-      position="bottom-center"
-      className="m-4 flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm"
+      className="rounded-full"
+      onDoubleClick={(e) => e.stopPropagation()}
+      position="bottom-right"
     >
       {nodeButtons.map((button) => (
         <Tooltip key={button.id}>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
-              size="icon"
               className="rounded-full"
-              onClick={() => handleAddNode(button.id, button.data)}
+              onClick={() => handleAddNode(button.id)}
+              size="icon"
+              variant="ghost"
             >
               <button.icon size={12} />
             </Button>

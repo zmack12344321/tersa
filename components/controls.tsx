@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { Controls as FlowControls } from '@xyflow/react';
-import { memo } from 'react';
-import { ThemeSwitcher } from './theme-switcher';
+import { memo } from "react";
+import { Controls as ControlsPrimitive } from "./ai-elements/controls";
+import { ThemeSwitcher } from "./theme-switcher";
 
 export const ControlsInner = () => (
-  <FlowControls
-    orientation="horizontal"
-    className="flex-col! rounded-full border bg-card/90 p-1 shadow-none! drop-shadow-xs backdrop-blur-sm sm:flex-row!"
-    showInteractive={false}
-  >
-    <ThemeSwitcher />
-  </FlowControls>
+  // biome-ignore lint/a11y/noNoninteractiveElementInteractions: Prevents ReactFlow double-click zoom
+  <div onDoubleClick={(e) => e.stopPropagation()} role="toolbar">
+    <ControlsPrimitive
+      className="rounded-full [&>button]:rounded-full [&>button]:hover:bg-accent"
+      orientation="horizontal"
+      showInteractive={false}
+    >
+      <ThemeSwitcher />
+    </ControlsPrimitive>
+  </div>
 );
 
 export const Controls = memo(ControlsInner);
